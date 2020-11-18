@@ -5,7 +5,7 @@ from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 
 #grid parameters
-step = 5        #grid spacing in meters 
+step = 1        #grid spacing in meters 
 limit = step*2  #how far from MP coordinate to search (for mask)
 
 
@@ -25,16 +25,16 @@ loc = 'Sloop'
 loc = 'snow1'
 
 #date
-date = '20191222'
+#date = '20191222'
 date = '20200112'
-date = '20200126'
+#date = '20200126'
 date = '20200207'
 
-#location
-loc = 'ANJA_36_special'
+##location
+#loc = 'ANJA_36_special'
 
-#long transect
-date = '20200123'
+##long transect
+#date = '20200123'
 
 
 
