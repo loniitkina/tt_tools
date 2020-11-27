@@ -9,34 +9,38 @@ maxdist = stp   #how far away to search in case of nan
 #maxdist = 5
 
 #location and dates
-loc = 'Nloop'
-#loc = 'Sloop'
+#loc = 'Nloop'
+loc = 'Sloop'
 fixed_date = '20200220'
 #dates = ['20200220','20200102']
 dates = ['20200220','20200130','20200109','20200102','20191226']
+
+#events Sloop
+fixed_date = '20191107'
+dates = ['20191107','20191205','20200227','20200330']
 
 #loc = 'snow1'
 #fixed_date = '20191222'
 #dates = ['20191222','20200112','20200126','20200207'] #'20200112' has no GEM-2 data
 ##dates = ['20191222','20200207']
 
-#long transect
-loc = 'ANJA_36_special'
-fixed_date = '20200123'
-dates = ['20200123']
+##long transect
+#loc = 'ANJA_36_special'
+#fixed_date = '20200123'
+#dates = ['20200123']
 
 
 
 print(loc)
 colors = plt.cm.rainbow(np.linspace(0, 1, len(dates)))
 
-inpath = '../data/'
-outpath = '../plots/'
-inpath_grid = '../data/grids/'
+inpath = '../data/MCS/MP/'
+outpath = '../plots_AGU/'
+inpath_grid = '../data/grids_AGU/'
 outname = 'profile_'+loc+str(stp)+'.png'
 
 #choose one 'most perfct' MP track to compare to the others
-fname = glob(inpath+fixed_date+'_*'+loc+'*_MP_transect_track-icecs-xy.csv')[0]
+fname = glob(inpath+'*/magnaprobe-transect-'+fixed_date+'*'+loc+'-track-icecs-xy_corr.csv')[0]
 print(fname)
 mxx = getColumn(fname,3, delimiter=',', magnaprobe=False)
 mxx = np.array(mxx,dtype=np.float)

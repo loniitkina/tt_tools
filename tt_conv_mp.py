@@ -4,7 +4,7 @@ import os
 from datetime import datetime, timedelta
 from tt_func import *
 
-leg = 3
+leg = 1
 
 path = '../data/MCS/MP/'
 
