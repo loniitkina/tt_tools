@@ -1,65 +1,138 @@
 import numpy as np
 from glob import glob
 from tt_func import getColumn
+from scipy.signal import savgol_filter
 from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 
 #grid parameters
-step = 5        #grid spacing in meters 
-limit = step*2  #how far from MP coordinate to search (for mask)
+step = 2        #grid spacing in meters 
+step = 1        #for ridges
+#step = 5
+limit = step*2  #how far from MP coordinate to search 
+#limit = 5       #some equivalent to GEM-2 footprint or max thickness measured by GEM-2?
+scale_limit=False   #depending on the MP spatial resolution
+#method_gem2 = 'linear'  #GEM-2 data needs to be smoothed >> problem: max distance cant be specified! This method gives strange results
+method_gem2 = 'nearest'
+method_mp = 'nearest'   #at dense grids every measurement should be used separately
 
+window = 5
+polyorder = 3
+
+#ridges with pulk
+window = 3  #smoothing filter window for GEM-2 (with spacing .2m is this 1 meter! ~MP spacing)
+polyorder = 0
+
+table_output=True
 
 #location
-loc = 'Nloop'
-date = '20191107'
-date = '20191114'
-date = '20191205'
-date = '20191219'
-date = '20200102'
-date = '20200109'
+#loc = 'Nloop'
+#date = '20191024'   #quite different track
+#date = '20191031'   #quite different track
+#date = '20191107'
+#date = '20191114'
+#date = '20191121'
+#date = '20191128'
+#date = '20191205'
+#date = '20191219'   #a bit of GEM-2 track is missing: chicken tail
+#date = '20191226'   #no MP data in the Nloop
+#date = '20200102'
+#date = '20200109'
+#date = '20200116'   #bad GPS data on GEM-2
 #date = '20200130'
-#date = '20200206'
-#date = '20200220'
+#date = '20200206'   #very bad GEM-2 data in both loops (unrealistic low values in all f.)
+#date = '20200220'   #suddenly quite thick
 #date = '20200227'
 #date = '20200305'
-#date = '20200416'   #no GPS coordinates from GEM-2
-#date = '20200430'   #this is not Nloop ice!!!
+#date = '20200320'   #tiny bits of GEM-2 track are missing, chicken neck
+#date = '20200326'   #slightly different shape from here on
+#date = '20200403'   #bad GPS track - floenavi problem
+#date = '20200416'   #!!!no GPS coordinates from GEM-2/use old track
+#date = '20200424'
+#date = '20200430'   #
+#date = '20200507'
+
 
 #loc = 'Sloop'
+#date = '20191031'
 #date = '20191107'
 #date = '20191114'
 #date = '20191205'
-#date = '20191226'
+#date = '20191226'   #GEM-2 has only level ice/part of the S loop
 #date = '20200102'
 #date = '20200109'
+#date = '20200116'   #bad GPS data on GEM-2 - data from last week used
 #date = '20200130'
-#date = '20200206'
-#date = '20200220'
-#date = '20200227'
-#date = '20200305'
+#date = '20200206'   #very bad GEM-2 data in both loops (unrealistic low values)
+#date = '20200220'   #too thick ice in 18KHz and 93KHz?
+#date = '20200227'  
+#date = '20200305'   
 #date = '20200330'
+#date = '20200406'   #floenavi problem
 #date = '20200426'
+#date = '20200507'   #only a part of the loop: from cross-roads to the main ridge corner
 
-
-##location
+#location
 #loc = 'snow1'
-
-#date
 #date = '20191222'
 #date = '20200112'
-#date = '20200126'
+#date = '20200126'   #just a square (half of transect)
+#date = '20200207'
+#date = '20200223'   #MP GPS is really off the track and messy!
+#date = '20200604'  #leg 4
+
+#location
+#loc = 'runway'
+#date = '20200112'
+#date = '20200119'
 #date = '20200207'
 
-##location
-#loc = 'ANJA_36_special'
+#location - ridges
+loc = 'ridgeFR1'    #installation (also very close to snow)
+date = '20200305'
 
-##long transect
-#date = '20200123'
+###location
+#loc = 'special'
+#date = '20200107'   #Dark site FYI
+#date = '20200115'   #Dark site SYI
+#date = '20200123'  #long transect
+#date = '20200326'  #leg 3 lead at the Nloop (chicken beak)
+#date = '20200226'   #lead scounting at the Dranitsyn lead (that did not work out...)
 
+#loc = 'recon'
+#date = '20200228'   #airport recon - has no MP data
+#table_output=False  #not useful
+#step=5
+#limit = step*2            #no need to search far
 
+#examples of dates when there is something wrong with the GEM-2 data
+if date == '20200116':                      #bad coordinates on both loops/not floenavi problem
+    date_gem2 = '20200109'
+elif date == '20200227' and loc=='Nloop':   #incomplete N loop
+    date_gem2 = '20200220'
+elif date == '20200416':                    #floenavi problem
+    date_gem2 = '20200424'
+elif date == '20200119' and loc=='runway':  #GEM-2 was not used
+    date_gem2 = '20200112'
+elif date == '20200119' and loc=='ridgeFR1':  #GEM-2 was not used
+    date_gem2 = '20200108'    
+elif date == '20200221' and loc=='ridgeFR2':  #GEM-2 was not used 
+    date_gem2 = '20200212' 
+else:
+    date_gem2 = date
 
-print(date)
+#problematic MP coordinate days
+if date == '20200223':
+    date = '20200207'
+    date_gem2 = '20200223'
+    
+if date == '20191226' and loc=='Nloop':
+    date = '20191219'
+    date_gem2 = '20191226'
+
 print(loc)
+print(date)
+print(date_gem2)
 
 outpath = '../plots_AGU/'
 outpath_grid = '../data/grids_AGU/'
@@ -74,117 +147,172 @@ inpath_ice = '../data/MCS/GEM2_thickness/01-ice-thickness/'
 
 
 
-
-
-#make file list for each location
-
-
-
-
-
-
-
-
+#we need to merge all GEM-2 survery for that day first
 #coordinates
-fname = glob(inpath_ice+date+'*/mosaic-transect-*-gem2-556-track-icecs-xy.csv')[0]
-print(fname)
-xx = getColumn(fname,3, delimiter=',', magnaprobe=False)
-xx = np.array(xx,dtype=np.float)
-
-yy = getColumn(fname,4, delimiter=',', magnaprobe=False)
-yy = np.array(yy,dtype=np.float)
-
+xx = []
+yy = []
+fname = glob(inpath_ice+date_gem2+'*/mosaic-transect-*-gem2-556-track-icecs-xy.csv')
+for fn in fname:
+    print(fname)
+    x = getColumn(fn,3, delimiter=',', magnaprobe=False)
+    y = getColumn(fn,4, delimiter=',', magnaprobe=False)
+    
+    xx.extend(x); yy.extend(y)
+    
+xx_full = np.array(xx,dtype=np.float)
+yy_full  = np.array(yy,dtype=np.float)
+    
 #ice thickness data
-fname = glob(inpath_ice+date+'*/mosaic-transect-*-gem2-556-channel-thickness.csv')[0]
-#time, record_id, longitude, latitude, xc, yc, f1525Hz_hcp_i, f1525Hz_hcp_q, f5325Hz_hcp_i, f5325Hz_hcp_q, f18325Hz_hcp_i, f18325Hz_hcp_q, f63025Hz_hcp_i, f63025Hz_hcp_q, f93075Hz_hcp_i, f93075Hz_hcp_q
-tt = getColumn(fname,10, delimiter=',', magnaprobe=False)        #take 18KHz
-#if date == '20200123':                                          #this date needs to be recalibrated for highest freqnency, take another for now...
-    #tt = getColumn(fname,7, delimiter=',', magnaprobe=False)
+tt18 = []; tt5 = []; tt93 = []
+fname = glob(inpath_ice+date_gem2+'*/mosaic-transect-*-gem2-556-channel-thickness.csv')
+for fn in fname:
+    
+    #time, record_id, longitude, latitude, xc, yc, f1525Hz_hcp_i, f1525Hz_hcp_q, f5325Hz_hcp_i, f5325Hz_hcp_q, f18325Hz_hcp_i, f18325Hz_hcp_q, f63025Hz_hcp_i, f63025Hz_hcp_q, f93075Hz_hcp_i, f93075Hz_hcp_q
+    t18 = getColumn(fn,10, delimiter=',', magnaprobe=False)        #take 18KHz ip
+    t5 = getColumn(fn,8, delimiter=',', magnaprobe=False)        #take 5KHz ip
+    t93 = getColumn(fn,14, delimiter=',', magnaprobe=False)        #take 93KHz ip
 
-##Nloop data has problems at certain dtes in certain frequnecies
-#if loc=='Nloop'
-    #if date == '20191107':
-        #tt = getColumn(fname,6, delimiter=',', magnaprobe=False)        #take 
-    #if date == '20191114':
-        #tt = getColumn(fname,6, delimiter=',', magnaprobe=False)
+    tt18.extend(t18[1:-1])     #floenavi scripts looses coordinates at the start and end of the file
+    tt5.extend(t5[1:-1])
+    tt93.extend(t93[1:-1])
+    
+tt18 = np.array(tt18,dtype=np.float)
+tt5 = np.array(tt5,dtype=np.float)
+tt93 = np.array(tt93,dtype=np.float)
 
-tt = np.array(tt,dtype=np.float)[1:-1]
-
-#there can be nans in the thickness data, fix this before we proceed
-tt = np.ma.masked_invalid(tt)
-xx = xx[tt.mask == False]
-yy = yy[tt.mask == False]
-tt = tt[tt.mask == False]
-
-#print(xx.shape)
-#print(yy.shape)
-#print(tt.shape)
+#run these through a running window smoothing filter - we can then easily use the nearest neighbor also for the GEM-2
+tt18 = savgol_filter(tt18, window, polyorder)
+tt5 = savgol_filter(tt5, window, polyorder)
+tt93 = savgol_filter(tt93, window, polyorder)
 
 #MP
-fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+'-track-icecs-xy_corr.csv')[0]
-print(fname)
+if loc != 'recon':
+    fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+'-track-icecs-xy_corr.csv')[0]
+    print(fname)
 
-mxx = getColumn(fname,3, delimiter=',', magnaprobe=False)
-mxx = np.array(mxx,dtype=np.float)
+    dt = getColumn(fname,0, delimiter=',', magnaprobe=False)
+    lon = getColumn(fname,1, delimiter=',', magnaprobe=False)
+    lat = getColumn(fname,2, delimiter=',', magnaprobe=False)
 
-myy = getColumn(fname,4, delimiter=',', magnaprobe=False)
-myy = np.array(myy,dtype=np.float)
+    mxx = getColumn(fname,3, delimiter=',', magnaprobe=False)
+    mxx = np.array(mxx,dtype=np.float)
+
+    myy = getColumn(fname,4, delimiter=',', magnaprobe=False)
+    myy = np.array(myy,dtype=np.float)
+        
+    #get some meta data for the MP transect:
+    dx = mxx[1:]-mxx[:-1]
+    dy = myy[1:]-myy[:-1]
+    d = np.sum(np.sqrt(dx**2+dy**2))
+    print('transect length:')
+    print(d)
+    print('MP measurement spacing:')
+    spacing = np.mean(np.sqrt(dx**2+dy**2))
+    print(spacing)
+
+    if scale_limit==True:
+        limit = spacing*2
+
+    of = fname.split('track')[0]+'meta.txt'
+    print(of)
+    np.savetxt(of, (d,spacing))
+
+    #snow depth data
+    #try to do something with the bad coordinate data of MP
+    if (date_gem2 == '20200223') and (date == '20200207'):
+        date = '20200223'
+        date_gem2 = '20200223'
+        
+        mxx = mxx[::2]
+        myy = myy[::2]
+
+    fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+'.dat')[0]
+    print(fname)
+    snod = getColumn(fname,3, delimiter=',', magnaprobe=True)
+    snod = np.array(snod,dtype=np.float)[:-2]/100             #convert from cm to m
+    #change all negative data to zero
+    snod = np.where(snod<0,0,snod)
+
+    if date == '20200223':
+        snod = snod[:len(mxx)+1]
+
+#rcon data is GEM-2 only
+else:
+    mxx = np.ma.masked_invalid(xx_full)
+    myy = np.ma.masked_invalid(yy_full)
+    snod = np.ones_like(mxx)*.2
     
-#get some meta data for the MP transect:
-dx = mxx[1:]-mxx[:-1]
-dy = myy[1:]-myy[:-1]
-d = np.sum(np.sqrt(dx**2+dy**2))
-print('transect length:')
-print(d)
-print('MP measurement spacing:')
-spacing = np.mean(np.sqrt(dx**2+dy**2))
-print(spacing)
-
-of = fname.split('track')[0]+'meta.txt'
-print(of)
-np.savetxt(of, (d,spacing))
-
-#snow depth data
-fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+'.dat')[0]
-print(fname)
-snod = getColumn(fname,3, delimiter=',', magnaprobe=True)
-snod = np.array(snod,dtype=np.float)[:-2]/100             #convert from cm to m
-#print(mxx.shape)
-#print(snod.shape)
-
 #####################################################################################################################################3
-#how do we grid the data to 1m grid???
-
-#lets make a regular grid with 1 m spacing, corresponding to the CO local coordinate boundaries
+#lets make a regular grid with 'step' m spacing, corresponding to the CO local coordinate boundaries
 grid_x, grid_y = np.mgrid[-950:820:step, -600:650:step]
 extent=(-950,850,-600,620)
 
-#long transect
-if loc == 'ANJA_36_special':
-    grid_x, grid_y = np.mgrid[2000:4500:step, 3000:6600:step]
-    extent = (2000,4500,3000,6500)
+#some erroneous conversions (bring the data closer to the source)
+if date == '20200403':
+    grid_x, grid_y = np.mgrid[14750:15350:step, -11600:-10900:step]
+    extent=(14750,15350,-11600,-10900)
+if date == '20200406':
+    grid_x, grid_y = np.mgrid[11600:12000:step, -2450:-1900:step]
+    extent=(11600,12000,-2450,-1900)    
+if date == '20200507':
+    grid_x, grid_y = np.mgrid[-1100:820:step, -600:650:step]
+    extent=(-1100,850,-600,620)
 
-points = np.column_stack((mxx,myy))
-#print(points)
+#long transect, needs a different grid
+if date == '20200123':
+    grid_x, grid_y = np.mgrid[-7000:-3000:step, 1775:3625:step]
+    extent = (-7000,-3000,1775,3625)
+    
+#dark site transects
+if date == '20200107':
+    grid_x, grid_y = np.mgrid[1000:1600:step, -650:-100:step]
+    extent=(1000,1600,-650,-100)
 
+if date == '20200115':
+    grid_x, grid_y = np.mgrid[1600:1750:step, -350:-200:step]
+    extent=(1600,1750,-350,-200)
+
+#lead recon (Dranitsyn lead)
+if date == '20200226':
+    grid_x, grid_y = np.mgrid[-1100:-1000:step, 50:100:step]
+    extent=(-1100,-1000,50,100)
+
+#ridge transects
+if 'ridge' in loc:
+    print('Ridge!')
+    
+    grid_x, grid_y = np.mgrid[200:900:step, -600:0:step]
+    extent=(200,900,-600,0)
+
+#whole CO
+if loc == 'recon':
+    grid_x, grid_y = np.mgrid[-1000:250:step, -800:1100:step]
+    extent=(-1000,250,-800,1100)
+   
+
+#assign values to be used for gridding
+sd_points = np.column_stack((mxx,myy))
+
+#something fishy here - consequence of floenavi coordinate conversion (beginning and end of files can be cut off)
+if loc == 'Sloop' and date == '20191205':
+    sd_points = np.column_stack((mxx[1:],myy[1:]))
+    dt = dt[1:]
+    lon = lon[1:]
+    lat = lat[1:]
+
+sd_values = snod[1:]
 if loc == 'Sloop':
-    if date=='20191107' or date == '20191114' or date == '20191205':
-        values = snod
-    else:
-        values = snod[1:]   #something fishy here...
-else:
-    values = snod[1:]
+    if date=='20191107' or date == '20191114' or date == '20191205' or date == '20191031':
+        sd_values = snod
 
-print(snod.shape)
-print(points.shape)
+if date=='20200119' or loc=='recon':
+    sd_values = snod
 
+print(sd_points.shape)
+print(sd_values.shape)
 
-grid_z0 = griddata(points, values, (grid_x, grid_y), method='nearest')
-#grid_z0 = griddata(points, values, (grid_x, grid_y), method='linear')           #experimental option, potentially useful for the profile data - not for maps!!! (edges 'measurements belts' are influenced by no values)
-
-#print(grid_z0)
-#print(np.max(grid_z0))
-#print(np.min(grid_z0))
+#interpolate the data to regular grid
+grid_sd = griddata(sd_points, sd_values, (grid_x, grid_y), method=method_mp)       
 
 #run through all the grid and identify all the grid cells that are actually close enough to the data
 mask_g = np.ones_like(grid_x)
@@ -194,74 +322,131 @@ for m in range(0,grid_x.shape[0]):
         dx = mxx-grid_x[m,n]
         dy = myy-grid_y[m,n]                    
         dg = np.sqrt(dx**2+dy**2)
-                
+        
         if np.min(dg) < limit: mask_g[m,n]=0
 
-## mask out the field
-grid_z0 = np.ma.array(grid_z0,mask=mask_g).filled(np.nan)
-
-##lets check how this looks like
-#plt.subplot(221)
-#plt.imshow(mask_g.T, extent=extent, origin='lower')
-#plt.plot(points[:,0], points[:,1], 'k.', ms=1)
-#plt.title('Original')
-#plt.subplot(222)
-#plt.imshow(grid_z0.T, extent=extent, origin='lower')
-#plt.title('Nearest')
-#plt.subplot(223)
-#plt.imshow(grid_z1.T, extent=extent, origin='lower')
-#plt.title('Linear')
-#plt.subplot(224)
-#plt.imshow(grid_z2.T, extent=extent, origin='lower')
-#plt.title('Cubic')
-#plt.gcf().set_size_inches(6, 6)
-#plt.show()
-
-
 #total thickness data
-points = np.column_stack((xx,yy))
-#print(points)
+channels = [tt18,tt5,tt93]
+ch_name =  ['_18kHz','_5kHz','_93kHz']
+grid_tt18=[];grid_tt5=[];grid_tt93=[]
+output_tt = [grid_tt18,grid_tt5,grid_tt93]
 
-values = tt
+for ch in range(0,len(channels)):
+    #get all original coordinates for each channel
+    xx = xx_full.copy()
+    yy = yy_full.copy()
+    
+    #there can be nans in the thickness data, fix this before we proceed
+    tt = np.ma.masked_invalid(channels[ch])
+    xx = xx[tt.mask == False]
+    yy = yy[tt.mask == False]
+    tt = tt[tt.mask == False]
 
-#in same ceses there will be no GEM-2 data - get at least gridded snow depth...
-try:
-    grid_z0_tt = griddata(points, values, (grid_x, grid_y), method='nearest')
-    #grid_z0_tt = griddata(points, values, (grid_x, grid_y), method='linear')           #experimental option, unlikely - GEM-2 measurements are sub-second, nearest interpolation should be fine!!! NO - these measurements need to be smoothed!!!
+    #there can also be nans in position, fix this before we proceed
+    xx = np.ma.masked_invalid(xx)
+    yy = yy[xx.mask == False]
+    tt = tt[xx.mask == False]
+    xx = xx[xx.mask == False]
 
-    #grid_z0_tt = np.ma.array(grid_z0_tt,mask=mask_g).filled(np.nan)
-except:
-    grid_z0_tt = grid_z0
+    points = np.column_stack((xx,yy))
+    values = tt
+    grid_tt = griddata(points, values, (grid_x, grid_y), method=method_gem2)
 
-#difference = sea ice thickness
-grid_z0_it = grid_z0_tt - grid_z0
+    #difference = sea ice thickness
+    grid_it = grid_tt - grid_sd
+
+    #keep the original grid for nn search later
+    output_tt[ch] = grid_tt.copy()
+
+    #ensure that we have data for exactly same grid points
+    data_mask = (np.isnan(grid_sd)) | (np.isnan(grid_tt)) | (mask_g == 1)
+    grid_sd = np.ma.array(grid_sd,mask=data_mask).filled(np.nan)
+    grid_tt = np.ma.array(grid_tt,mask=data_mask).filled(np.nan)
+    grid_it = np.ma.array(grid_it,mask=data_mask).filled(np.nan)
+
+    ##lets check how this looks like
+    plt.subplot(221)
+    plt.imshow(mask_g.T, extent=extent, origin='lower')
+    plt.title('Original')
+    plt.subplot(222)
+    plt.imshow(grid_sd.T, extent=extent, origin='lower',vmin=0,vmax=.5, cmap=plt.cm.Spectral_r)
+    plt.colorbar()
+    plt.title('Snow')
+    plt.subplot(223)
+    plt.imshow(grid_tt.T, extent=extent, origin='lower',vmin=0,vmax=4, cmap=plt.cm.Spectral_r)
+    plt.colorbar()
+    plt.title('Total')
+    plt.subplot(224)
+    plt.imshow(grid_it.T, extent=extent, origin='lower',vmin=0,vmax=4, cmap=plt.cm.Spectral_r)
+    plt.colorbar()
+    plt.title('Ice')
+    plt.gcf().set_size_inches(6, 6)
+    plt.show()
+
+    #save all these gridded data
+    stp = str(step)
+    #of = outpath_grid+loc+'_'+date+'_'+stp+'m.npz'
+    of = outpath_grid+loc+'_'+date+'_'+stp+'m_'+method_gem2+ch_name[ch]+'.npz'
+    if (date_gem2 == '20200223') or (date_gem2 == '20191226' and loc=='Nloop'):
+        of = outpath_grid+loc+'_'+date_gem2+'_'+stp+'m_'+method_gem2+'.npz'
+    print(of)
+    with open(of, 'wb') as f:
+        np.savez(f, x = grid_x, y = grid_y, snow = grid_sd, tt = grid_tt, ice = grid_it)
+
+##########################################################################################################
+if table_output==True:
+    #write out the ice mass balance transect collocated tables
+    
+    #create output name
+    outname = fname.split('probe')[0]+'+gem2'+fname.split('probe')[1].split('.dat')[0]+'.csv'
+    
+    if (date_gem2 == '20200223') or (date_gem2 == '20191226' and loc=='Nloop'):
+        outname = fname.split('probe')[0]+'+gem2'+fname.split('probe')[1].split('.dat')[0]+'_ice_from_'+date_gem2+'.csv'
 
 
-##lets check how this looks like
-plt.subplot(221)
-plt.imshow(mask_g.T, extent=extent, origin='lower')
-#plt.plot(points[:,0], points[:,1], 'k.', ms=1)
-plt.title('Original')
-plt.subplot(222)
-plt.imshow(grid_z0.T, extent=extent, origin='lower',vmin=0,vmax=1.2, cmap=plt.cm.Reds)
-plt.colorbar()
-plt.title('Snow')
-plt.subplot(223)
-plt.imshow(grid_z0_tt.T, extent=extent, origin='lower',vmin=0,vmax=5, cmap=plt.cm.Reds)
-plt.colorbar()
-plt.title('Total')
-plt.subplot(224)
-plt.imshow(grid_z0_it.T, extent=extent, origin='lower',vmin=0,vmax=5, cmap=plt.cm.Reds)
-plt.colorbar()
-plt.title('Ice')
-plt.gcf().set_size_inches(6, 6)
-plt.show()
+    tt_nn18 = np.zeros_like(sd_values)
+    tt_nn5 = np.zeros_like(sd_values)
+    tt_nn93 = np.zeros_like(sd_values)
+    #find nearest tt and it values to original mp/sd points        
+    for i in range(0,tt_nn18.shape[0]):
+        dx = sd_points[:,0][i]-grid_x
+        dy = sd_points[:,1][i]-grid_y                  
+        dg = np.sqrt(dx**2+dy**2)
+        
+        #find nearest tt and it value
+        dgf = dg.flatten()
+        nn = np.argmin(dgf)
+        tt_nn18[i] = output_tt[0].flatten()[nn]
+        tt_nn5[i] = output_tt[1].flatten()[nn]
+        tt_nn93[i] = output_tt[2].flatten()[nn]
+        
+        #there can be nans...
+        #replace with mean in the closest n values
+        n=3
+        while (np.isnan(tt_nn18[i]) and n < 25):
+            nn = np.argpartition(dgf,n)[:n]
+            tmp18 = output_tt[0].flatten()[nn]
+            tmp5 = output_tt[1].flatten()[nn]
+            tmp93 = output_tt[2].flatten()[nn]
 
-#save all these gridded data
-stp = str(step)
-of = outpath_grid+loc+'_'+date+'_'+stp+'m.npz'
-#of = outpath_grid+loc+'_'+date+'_'+stp+'m_linear.npz'
-print(of)
-with open(of, 'wb') as f:
-    np.savez(f, x = grid_x, y = grid_y, snow = grid_z0, tt = grid_z0_tt, ice = grid_z0_it)
+            tt_nn18[i] = np.mean(np.ma.masked_invalid(tmp18))
+            tt_nn5[i] = np.mean(np.ma.masked_invalid(tmp5))
+            tt_nn93[i] = np.mean(np.ma.masked_invalid(tmp93))
+            
+            n = n+1
+            
+    it_nn18 = tt_nn18 - sd_values
+    it_nn5 = tt_nn5 - sd_values
+    it_nn93 = tt_nn93 - sd_values
+    print(it_nn18)
+
+    #write new csv file with all the ice mass balance variables
+    tt = [dt,lon,lat,sd_points[:,0],sd_points[:,1],sd_values,it_nn18,it_nn5,it_nn93]
+    table = list(zip(*tt))
+
+    print(outname)
+    with open(outname, 'wb') as f:
+        #header
+        f.write(b'Date/Time, Lon, Lat, Local X, Local Y, Snow Depth (m), Ice Thickness 18kHz ip (m), Ice Thickness 5kHz ip (m), Ice Thickness 93kHz ip (m),\n')
+        np.savetxt(f, table, fmt="%s", delimiter=",")
 

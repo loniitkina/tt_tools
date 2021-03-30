@@ -4,18 +4,24 @@ import os
 from datetime import datetime, timedelta
 from tt_func import *
 
-leg = 1
+leg = 2
 
 path = '../data/MCS/MP/'
 
 flist = glob(path+'/PS122-'+str(leg)+'*/*.dat')
-print(flist)
+#print(flist)
 #exit()
 
 for i in flist:
     #open data file
     fname = i
     print(fname)
+
+    lat1 = getColumn(fname,5, delimiter=',', magnaprobe=True)
+    lat2 = getColumn(fname,14, delimiter=',', magnaprobe=True)
+
+    lon1 = getColumn(fname,7, delimiter=',', magnaprobe=True)
+    lon2 = getColumn(fname,15, delimiter=',', magnaprobe=True)
 
     date = getColumn(fname,0, delimiter=',', magnaprobe=True)
     dc = [ date[x].split('.')[0] for x in range(len(date)) ]                        #get rid of the annoyting milliseconds (they appear only sometimes and break the datetime function in the next step)
@@ -25,14 +31,17 @@ for i in flist:
     #time on many AWI magnaprobes not UTC! (Anja is OK)
     name = fname.split('/')[-1].split('_')[0]
     print(name)
-    if name == 'Katrin':
+    date = dt[0].strftime('%Y%m%d')
+    print(date)
+    #Kathrin is UTC-6h
+    if date == '20191222' or date == '20191219' or date == '20191226':    #some dates at the start of leg 2
         dt64 = dt64 + np.timedelta64(6, 'h')
     if leg == 1:
-        dt64 = dt64 + np.timedelta64(6, 'h')    #Katrin was used always on leg 1
-        
-    if name == 'BRUCE':
-        bruce = datetime(2000,5,23,7,51,23)
-        cynthia = datetime(2020,1,7,7,53,0)
+        dt64 = dt64 + np.timedelta64(6, 'h')                              #Katrin was used always on leg 1
+    #BRUCE is very wierd    
+    if date == '20000522' or date == '20000523':    #FYI dark side transect
+        bruce = datetime(2000,5,23,7,51,23) #2000-05-23 07:51:24.25
+        cynthia = datetime(2020,1,7,7,53,36) #2020-01-07T07:53:36.453125
         diff = cynthia-bruce
         diff = int(diff.total_seconds())         #this is approximate and will require additional displacement in space
         
@@ -41,21 +50,16 @@ for i in flist:
         dt[0] = dt[0] + timedelta(seconds=diff) #to get the name right
         print(dt[0])
         
-    lat1 = getColumn(fname,5, delimiter=',', magnaprobe=True)
-    lat2 = getColumn(fname,14, delimiter=',', magnaprobe=True)
-    if name == 'BRUCE': lat2 = getColumn(fname,13, delimiter=',', magnaprobe=True)
+        lat2 = getColumn(fname,13, delimiter=',', magnaprobe=True)
+        lon2 = getColumn(fname,14, delimiter=',', magnaprobe=True)
+        
     lat1 = np.array(lat1,dtype=np.float)
     lat2 = np.array(lat2,dtype=np.float)
     lat = lat1+lat2
-    #lat = np.array(lat)
-
-    lon1 = getColumn(fname,7, delimiter=',', magnaprobe=True)
-    lon2 = getColumn(fname,15, delimiter=',', magnaprobe=True)
-    if name == 'BRUCE': lon2 = getColumn(fname,14, delimiter=',', magnaprobe=True)   #special treatment for Bruce :)
+    
     lon1 = np.array(lon1,dtype=np.float)
     lon2 = np.array(lon2,dtype=np.float)
-    lon = lon1+lon2
-    #lon = np.array(lon)
+    lon = lon1+lon2    
 
     #rename all files by convention suggested by Stefan: magnaprobe-transect-20191114-PS122-1_7-62.dat
     #for leg 1 this was already done. Polona has manually split into raw and loop files

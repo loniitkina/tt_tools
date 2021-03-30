@@ -28,9 +28,12 @@ outpath = '../plots_AGU/'
 
 #limit location-wise
 locs = ['Nloop','Sloop']
-locs = ['Sloop']
+#locs = ['Sloop']
 locs = ['Nloop']
-
+locs = ['snow1']
+locs = ['runway']
+locs = ['special']
+locs = ['ridgeFR1','ridgeFR2','ridgeFR3','ridgeA1','ridgeA2','ridgeA3','ridgeD','ridgeE']
 
 #plot
 fig1 = plt.figure(figsize=(12,10))
@@ -44,17 +47,21 @@ dtot_mp = 0
 n_mp = 0
 mp_spacing=[]
 
-for i in flist:
-    #if i !=flist[12]: continue
-    fname = i
+for i in range(0,len(flist)):
+    #if flist[i] !=flist[0]: continue
+    fname = flist[i]
     print(fname)
     
     date = fname.split('/')[-1].split('-')[2]
-    if date == '20191024': continue     #Nloop has partially different track here
-    if date == '20191031': continue     #Nloop has partially different track here
-    if date == '20200116': continue     #there is something wrong with the GEM-2 coordintes for this date - was supposed to be a regular transect day (good data)
-    if date == '20200123': continue     #long transect
-    if date == '20200403': continue     #bad MP coordinate conversion
+    #if date == '20191024': continue     #Nloop has partially different track here - more resembling the planned square
+    #if date == '20191031': continue     #Nloop has partially different track here - even more strange...    
+    #if date == '20200123': continue     #long transect
+    #if date == '20200403': continue     #bad MP coordinate conversion
+    
+    if date == '20200116':
+        #there is something wrong with the GEM-2 coordintes for this date - was supposed to be a regular transect day (good data)
+        #try to use a GEM-2 file for one week earlier
+        fname = flist[7]
     
     print(fname)
     xx = getColumn(fname,3, delimiter=',', magnaprobe=False)
@@ -122,39 +129,36 @@ for i in flist:
                 myy = myy+4
                 
             if date == '20191205':
-                mxx = mxx-10
-                myy = myy-5
+                if loc == 'Nloop':
+                    mxx = mxx-13
+                    myy = myy-10
+                if loc == 'Sloop':
+                    mxx = mxx-10
+                    myy = myy-7
             
             #leg2:
-            if date == '20191219':  #this is a bad fit and it will probably not work
-                mxx = mxx-600
-                myy = myy-450
+            if date == '20191219':
+                mxx = mxx+2
+                myy = myy+1
                 
             if date == '20191226':  #most of Sloop GEM-2 data is missing
-                
-                #mixed up coordinates in '20191226'
-                if loc == 'Sloop':
-                    tmp1=mxx.copy();tmp2=myy.copy()
-                    mxx = -tmp2
-                    myy = tmp1
-                    myy = myy-60
-                    mxx = mxx-73
-                    
-                mxx = mxx-590
-                myy = myy-438
-                
-
-            #if date == '20200102':
-                #mxx = mxx-7
-                #myy = myy-8
+                #mxx = mxx+2
+                myy = myy-2
+                                
+            if date == '20200102': #Anja with old rod
+                mxx = mxx+7
+                myy = myy-2
+            
+                if loc=='Nloop':
+                    myy = myy-4
             
             if date == '20200109':
                 mxx = mxx+5
-                
-                ##now also shift MP and GEM-2 positions to better fit the location on 20191205
-                #mxx = mxx+25
-                #myy = myy+10
-
+                                
+            if date == '20200116':
+                if loc == 'Sloop':
+                    mxx = mxx-11
+                    myy = myy-4                
 
             if date == '20200130':
                 mxx = mxx-4
@@ -163,43 +167,51 @@ for i in flist:
             if date == '20200206':
                 mxx = mxx-0
                 myy = myy-4
-                
-                ##now also shift MP and GEM-2 positions to better fit the location on 20191205
-                #mxx = mxx+20
-                #myy = myy-10
-                
-                #xx = xx+20
-                #yy = yy-10
-            
+                            
             if date == '20200220':
                 mxx = mxx+4
                 myy = myy-12
-                                    
-                ##now also shift MP and GEM-2 positions to better fit the location on 20191205
-                #mxx = mxx+25
-                #myy = myy-15
-                
-                #xx = xx+20
-                #yy = yy-20
-            
-            #leg3:
+                                                
+            #leg3:            
             if date == '20200227':      #part of N loop is missing
                 mxx = mxx+8
                 myy = myy-1
             
-            if date == '20200305':      
-                mxx = mxx+0
-                myy = myy-0   
+            if date == '20200305':
+                if loc=='Sloop':
+                    mxx = mxx-1
+                    myy = myy-2
+                if loc=='Nloop':
+                    mxx = mxx-0
+                    myy = myy-0
             
-            if date == '20200326':      
+            #20.Mar (N loop only)
+            if date == '20200320':
+                mxx = mxx+10
+                myy = myy+5
+            
+            if date == '20200326':      #odd shape in the head of the chicken   
                 mxx = mxx+11
                 myy = myy+3
+                
+                if loc == 'special':    #a bit of extension at the chicken head into a lead
+                    mxx = mxx-1
+                    myy = myy+0
+                
             
             if date == '20200330':      
                 mxx = mxx+1
                 myy = myy+1
+            
+            #3. April (N loop only)
+            if date == '20200403':      #very strange transect/something else/bad coordinates/problem with FloeNavi
+                mxx = mxx+10
+                myy = myy+0
                 
-            if date == '20200406':      #MP loop is broken up in two pieces, needs fixing... OK for PDF
+                #also needs to be shifted closer to the ship
+
+            
+            if date == '20200406':      #floenavi problem
                 mxx = mxx+5
                 myy = myy+2  
                 
@@ -218,19 +230,89 @@ for i in flist:
             if date == '20200430':     
                 mxx = mxx+4
                 myy = myy+3   
+            
+            #7. May 
+            if date == '20200507':     #just half of the S loop
+                mxx = mxx+5
+                myy = myy-14
+            
+            #snow1
+            if date == '20191222': #- Kathrin!!!
+                mxx = mxx-2
+                myy = myy+2
+            
+            if date == '20200112':
+                mxx = mxx+5
+                myy = myy-2 
                 
-            ##snow1
-            #if date == '20191222':
-                #mxx = mxx+3
+            if date == '20200207':
+                mxx = mxx+0
+                myy = myy-2
+                
+            if date == '20200223':
+                mxx = mxx+0
+                myy = myy-0
+                
+            #runway
+            if date == '20200112':
+                mxx = mxx+0
+                myy = myy-0
+                
+            if date == '20200119':
+                mxx = mxx+0
+                myy = myy-0   
+                
+            if date == '20200207':
+                mxx = mxx+0
+                myy = myy-0   
+            
+            #dark side, SYI
+            if date == '20200115':
+                mxx = mxx+6
+                myy = myy-3 
+            
+            #long transect (ice on 3 different groups of floes moving actively and independently)
+            if date == '20200123':
+                print(len(mxx))
+                mxx[:300] = mxx[:300]+15
+                mxx[500:] = mxx[500:]-5
                 #myy = myy+3
+            
+            #lead scounting at the Dranitsyn lead
+            if date == '20200226':
+                mxx = mxx+8
+                myy = myy-4 
+             
+            #ridges
+            if date == '20200110':  #FR2
+                mxx = mxx+7
+                myy = myy-0
                 
-            ##long transect (ice on 3 different groups of floes moving actively and independently)
-            #if date == '20200123':
-                #print(len(mxx))
-                #mxx[:300] = mxx[:300]+15
-                #mxx[500:] = mxx[500:]-5
-                ##myy = myy+3
+            if date == '20200117':  #A1
+                mxx = mxx+3
+                myy = myy+8
                 
+            if date == '20200131':  #A1
+                if loc == 'ridgeFR3':
+                    mxx = mxx+0
+                    myy = myy-3
+                    
+                if loc == 'ridgeA1':
+                    mxx = mxx+1
+                    myy = myy-8
+                    
+            if date == '20200212':
+                if loc == 'ridgeFR2':
+                    mxx = mxx+5
+                    myy = myy-4
+                else:
+                    mxx = mxx+5
+                    myy = myy-7
+                
+            if date == '20200221':  #GEM2 for FR1 only
+                mxx = mxx+3
+                myy = myy-10
+            
             #save all these corrected coordinates
             time = getColumn(sf,0, delimiter=',', magnaprobe=False)
             lon = getColumn(sf,1, delimiter=',', magnaprobe=False)
@@ -260,12 +342,12 @@ for i in flist:
             
             #plot MP tracks
             #dont plot the broken ones
-            if date == '20200406': continue
-            #plt.plot(mxx,myy,'o',ms=1,label=date+loc)
+            #if date == '20200406': continue
+            plt.plot(mxx,myy,'o',ms=1,label=date+loc)
 
     #plot GEM-tracks
     #dont plot the broken ones
-    if date == '20200406': continue
+    #if date == '20200406': continue
     #plt.plot(xxc,yyc,'o',ms=1,label=date)
     plt.plot(xx,yy,'o',ms=1,label=date)
     

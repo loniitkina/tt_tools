@@ -12,15 +12,15 @@ path = '../data/MCS/MP/'
 #leg 1: Nloop, Sloop
 #leg 2: Nloop, Sloop, snow1, runway, special, ridgeFR1 (installation), ridgeFR2 (coring), ridgeFR3 (optics), ridgeA1 (center), ridgeA2 (N), ridgeA3 (S)
 #leg 3: Nloop, Sloop, snow1, ridgeFR1 (installation), ridgeA1 (center), ridgeA2 (N), ridgeA3 (S), ridgeD (davids), ridgeE (eco), special
-#location = 'ridge*'
-location = 'Nloop'
+location = 'ridge*'
+location = 'special'
 latlon=False
 
 
 #instrument='mosaic'     #this is GEM-2 for some reason
 #path = '../data/MCS/GEM2_thickness/01-ice-thickness/'
 #location='' #no locations for GEM-2
-#latlon=True #GEM-2 data is written as latlon andlot lonlat
+#latlon=True #GEM-2 data is written as latlon and not lonlat
 
 #reference position file
 refstat_csv_file = glob('../data/floenavi/data_master-solution_mosaic-leg'+str(leg)+'*-floenavi-refstat-v1p0.csv')[0]

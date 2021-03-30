@@ -11,52 +11,127 @@ def getColumn(filename, column, delimiter=',', skipinitialspace=False, skipheade
         next(results, None)
     return [result[column] for result in results]
 
-def ridge_thick(path,fname):
-    it1 = getColumn(path+fname,6, delimiter=',')
-    it1 = np.array(it1,dtype=np.float)
-
-    #highest frequency (inpahse) 93075Hz
-    it2 = getColumn(path+fname,8, delimiter=',')
-    it2 = np.array(it2,dtype=np.float)
-
-    it3 = getColumn(path+fname,9, delimiter=',')
-    it3 = np.array(it3,dtype=np.float)
+#f1525Hz_hcp_i, f1525Hz_hcp_q, f5325Hz_hcp_i, f5325Hz_hcp_q, f18325Hz_hcp_i, f18325Hz_hcp_q, f63025Hz_hcp_i, f63025Hz_hcp_q, f93075Hz_hcp_i, f93075Hz_hcp_q
+def ridge_thick(fname): 
+    #f1525Hz_hcp_i
+    it1 = getColumn(fname,6, delimiter=',')
     
-    it4 = getColumn(path+fname,10, delimiter=',')
-    it4 = np.array(it4,dtype=np.float)
+    #f1525Hz_hcp_q
+    it2 = getColumn(fname,7, delimiter=',')
 
-    it5 = getColumn(path+fname,11, delimiter=',')
-    it5 = np.array(it5,dtype=np.float)
+    #f5325Hz_hcp_i
+    it3 = getColumn(fname,8, delimiter=',')
+
+    #f5325Hz_hcp_q
+    it4 = getColumn(fname,9, delimiter=',')
+
+    #f18325Hz_hcp_i
+    it5 = getColumn(fname,10, delimiter=',')
+
+    #f18325Hz_hcp_q
+    it6 = getColumn(fname,11, delimiter=',')
+
+    #f63025Hz_hcp_i
+    it7 = getColumn(fname,12, delimiter=',')
     
-    it6 = getColumn(path+fname,12, delimiter=',')
-    it6 = np.array(it6,dtype=np.float)
+    #f63025Hz_hcp_q
+    it8 = getColumn(fname,13, delimiter=',')
 
-    it7 = getColumn(path+fname,14, delimiter=',')
-    it7 = np.array(it7,dtype=np.float)
+    #f93075Hz_hcp_i
+    it9 = getColumn(fname,14, delimiter=',')
+    
+    #f93075Hz_hcp_q
+    it10 = getColumn(fname,15, delimiter=',')
 
-
-    lat = getColumn(path+fname,3, delimiter=',')
-    #lon = getColumn(path+fname,2, delimiter=',')
+    #get lat to check where it has zero values
+    lat = getColumn(fname,3, delimiter=',')
     lat = np.array(lat,dtype=np.float)
-    #lon = np.array(lon,dtype=np.float)
+    
+    #prepare lists of channels
+    channels = [it1,it2,it3,it4,it5,it6,it7,it8,it9,it10]
+    mit1=[];mit2=[];mit3=[];mit4=[];mit5=[];mit6=[];mit7=[];mit8=[];mit9=[];mit10=[]
+    output_mit = [mit1,mit2,mit3,mit4,mit5,mit6,mit7,mit8,mit9,mit10]
 
-    #make mean of values between the 0 values for lat, lon (beginning of each point)
+    for ch in range(0,len(channels)):
+        
+        #get rid of nans
+        channels[ch] = np.array(channels[ch],dtype=np.float)
+        channels[ch] = np.ma.masked_invalid(channels[ch]).filled(999)
+
+        #make mean of values between the 0 values for lat (beginning of each point)
+        c=0
+        c1=0
+        m1=0
+        fz=True
+        
+        for i in range(0,len(lat)):
+            if lat[i] != 0:
+                if channels[ch][i]==999:
+                    if c == 0:  #some channels have just nans, we need to mark those and append some dymmy value
+                        c1 = 1
+                    else:
+                        continue
+                    
+                
+                else:
+                    m1 = m1+channels[ch][i]
+                    c = c+1
+                    fz = True
+            else:
+                if (fz == True) and (c>0): 
+                    mm1 = m1/c
+                    output_mit[ch].append(mm1)
+                    fz = False
+                elif (fz == False) and (c1==1): 
+                    output_mit[ch].append(np.nan)
+                c=0
+                c1=0
+                m1=0
+                continue
+        
+        
+    return(mit1,mit2,mit3,mit4,mit5,mit6,mit7,mit8,mit9,mit10)
+
+def ridge_xy(fname):
+    x = getColumn(fname,3, delimiter=',')
+    y = getColumn(fname,4, delimiter=',')
+    
+    x = np.array(x,dtype=np.float)
+    y = np.array(y,dtype=np.float)
+    
+    #get lat to check where it has zero values
+    lat = getColumn(fname,2, delimiter=',')
+    lat = np.array(lat,dtype=np.float)
+
+    #get rid of nans
+    x = np.ma.masked_invalid(x).filled(999)
+    y = np.ma.masked_invalid(y).filled(999)
+        
+    #make mean of values between the nn values (beginning of each point)
     c=0
-    m1=0; m2=0; m3=0; m4=0;m5=0; m6=0;m7=0
+    m1=0; m2=0
     fz=True
-    mit1=[]; mit2=[]; mit3=[];mit4=[];mit5=[];mit6=[];mit7=[];
-    for i in range(0,len(lat)):
+    mit1=[]; mit2=[]
+    for i in range(0,len(x)):
         if lat[i] != 0:
-            m1 = m1+it1[i]; m2 = m2+it2[i];m3 = m3+it3[i];m4 = m4+it4[i];m5 = m5+it5[i];m6 = m6+it6[i];m7 = m7+it7[i];
-            c = c+1
-            fz = True
+            if x[i]==999:
+                continue
+            else:
+                m1 = m1+x[i]; m2 = m2+y[i]
+                c = c+1
+                fz = True
+            
         else:
             if (fz == True) and (c>0): 
-                mm1 = m1/c; mm2 = m2/c; mm3 = m3/c; mm4 = m4/c; mm5 = m5/c; mm6 = m6/c; mm7 = m7/c; 
-                mm2 = m2/c
-                mit1.append(mm1); mit2.append(mm2); mit3.append(mm3); mit4.append(mm4); mit5.append(mm5); mit6.append(mm6); mit7.append(mm7); 
+                mm1 = m1/c; mm2 = m2/c
+                mit1.append(mm1); mit2.append(mm2)
                 fz = False
             c=0
-            m1=0; m2=0; m3=0; m4=0;m5=0; m6=0;m7=0
+            m1=0; m2=0
             continue
-    return(mit1,mit2,mit3,mit4,mit5,mit6,mit7)
+
+    return(mit1,mit2)
+
+    
+    
+
