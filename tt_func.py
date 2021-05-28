@@ -132,6 +132,52 @@ def ridge_xy(fname):
 
     return(mit1,mit2)
 
+def semivar(h,lim,maxd,val,mxx,myy):
+    #get a list/array of distances for each point to all other points
+    semivar = []
+    for i in range(0,len(maxd)):
+        #print(i)
+        
+        #for every value
+        ssum=0
+        scnt=0
+        for j in range(0,len(val)):
+            dx = mxx[j]-mxx
+            dy = myy[j]-myy
+            d = np.sqrt(dx**2+dy**2)            
+            #print(d)
+            
+            #mask all but this bin
+            mask = (d > maxd[i]+h) | (d < maxd[i])
+            dj = np.ma.array(d,mask=mask)
+            sj = np.ma.array(val,mask=mask)
+            
+            sj = sj.compressed()
+            #dj = dj.compressed()
+            #print(dj)
+            
+            ssum = ssum + np.sum((val[j]-sj)**2)
+            scnt = scnt + sj.shape[0]
+        
+        #print(scnt)
+        svh = ssum / (scnt * 2)
+    
+        semivar.append(svh)
+        
+    return(semivar)
+
+def polymodel(x,y,lim,deg=1):    
+    ## LOOCV selects the correct model
+    #for deg in range(1, 5):
+        #print('Degree = %d, RSS=%.2f' % (deg, loocv(x, y, np.polyfit, np.polyval, deg)))
+    
+    model = np.polyfit(x, y, deg)
+    predict = np.poly1d(model)
+
+    x_lin_reg = np.arange(0, lim,1)
+    y_lin_reg = predict(x_lin_reg)
+
+    return(x_lin_reg,y_lin_reg)
     
     
 

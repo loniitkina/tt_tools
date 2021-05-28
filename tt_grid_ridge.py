@@ -33,15 +33,16 @@ date = '20200131'   #only one GEM2 transect, but 9 holes drilled!!!
 #date = '20200117'                  #good data in all channels
 #date = '20200131'                #a lot of nans at the crest in all but highest channels
 #date = '20200228'               #full of nans except in the first channel and 63q
-#date = '20200410'
 
-loc = 'ridgeA2'    #north
-date = '20200212'
-date = '20200228'
 
-loc = 'ridgeA3'    #south
-date = '20200212'
-date = '20200228'
+#loc = 'ridgeA2'    #north
+#date = '20200212'
+#date = '20200228'
+
+
+#loc = 'ridgeA3'    #south
+#date = '20200212'
+#date = '20200228'
 
 
 #examples of dates when there is something wrong with the GEM-2 data

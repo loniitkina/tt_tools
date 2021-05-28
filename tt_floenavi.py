@@ -13,7 +13,7 @@ path = '../data/MCS/MP/'
 #leg 2: Nloop, Sloop, snow1, runway, special, ridgeFR1 (installation), ridgeFR2 (coring), ridgeFR3 (optics), ridgeA1 (center), ridgeA2 (N), ridgeA3 (S)
 #leg 3: Nloop, Sloop, snow1, ridgeFR1 (installation), ridgeA1 (center), ridgeA2 (N), ridgeA3 (S), ridgeD (davids), ridgeE (eco), special
 location = 'ridge*'
-location = 'special'
+#location = 'special'
 latlon=False
 
 

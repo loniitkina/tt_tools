@@ -48,7 +48,7 @@ n_mp = 0
 mp_spacing=[]
 
 for i in range(0,len(flist)):
-    #if flist[i] !=flist[0]: continue
+    if flist[i] !=flist[14]: continue
     fname = flist[i]
     print(fname)
     
@@ -312,6 +312,10 @@ for i in range(0,len(flist)):
             if date == '20200221':  #GEM2 for FR1 only
                 mxx = mxx+3
                 myy = myy-10
+                
+            if date == '20200410':  #Allie's
+                mxx = mxx+3
+                myy = myy-0
             
             #save all these corrected coordinates
             time = getColumn(sf,0, delimiter=',', magnaprobe=False)

@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 #grid parameters
 step = 2        #grid spacing in meters 
-step = 1        #for ridges
+#step = 1        #for ridges
 #step = 5
 limit = step*2  #how far from MP coordinate to search 
 #limit = 5       #some equivalent to GEM-2 footprint or max thickness measured by GEM-2?
@@ -16,17 +16,18 @@ scale_limit=False   #depending on the MP spatial resolution
 method_gem2 = 'nearest'
 method_mp = 'nearest'   #at dense grids every measurement should be used separately
 
-window = 5
+window = 5  #with spacing .2m is this 1m  ~MP spacing
 polyorder = 3
 
-#ridges with pulk
-window = 3  #smoothing filter window for GEM-2 (with spacing .2m is this 1 meter! ~MP spacing)
-polyorder = 0
+##ridges with pulk
+#window = 3  #smoothing filter window for GEM-2 (with spacing .2m is this 60cm!)
+#polyorder = 0
 
 table_output=True
 
 #location
 #loc = 'Nloop'
+#loc1 = 'Nloop_spine'
 #date = '20191024'   #quite different track
 #date = '20191031'   #quite different track
 #date = '20191107'
@@ -46,25 +47,25 @@ table_output=True
 #date = '20200305'
 #date = '20200320'   #tiny bits of GEM-2 track are missing, chicken neck
 #date = '20200326'   #slightly different shape from here on
-#date = '20200403'   #bad GPS track - floenavi problem
-#date = '20200416'   #!!!no GPS coordinates from GEM-2/use old track
+##date = '20200403'   #bad GPS track - floenavi problem
+##date = '20200416'   #!!!no GPS coordinates from GEM-2/use old track
 #date = '20200424'
 #date = '20200430'   #
 #date = '20200507'
 
 
-#loc = 'Sloop'
-#date = '20191031'
-#date = '20191107'
-#date = '20191114'
-#date = '20191205'
-#date = '20191226'   #GEM-2 has only level ice/part of the S loop
-#date = '20200102'
-#date = '20200109'
-#date = '20200116'   #bad GPS data on GEM-2 - data from last week used
-#date = '20200130'
-#date = '20200206'   #very bad GEM-2 data in both loops (unrealistic low values)
-#date = '20200220'   #too thick ice in 18KHz and 93KHz?
+loc = 'Sloop'
+date = '20191031'
+date = '20191107'
+date = '20191114'
+date = '20191205'
+date = '20191226'   #GEM-2 has only level ice/part of the S loop
+date = '20200102'
+date = '20200109'
+date = '20200116'   #bad GPS data on GEM-2 - data from last week used, 1.1m MP spacing
+date = '20200130'   #1.05m MP spacing
+date = '20200206'   #very bad GEM-2 data in both loops (unrealistic low values), 1.06m MP spacing
+date = '20200220'   #too thick ice in 18KHz and 93KHz?
 #date = '20200227'  
 #date = '20200305'   
 #date = '20200330'
@@ -88,8 +89,25 @@ table_output=True
 #date = '20200207'
 
 #location - ridges
-loc = 'ridgeFR1'    #installation (also very close to snow)
-date = '20200305'
+#only for ridges that were surveyed with a pulk: othrwise use script tt_grid_ridge.py
+#loc = 'ridgeFR1'    #installation (also very close to snow)
+#date = '20200305'
+
+#loc = 'ridgeA1'    #
+#loc = 'ridgeA2'
+#loc = 'ridgeA3'
+#date = '20200410'
+
+#loc = 'ridgeD'
+#date = '20200410'
+#date = '20200416'
+#date = '20200424'
+#date = '20200430'
+#date = '20200507'
+
+#loc = 'ridgeE'
+#date = '20200424'
+
 
 ###location
 #loc = 'special'
@@ -281,15 +299,31 @@ if date == '20200226':
 if 'ridge' in loc:
     print('Ridge!')
     
-    grid_x, grid_y = np.mgrid[200:900:step, -600:0:step]
-    extent=(200,900,-600,0)
+    grid_x, grid_y = np.mgrid[200:900:step, -600:100:step]
+    extent=(200,900,-600,100)
 
 #whole CO
 if loc == 'recon':
     grid_x, grid_y = np.mgrid[-1000:250:step, -800:1100:step]
     extent=(-1000,250,-800,1100)
    
-
+#if loc1 == 'Nloop_spine':
+    #loc = loc1
+    #grid_x, grid_y = np.mgrid[460:850:step, -500:-180:step]
+    #extent=(460,850,-500,-180)
+    
+    #if date == '20200320':
+        #grid_x, grid_y = np.mgrid[450:850:step, -550:-200:step]
+        #extent=(450,850,-550,-200)
+        
+    #if date == '20200326':
+        #grid_x, grid_y = np.mgrid[420:850:step, -550:-210:step]
+        #extent=(420,850,-550,-210)
+        
+    #if date == '20200424' or date == '20200430' or date == '20200507':
+        #grid_x, grid_y = np.mgrid[460:850:step, -550:-210:step]
+        #extent=(460,850,-550,-210)
+        
 #assign values to be used for gridding
 sd_points = np.column_stack((mxx,myy))
 
@@ -400,6 +434,10 @@ if table_output==True:
     #create output name
     outname = fname.split('probe')[0]+'+gem2'+fname.split('probe')[1].split('.dat')[0]+'.csv'
     
+    #sampling subsets
+    if loc == 'Nloop_spine':
+        outname = fname.split('probe')[0]+'+gem2'+fname.split('probe')[1].split('.dat')[0]+'_spine.csv'
+    
     if (date_gem2 == '20200223') or (date_gem2 == '20191226' and loc=='Nloop'):
         outname = fname.split('probe')[0]+'+gem2'+fname.split('probe')[1].split('.dat')[0]+'_ice_from_'+date_gem2+'.csv'
 
@@ -412,36 +450,52 @@ if table_output==True:
         dx = sd_points[:,0][i]-grid_x
         dy = sd_points[:,1][i]-grid_y                  
         dg = np.sqrt(dx**2+dy**2)
-        
-        #find nearest tt and it value
         dgf = dg.flatten()
-        nn = np.argmin(dgf)
-        tt_nn18[i] = output_tt[0].flatten()[nn]
-        tt_nn5[i] = output_tt[1].flatten()[nn]
-        tt_nn93[i] = output_tt[2].flatten()[nn]
         
-        #there can be nans...
-        #replace with mean in the closest n values
-        n=3
-        while (np.isnan(tt_nn18[i]) and n < 25):
-            nn = np.argpartition(dgf,n)[:n]
-            tmp18 = output_tt[0].flatten()[nn]
-            tmp5 = output_tt[1].flatten()[nn]
-            tmp93 = output_tt[2].flatten()[nn]
+        #don take values too far away
+        if np.min(dgf) > 4:
+            tt_nn18[i] = -999; tt_nn5[i] = -999; tt_nn93[i] = -999
+        else:
+            #find nearest tt and it value
+            nn = np.argmin(dgf)
+            tt_nn18[i] = output_tt[0].flatten()[nn]
+            tt_nn5[i] = output_tt[1].flatten()[nn]
+            tt_nn93[i] = output_tt[2].flatten()[nn]
 
-            tt_nn18[i] = np.mean(np.ma.masked_invalid(tmp18))
-            tt_nn5[i] = np.mean(np.ma.masked_invalid(tmp5))
-            tt_nn93[i] = np.mean(np.ma.masked_invalid(tmp93))
-            
-            n = n+1
-            
+            #there can be nans...
+            #replace with mean in the closest n values
+            n=3
+            while (np.isnan(tt_nn18[i]) and n < 25):
+                nn = np.argpartition(dgf,n)[:n]
+                tmp18 = output_tt[0].flatten()[nn]
+                tmp5 = output_tt[1].flatten()[nn]
+                tmp93 = output_tt[2].flatten()[nn]
+
+                tt_nn18[i] = np.mean(np.ma.masked_invalid(tmp18))
+                tt_nn5[i] = np.mean(np.ma.masked_invalid(tmp5))
+                tt_nn93[i] = np.mean(np.ma.masked_invalid(tmp93))
+                
+                n = n+1
+    
+    mask = tt_nn18 == -999
+    tt_nn18 = np.ma.array(tt_nn18, mask=mask);tt_nn18 = tt_nn18.compressed()
+    tt_nn5 = np.ma.array(tt_nn5, mask=mask);tt_nn5 = tt_nn5.compressed()
+    tt_nn93 = np.ma.array(tt_nn93, mask=mask);tt_nn93 = tt_nn93.compressed()
+    sd_values = np.ma.array(sd_values, mask=mask);sd_values = sd_values.compressed()
+    
+    dt = np.ma.array(dt, mask=mask);dt = dt.compressed()
+    lon = np.ma.array(lon , mask=mask);lon = lon.compressed()
+    lat = np.ma.array(lat, mask=mask);lat = lat.compressed()
+    sd_points0 = np.ma.array(sd_points[:,0], mask=mask);sd_points0 = sd_points0.compressed()
+    sd_points1 = np.ma.array(sd_points[:,1], mask=mask);sd_points1 = sd_points1.compressed()
+    
     it_nn18 = tt_nn18 - sd_values
     it_nn5 = tt_nn5 - sd_values
     it_nn93 = tt_nn93 - sd_values
     print(it_nn18)
-
+    
     #write new csv file with all the ice mass balance variables
-    tt = [dt,lon,lat,sd_points[:,0],sd_points[:,1],sd_values,it_nn18,it_nn5,it_nn93]
+    tt = [dt,lon,lat,sd_points0,sd_points1,sd_values,it_nn18,it_nn5,it_nn93]
     table = list(zip(*tt))
 
     print(outname)
