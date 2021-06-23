@@ -2,6 +2,7 @@ import numpy as np
 from glob import glob
 from tt_func import getColumn
 from scipy.signal import savgol_filter
+from datetime import datetime
 import matplotlib.pyplot as plt
 
 ##grid parameters
@@ -20,20 +21,30 @@ window=5
 #window=1
 
 #location and dates
-#loc = 'Sloop'
-#dates = ['20191107','20191205', '20200130' ,'20200227','20200305','20200426']
-#datel = ['2019/11/07','2019/12/05','2020/01/30','2020/02/27','2020/03/05','2020/04/26']
-#title='Southeren transect loop '
+loc = 'Sloop'
 
-#loc = 'Nloop'
-#dates = ['20191205','20191219','20200220','20200227','20200305','20200416','20200507']
-#datel = ['2019/12/05','2019/12/19','2020/02/20','2020/02/27','2020/03/05','2020/04/16','2020/05/07']
-#title='Northern transect loop '
+dates = ['20191031','20191107','20191114','20191205',   '20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200426','20200507']
 
-loc = 'Nloop_spine'
-dates = ['20191205','20191219','20200220','20200227','20200305','20200424','20200507']
-datel = ['2019/12/05','2019/12/19','2020/02/20','2020/02/27','2020/03/05','2020/04/24','2020/05/07']
-title='Northern transect loop spine '
+#dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200426','20200507']    #best data
+
+dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
+
+title='Southern transect loop '
+
+loc = 'Nloop'
+dates = ['20191205','20191219','20200220','20200227','20200305','20200416','20200507']
+
+dates = ['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
+
+
+
+
+title='Northern transect loop '
+
+#loc = 'Nloop_spine'
+#dates = ['20191205','20191219','20200220','20200227','20200305','20200424','20200507']
+#datel = ['2019/12/05','2019/12/19','2020/02/20','2020/02/27','2020/03/05','2020/04/24','2020/05/07']
+#title='Northern transect loop spine '
 
 
 
@@ -110,6 +121,9 @@ title='Northern transect loop spine '
 #datel = ['2020/01/15']
 #title='Dark Side SYI '
 
+dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
+datel = [ datetime.strftime(x, '%Y/%m/%d') for x in dt ]
+
 
 print(loc)
 #colors = plt.cm.rainbow(np.linspace(0, 1, len(dates)))
@@ -121,7 +135,7 @@ if len(dates) == 1:
 
 inpath_table = '../data/MCS/MP/'
 outpath = '../plots_AGU/'
-#inpath_grid = '../data/grids_AGU/'
+inpath_grid = '../data/grids_AGU/'
 
 fb_list=[]
 si_list=[]
@@ -130,46 +144,91 @@ x_list=[]
 
 for dd in range(0,len(dates)):
     date = dates[dd]
+    
+
     print(date)
+
     
-    outname = 'profile_'+date+'_'+loc+'gridded.png'
+    #outname = 'profile_'+date+'_'+loc+'gridded.png'
+
+    ##choose one 'most perfct' MP track to compare to the others
+    #fname = glob(inpath_table+'*/magna+gem2-transect-'+date+'*'+loc+'.csv')[0]
+    #print(fname)
+    #mxx = getColumn(fname,3, delimiter=',', magnaprobe=False)
+    #myy = getColumn(fname,4, delimiter=',', magnaprobe=False)
+    #snod = getColumn(fname,5, delimiter=',', magnaprobe=False)
     
-    #choose one 'most perfct' MP track to compare to the others
-    fname = glob(inpath_table+'*/magna+gem2-transect-'+date+'*'+loc+'.csv')[0]
-    print(fname)
-    mxx = getColumn(fname,3, delimiter=',', magnaprobe=False)
-    myy = getColumn(fname,4, delimiter=',', magnaprobe=False)
-    snod = getColumn(fname,5, delimiter=',', magnaprobe=False)
-    #take the shortest freq for the ridges (to get the real depth)
-    if 'ridge' in loc:
-        #Date,Lon,Lat,X,Y,Snow,f1525Hz_hcp_i,f1525Hz_hcp_q,f5325Hz_hcp_i,f5325Hz_hcp_q,18325Hz_hcp_i,f18325Hz_hcp_q,f63025Hz_hcp_i,f63025Hz_hcp_q,f93075Hz_hcp_i,f93075Hz_hcp_q
-        it = getColumn(fname,6, delimiter=',', magnaprobe=False)
-        it2 = getColumn(fname,7, delimiter=',', magnaprobe=False)
-        it3 = getColumn(fname,8, delimiter=',', magnaprobe=False)
-        it4 = getColumn(fname,9, delimiter=',', magnaprobe=False)
-        it5 = getColumn(fname,10, delimiter=',', magnaprobe=False)       #closer to real thickness, but still influenced by consolidation (has detection limit)
-        it6 = getColumn(fname,11, delimiter=',', magnaprobe=False)       #consolidation can be seen in column 13 (63kHz q) and 15 (93kHz q)
-        it7 = getColumn(fname,12, delimiter=',', magnaprobe=False)
-        it8 = getColumn(fname,13, delimiter=',', magnaprobe=False)
-        it9 = getColumn(fname,14, delimiter=',', magnaprobe=False)
-        it10 = getColumn(fname,15, delimiter=',', magnaprobe=False)
+    #if 'ridge' in loc:
+        ##Date,Lon,Lat,X,Y,Snow,f1525Hz_hcp_i,f1525Hz_hcp_q,f5325Hz_hcp_i,f5325Hz_hcp_q,18325Hz_hcp_i,f18325Hz_hcp_q,f63025Hz_hcp_i,f63025Hz_hcp_q,f93075Hz_hcp_i,f93075Hz_hcp_q
+        #it = getColumn(fname,6, delimiter=',', magnaprobe=False)
+        #it2 = getColumn(fname,7, delimiter=',', magnaprobe=False)
+        #it3 = getColumn(fname,8, delimiter=',', magnaprobe=False)
+        #it4 = getColumn(fname,9, delimiter=',', magnaprobe=False)
+        #it5 = getColumn(fname,10, delimiter=',', magnaprobe=False)       #closer to real thickness, but still influenced by consolidation (has detection limit)
+        #it6 = getColumn(fname,11, delimiter=',', magnaprobe=False)       #consolidation can be seen in column 13 (63kHz q) and 15 (93kHz q)
+        #it7 = getColumn(fname,12, delimiter=',', magnaprobe=False)
+        #it8 = getColumn(fname,13, delimiter=',', magnaprobe=False)
+        #it9 = getColumn(fname,14, delimiter=',', magnaprobe=False)
+        #it10 = getColumn(fname,15, delimiter=',', magnaprobe=False)
         
-        it2 = np.array(it2,dtype=np.float)
-        it3 = np.array(it3,dtype=np.float)
-        it4 = np.array(it4,dtype=np.float)
-        it5 = np.array(it5,dtype=np.float)
-        it6 = np.array(it6,dtype=np.float)
-        it7 = np.array(it7,dtype=np.float)
-        it8 = np.array(it8,dtype=np.float)
-        it9 = np.array(it9,dtype=np.float)
-        it10 = np.array(it10,dtype=np.float)
+        #it2 = np.array(it2,dtype=np.float)
+        #it3 = np.array(it3,dtype=np.float)
+        #it4 = np.array(it4,dtype=np.float)
+        #it5 = np.array(it5,dtype=np.float)
+        #it6 = np.array(it6,dtype=np.float)
+        #it7 = np.array(it7,dtype=np.float)
+        #it8 = np.array(it8,dtype=np.float)
+        #it9 = np.array(it9,dtype=np.float)
+        #it10 = np.array(it10,dtype=np.float)
         
-    else:
-        it = getColumn(fname,6, delimiter=',', magnaprobe=False)
-    mxx = np.array(mxx,dtype=np.float)
-    myy = np.array(myy,dtype=np.float)
-    si = np.array(snod,dtype=np.float)
-    ii = np.array(it,dtype=np.float)
+    #else:
+        #it = getColumn(fname,6, delimiter=',', magnaprobe=False)
+    #mxx = np.array(mxx,dtype=np.float)
+    #myy = np.array(myy,dtype=np.float)
+    #si = np.array(snod,dtype=np.float)
+    #ii = np.array(it,dtype=np.float)
+    
+    ##it looks like they started somewhere else the last two times, still went same direction...
+    #if date=='20200330' or date=='20200426':
+        ##fb = np.concatenate((fb[-215:],fb[:-215]))
+        #ii = np.concatenate((ii[-215:],ii[:-215]))
+        #si = np.concatenate((si[-215:],si[:-215]))
+        
+    #alternativelly, completely gridded data (snow too!)
+    #step = 2
+    step = 1
+    stp = str(step)
+    method_gem2 = 'nearest'
+    #method_gem2 = 'linear'
+    ch_name = '_18kHz'
+
+    outname = loc+'_profile_'+date+'_'+stp+'_gridded_full.png'
+    #inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track_test.npz'
+    inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track.npz'
+    
+    data = np.load(inf)
+
+    transect_snow = data['snow']
+    transect_ice = data['ice']
+    
+    del data
+    
+    mxx = transect_snow[:,0]
+    myy = transect_snow[:,1]
+    si = transect_snow[:,dd+2]
+    it = transect_ice[:,dd+2]
+    
+    it = np.ma.masked_invalid(it)
+    si = np.ma.array(si,mask=it.mask)
+    mxx = np.ma.array(mxx,mask=it.mask); mxx = mxx.compressed()
+    myy = np.ma.array(myy,mask=it.mask); myy = myy.compressed()
+    
+    si = si.compressed()
+    ii = it.compressed()
+    
+    
+    
+    
     
     #get distances between fixed date MP points
     dx = mxx[1:]-mxx[:-1]
@@ -183,21 +242,22 @@ for dd in range(0,len(dates)):
     rho_s = 313
 
     #plot
-    fig1 = plt.figure(figsize=(20,10))
+    #fig1 = plt.figure(figsize=(20,10))
+    fig1 = plt.figure(figsize=(40,20))
     fig1.patch.set_facecolor('0.5')
     
     ax = fig1.add_subplot(111)
-    ax.set_xlabel('Length (m)', fontsize=20)
-    ax.set_title(title+datel[dd], fontsize=25)
-    ax.set_ylabel('Distance from water surface (m)', fontsize=20)
-    ax.tick_params(axis="x", labelsize=14)
-    ax.tick_params(axis="y", labelsize=14)
+    ax.set_xlabel('Length (m)', fontsize=25)
+    ax.set_title(title+datel[dd], fontsize=30)
+    ax.set_ylabel('Distance from water surface (m)', fontsize=25)
+    ax.tick_params(axis="x", labelsize=24)
+    ax.tick_params(axis="y", labelsize=24)
     ax.set_facecolor('0.3')
     
-    if loc=='Sloop' and date == '20191226':
-        bad = np.zeros_like(ii)
-        bad[700:] = 1
-        ii = np.ma.array(ii,mask=bad)
+    #if loc=='Sloop' and date == '20191226':
+        #bad = np.zeros_like(ii)
+        #bad[700:] = 1
+        #ii = np.ma.array(ii,mask=bad)
 
     #what is the surface elevation? ALS geotiff???
     #hydrostatic equilibtium with mean snow density and sea ice density
@@ -212,12 +272,6 @@ for dd in range(0,len(dates)):
     #cumulative distance allong the fixed date MP transect
     x = np.zeros_like(fb)
     x[1:] = np.cumsum(md)
-
-    #it looks like they started somewhere else the last two times, still went same direction...
-    if date=='20200330' or date=='20200426':
-        fb = np.concatenate((fb[-215:],fb[:-215]))
-        ii = np.concatenate((ii[-215:],ii[:-215]))
-        si = np.concatenate((si[-215:],si[:-215]))
     
     #extension at the FR transect
     if date!='20200305' and loc == 'ridgeFR1':
@@ -229,17 +283,22 @@ for dd in range(0,len(dates)):
         if date=='20200117' or  date=='20200228' or date=='20200410':
             x = x+18
 
+
     #plot with equilibrium
     ax.plot(x,fb,label='ice surface',c='k',ls=':')
     
     #ax.plot(fb-ii,label='ice bottom'+date)
     #ax.plot(fb+si,label='snow surface'+date)
-    ax.fill_between(x, fb, fb-ii,alpha=.6, color=colors[1], label='ice')
-    ax.fill_between(x, fb, fb+si,alpha=.6, color=colors[0], label='snow')
-
-    ax.set_ylim(-8,1.8)
+    ax.fill_between(x, fb, fb+si,alpha=.6, color=colors[1], label='snow')
+    ax.fill_between(x, fb, fb-ii,alpha=.6, color=colors[4], label='ice')
+    
+    if loc == 'Nloop':
+        ax.set_ylim(-8,1.8)
+    else:
+        ax.set_ylim(-4,1.3)
+    
     ax.set_xlim(0,x[-2])        #beacause last MP value/coordinate is typically same as first (at large distance)
-    ax.legend(fontsize=20,loc='lower left',fancybox=True,facecolor=colors[0],framealpha=.6)
+    ax.legend(fontsize=25,loc='lower left',fancybox=True,facecolor=colors[0],framealpha=.6)
     print(outname)
     fig1.savefig(outpath+outname,bbox_inches='tight', facecolor=fig1.get_facecolor(), edgecolor='none')
 
@@ -256,41 +315,48 @@ for dd in range(0,len(dates)):
 fig2 = plt.figure(figsize=(20,10))
 ax = fig2.add_subplot(111)
 ax.set_xlabel('Length (m)', fontsize=20)
-ax.set_title(title+datel[-1], fontsize=25)
+ax.set_title(title+'winter 2019/2020', fontsize=25)
 ax.set_ylabel('Distance from water surface (m)', fontsize=20)
 ax.tick_params(axis="x", labelsize=14)
 ax.tick_params(axis="y", labelsize=14)
 ax.set_facecolor('0.8')
 
 for i in range(0,len(fb_list)):
-    x=x_list[i]
     
-    #use the same freeboard all the times
-    #for a static feature e.g. cosolidating ridge, last measurement is best
-    #for a deforming transect e.g. Nloop or Sloop each transect might be separate
-    if loc == 'Sloop' or loc == 'Nloop':
-        fb = fb_list[i]
-    else:
-        fb = fb_list[-1]
+    print(dates[i])
     
-    #some (ridge) transects were getting longer (typically over level ice, so not much changes there...)
-    if len(fb) < len(x):
-        extra = len(x)-len(fb)
-        fb = np.append(fb,fb_list[i][-extra:])
+    #some bad ice data - dont plot:
+    if dates[i]=='20191031' or dates[i]=='20191205' or dates[i]=='20200227' or dates[i]=='20200426':
+    
+        x=x_list[i]
         
-    #while some are getting shorter...
-    if len(fb) > len(x):
-        extra = len(fb)-len(x)
-        fb = fb[:-extra]
-    
-    #ax.plot(x, fb,c='0.75')
-    ax.plot(x, fb-ii_list[i],c=colors[i],label=datel[i]+' bottom')
-    ax.plot(x, fb+si_list[i],c=colors[i])
+        #use the same freeboard all the times
+        #for a static feature e.g. cosolidating ridge, last measurement is best
+        #for a deforming transect e.g. Nloop or Sloop each transect might be separate
+        if loc == 'Sloop' or loc == 'Nloop':
+            fb = fb_list[i]
+        else:
+            fb = fb_list[-1]
+        
+        #some (ridge) transects were getting longer (typically over level ice, so not much changes there...)
+        if len(fb) < len(x):
+            extra = len(x)-len(fb)
+            fb = np.append(fb,fb_list[i][-extra:])
+            
+        #while some are getting shorter...
+        if len(fb) > len(x):
+            extra = len(fb)-len(x)
+            fb = fb[:-extra]
+        
+        #ax.plot(x, fb,c='0.75')
+        ax.plot(x, fb-ii_list[i],c=colors[i],label=datel[i]+' bottom')
+        ax.plot(x, fb+si_list[i],c=colors[i])
 
-x=x_list[-1]
+x=x_list[-2]
 ax.plot(x,fb,label='ice surface',c=colors[-1],ls=':')    
-ax.fill_between(x, fb, fb-ii_list[-1],alpha=.3, color=colors[-1], label='ice')
-ax.fill_between(x, fb, fb+si_list[-1],alpha=.3, color=colors[-2], label='snow')
+ax.fill_between(x, fb, fb+si_list[-2],alpha=1, color=colors[1], label='snow')
+ax.fill_between(x, fb, fb-ii_list[-2],alpha=.3, color=colors[-1], label='ice')
+
     
 #x=x_list[0]
 #ax.plot(x,fb_list[0],label='ice surface',c='k')    
@@ -301,6 +367,8 @@ if loc == 'ridgeA1':
 
 if loc=='Sloop':
     ax.set_xlim(0,1500)
+    ax.set_ylim(-4,1.8)
+    
 if loc=='Nloop':
     ax.set_xlim(0,1310)
 
@@ -638,7 +706,7 @@ if 'ridge' in loc:
     
 
 ax.legend(fontsize=20,loc='lower left',fancybox=True,facecolor=colors[-1],framealpha=.1)
-outname = 'profile_all_'+loc+'gridded.png'
+outname = loc+'_'+stp+'_profile_all_gridded.png'
 fig2.savefig(outpath+outname,bbox_inches='tight')
 
 #just snow
@@ -671,6 +739,6 @@ if loc=='Nloop':
     ax.set_xlim(0,1310)
     
 ax.legend(fontsize=20,loc='upper right',fancybox=True,facecolor=colors[-1],framealpha=.1)
-outname = 'profile_snow_'+loc+'ungridded.png'
+outname = loc+'_profile_snow.png'
 fig3.savefig(outpath+outname,bbox_inches='tight')
 

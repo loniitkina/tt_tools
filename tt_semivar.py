@@ -17,9 +17,13 @@ from datetime import datetime, timedelta
 
 #location and dates
 loc = 'Sloop'
-dates = ['20191031','20191107','20191114','20191205',   '20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200426','20200507']    #best data
+dates = ['20191031','20191107','20191114','20191205',   '20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200426']#,'20200507']    #best data
 
-dates = ['20191031','20191107','20191114','20191205',   '20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305']    #some empty files in linear interpolation
+dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200426','20200507']    #best data
+
+dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
+
+#dates = ['20191031','20200130','20200507']
 
 ##early winter
 #dates = ['20191031','20191107','20191114']
@@ -32,7 +36,7 @@ dates = ['20191031','20191107','20191114','20191205',   '20200102','20200109','2
 #dates = ['20200102','20200109','20200116','20200130','20200206','20200220','20200227']
 
 
-title='Southeren transect loop '
+title='Southern transect loop '
 
 #loc = 'Nloop'
 #dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
@@ -76,6 +80,7 @@ inpath_grid = '../data/grids_AGU/'
 outpath = '../plots_AGU/'
 
 step = 2
+step = 1
 stp = str(step)
 method_gem2 = 'nearest'
 #method_gem2 = 'linear'
@@ -109,6 +114,8 @@ bx.set_ylabel('Ice semi-variance (m)', fontsize=20)
 bx.tick_params(axis="x", labelsize=14)
 bx.tick_params(axis="y", labelsize=14)
 
+fig2 = plt.figure(figsize=(10,10))
+cx = fig2.add_subplot(111)
 
 for dd in range(0,len(dates)):
     date = dates[dd]
@@ -130,6 +137,7 @@ for dd in range(0,len(dates)):
     #si = np.array(snod,dtype=np.float)
     #it = np.array(it,dtype=np.float)
     
+    inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track_test.npz'
     inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track.npz'
     
     data = np.load(inf)
@@ -142,58 +150,49 @@ for dd in range(0,len(dates)):
     si = transect_snow[:,dd+2]
     it = transect_ice[:,dd+2]
     
+    #accounting for diffent wind direction in the Sloop
+    #level ice and 2 different directions in the first 700m
+    
+    #get distances between points
+    dx = mxx[1:]-mxx[:-1]
+    dy = myy[1:]-myy[:-1]
+    md = np.sqrt(dx**2+dy**2)
+    x = np.zeros_like(si)
+    x[1:] = np.cumsum(md)
+    
+    #all level ice between 200 and 700m distance - level ice always thinner than 1m
+    ax.set_title('All level ice - several lines', fontsize=25)
+    mask = (x<100) | (x>750)  | (it>2)
+    
+    ##parallel to ship heading
+    #mask = (x<100) | (x>260)  | (it>3)
+    
+    ##perpendicular to ship heading
+    #mask = (x<262) | (x>435)  | (it>2)
+    
+    ##all ridges and rubble
+    #mask = ~((x<100) | (x>750))
+    
+    ##only same direction/line across ridges
+    #ax.set_title('Ridges and Rubble - straight line', fontsize=25)
+    #mask = (x<900) | (x>1300)
+
+    it = np.ma.array(it,mask=mask).compressed()
+    si = np.ma.array(si,mask=mask).compressed()
+    mxx = np.ma.array(mxx,mask=mask).compressed()
+    myy = np.ma.array(myy,mask=mask).compressed()
+    
+    cx.plot(mxx,myy,'o',ms=1,label=date)
+    plt.show()
+        
     it = np.ma.masked_invalid(it)
     si = np.ma.array(si,mask=it.mask)
-    
-    #print(si.mask)
     
     mxx = np.ma.array(mxx,mask=it.mask); mxx = mxx.compressed()
     myy = np.ma.array(myy,mask=it.mask); myy = myy.compressed()
     
     si = si.compressed()
     it = it.compressed()
-    
-    #exit()
-    
-    #print(si.compressed())
-
-    #print(mxx)
-    #print(np.max(si))
-    ##print(transect_snow)
-    #exit()
-    
-    
-    #accounting for diffent wind direction in the Sloop
-    #level ice and 3 different directions in the first 700m
-    
-    #si=si[0:400]
-    #it=it[0:400]
-    #mxx=mxx[0:400]
-    #myy=myy[0:400]
-    
-    #si=si[200:400]
-    #it=it[200:400]
-    #mxx=mxx[200:400]
-    #myy=myy[200:400]
-    
-    #si=si[400:600]
-    #it=it[400:600]
-    #mxx=mxx[400:600]
-    #myy=myy[400:600]
-    
-    ##ridges and rubble
-    #si=si[500:]
-    #it=it[500:]
-    #mxx=mxx[500:]
-    #myy=myy[500:]
-    
-    #we need much better grid coordinate constrains!!!
-    
-    #masks based on mxx and myy coordinates!
-    #first make another coordinates in tt_grid.py that will laterally shift all Sloop to fit the level ice parts - based on first transect in October
-    
-    
-    
     
     #sum of all squares of all differences between measurements inside each of the loops - divided by sample number and halved (semi-variogram)
     #normally, they can be done in 3-d, but in our case the distance is just along the track
@@ -203,22 +202,33 @@ for dd in range(0,len(dates)):
     maxd = np.arange(0,lim,h)
     
     semivar_si = semivar(h,lim,maxd,si,mxx,myy)
-    semivar_it = semivar(h,lim,maxd,it,mxx,myy)
     
     #plotting
     ax.scatter(maxd,semivar_si,s=1, color=colors[dd])
-    bx.scatter(maxd,semivar_it,s=1, color=colors[dd])
     
     #fit semivar model    
     xmodel,ymodel = polymodel(maxd,semivar_si,lim,3)
     ax.plot(xmodel, ymodel, color=colors[dd],ls='-',label=date)
     
-    xmodel,ymodel = polymodel(maxd,semivar_it,lim,3)
-    bx.plot(xmodel, ymodel, color=colors[dd],ls='-',label=date)
-
+    #some bad ice data - dont plot:
+    if date=='20191226' or date=='20200116' or date=='20200206' or date=='20200507':
+        continue
     
+    else:
+        semivar_it = semivar(h,lim,maxd,it,mxx,myy)
+        
+        bx.scatter(maxd,semivar_it,s=1, color=colors[dd])
+        
+        xmodel,ymodel = polymodel(maxd,semivar_it,lim,3)
+        bx.plot(xmodel, ymodel, color=colors[dd],ls='-',label=date)
+
 bx.legend(ncol=3)    
-fig1.savefig(outpath+'semivar')
+ax.legend(ncol=3)    
+fig1.savefig(outpath+'semivar_'+str(step))
+
+cx.legend(ncol=3)    
+fig2.savefig(outpath+'semivar_map_'+str(step))
+
 
 
     

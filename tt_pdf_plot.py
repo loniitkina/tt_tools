@@ -58,6 +58,27 @@ dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','2
 #Runway
 #dates = ['20200112','20200119','20200207']
 
+#leg4
+loc = 'transect'
+title = 'Leg 4 Transect '
+#all data
+dates = ['20200629','20200630','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200719','20200720','20200725','20200726']
+
+#leg5
+#loc = 'transect'
+#title = 'Leg 5 Transect '
+#dates = ['20200830','20200903','20200907','20200918']
+
+combo=False
+
+
+
+#combinations
+combo=True
+loco = 'combi'
+title = 'Combined MOSAiC Transects '
+dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507',
+'20200630','20200706','20200714','20200719','20200726','20200830','20200903','20200907','20200918']
 
 #colors = plt.cm.rainbow(np.linspace(0, 1, len(dates)))
 #datel=dates
@@ -75,6 +96,25 @@ outname_ts_type = 'ts_'+loc+'_'+'2m_gridded_it_type.png'
 #dates = ['20191107','20191205','20200227','20200430'] #Nloop
 
 colors = plt.cm.rainbow(np.linspace(0, 1, len(dates)))
+if combo==True:
+    colors = plt.cm.rainbow(np.linspace(0, 1, len(dates)-9))
+    print(colors)
+    colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
+    colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
+    colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
+    colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
+    colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
+
+    colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
+    colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
+    colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
+    colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
+    
+    
+    
+    print(colors)
+    
+    
 #datel=dates
 #outname = 'pdf_'+loc+'_events.png'
 
@@ -120,9 +160,21 @@ ts_mo=[]
 ts_snow_l=[]
 ts_snow_d=[]
 
+
+
 i=0
 for date in dates:
     print(date)
+    
+    if combo == True:
+        datei = datetime.strptime(date, '%Y%m%d')
+
+        if datei < datetime(2020,6,1):
+            loc='Sloop'
+        else:
+            loc='transect'
+            
+        print(loc)
 
     ##load all the gridded data created in tt_grid.py
     #if loc == 'both':
@@ -163,7 +215,7 @@ for date in dates:
     snod = np.array(snod,dtype=np.float)
     it = np.array(it,dtype=np.float)
     
-    print(it)
+    #print(it)
     #exit()
     
     #means and modes
@@ -257,18 +309,30 @@ if ts==True:
     cx.set_ylabel('Snow depth (m)', fontsize=20)
     cx.tick_params(axis="x", labelsize=14)
     cx.tick_params(axis="y", labelsize=14)
-    cx.set_ylim(0,.8)
+    cx.set_ylim(0,.9)
 
     dx = fig2.add_subplot(212)
     dx.set_ylabel('Ice thickness (m)', fontsize=20)
     dx.tick_params(axis="x", labelsize=14)
     dx.tick_params(axis="y", labelsize=14)
     dx.set_ylim(0,11)
-    #if loc=='Sloop': dx.set_ylim(0,4)
+    if loc=='Sloop': dx.set_ylim(0,4)
+    if loc=='transect': dx.set_ylim(0,6)
     if loc=='snow1': dx.set_ylim(0,4)
 
     #spacing between the box plots
     dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
+    
+    #get leg 5 as start of MOSAiC
+    
+    if combo==True:
+        
+        dt1 = [ x-timedelta(days=366) for x in dt if x > datetime(2020,8,1)  ]
+        
+        dt[-4:] = dt1
+        
+    #import ipdb;ipdb.set_trace()
+    
     dt_diff = [ (x-dt[0]).days for x in dt ]
 
     #this is a very ugly trick: positions needs at least len=2...
@@ -284,11 +348,19 @@ if ts==True:
 
     dx.legend(fontsize=20)
 
-    #and a dirty trick for the X axis
-    dates_m = ['20191101','20191201','20200101','20200201','20200301','20200401','20200501']
-    dt_m = [ datetime.strptime(x, '%Y%m%d') for x in dates_m ]
-    dt_diff_m = [ (x-dt[0]).days for x in dt_m ]
-    plt.xticks(dt_diff_m, ['1 Nov','1 Dec','1 Jan','1 Feb','1 Mar','1 Apr','1 May'])
+    #and a dirty trick for the X axis    
+    if combo==True:
+        dates_m = ['20190901','20191001','20191101','20191201','20200101','20200201','20200301','20200401','20200501','20200601','20200701','20200801']
+        dt_m = [ datetime.strptime(x, '%Y%m%d') for x in dates_m ]
+        dt_diff_m = [ (x-dt[0]).days for x in dt_m ]
+        plt.xticks(dt_diff_m, ['1 Sep','1 Oct','1 Nov','1 Dec','1 Jan','1 Feb','1 Mar','1 Apr','1 May','1 Jun','1 Jul','1 Aug'])
+    else:
+        dates_m = ['20191101','20191201','20200101','20200201','20200301','20200401','20200501']
+        dt_m = [ datetime.strptime(x, '%Y%m%d') for x in dates_m ]
+        dt_diff_m = [ (x-dt[0]).days for x in dt_m ]
+        plt.xticks(dt_diff_m, ['1 Nov','1 Dec','1 Jan','1 Feb','1 Mar','1 Apr','1 May'])
+
+    
     cx.set_xticks(dt_diff_m)
     fig2.autofmt_xdate()
 

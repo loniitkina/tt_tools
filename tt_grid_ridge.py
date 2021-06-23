@@ -44,6 +44,16 @@ date = '20200131'   #only one GEM2 transect, but 9 holes drilled!!!
 #date = '20200212'
 #date = '20200228'
 
+#leg 4 Allie's Ridge
+loc = 'ridge'
+date = '20200628'
+date = '20200709'
+date = '20200713'
+date = '20200721'   #no MP data found
+date = '20200728'   #just one line
+
+
+
 
 #examples of dates when there is something wrong with the GEM-2 data
 if date == '20200119' and loc=='ridgeFR1':  #GEM-2 was not used
@@ -69,13 +79,13 @@ inpath_snow = '../data/MCS/MP/'
 inpath_ice = '../data/MCS/GEM2_thickness/01-ice-thickness/'
 
 #coordinates
-fname = glob(inpath_ice+date_gem2+'*/mosaic-transect-*-gem2-556-track-icecs-xy.csv')[0]
+fname = glob(inpath_ice+date_gem2+'*/mosaic-*-*-gem2-*-track-icecs-xy.csv')[0]
 xx,yy=ridge_xy(fname)   
 #print(xx)
 #print(yy)
 
 #ice thickness data
-fname = glob(inpath_ice+date_gem2+'*/mosaic-transect-*-gem2-556-channel-thickness.csv')[0]
+fname = glob(inpath_ice+date_gem2+'*/mosaic-*-*-gem2-*-channel-thickness.csv')[0]
 mit1,mit2,mit3,mit4,mit5,mit6,mit7,mit8,mit9,mit10=ridge_thick(fname)
 #print(mit1)
 

@@ -19,6 +19,8 @@ import matplotlib.pyplot as plt
 
 #inpath = '../../../MOSAiC/thickness_workspace/01-ice-thickness/'
 inpath = '../data/MCS/GEM2_thickness/01-ice-thickness/'
+#inpath = '../data/MCS/01-ice-thickness/'
+
 
 #inpath_mp = '../data/'
 inpath_mp = '../data/MCS/MP/'
@@ -28,18 +30,21 @@ outpath = '../plots_AGU/'
 
 #limit location-wise
 locs = ['Nloop','Sloop']
-#locs = ['Sloop']
 locs = ['Nloop']
-locs = ['snow1']
-locs = ['runway']
-locs = ['special']
-locs = ['ridgeFR1','ridgeFR2','ridgeFR3','ridgeA1','ridgeA2','ridgeA3','ridgeD','ridgeE']
+#locs = ['Nloop']
+#locs = ['snow1']
+#locs = ['runway']
+#locs = ['special']
+#locs = ['ridgeFR1','ridgeFR2','ridgeFR3','ridgeA1','ridgeA2','ridgeA3','ridgeD','ridgeE']
+#locs = ['transect']#,'transectport','transectstbd']#,'kuka','ARIEL']
+locs= ['ridge']
+#locs = ['albedoRBB','albedoLD']
 
 #plot
 fig1 = plt.figure(figsize=(12,10))
 
 #all the files
-flist = glob(inpath+'*PS122-3*/mosaic-transect-*-gem2-556-track-icecs-xy.csv')
+flist = glob(inpath+'*PS122-4*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
 flist.sort()
 
 dtot = 0
@@ -48,7 +53,7 @@ n_mp = 0
 mp_spacing=[]
 
 for i in range(0,len(flist)):
-    if flist[i] !=flist[14]: continue
+    #if flist[i] !=flist[11]: continue
     fname = flist[i]
     print(fname)
     
@@ -56,8 +61,12 @@ for i in range(0,len(flist)):
     #if date == '20191024': continue     #Nloop has partially different track here - more resembling the planned square
     #if date == '20191031': continue     #Nloop has partially different track here - even more strange...    
     #if date == '20200123': continue     #long transect
-    #if date == '20200403': continue     #bad MP coordinate conversion
     
+    if date == '20200716': continue     #missing data and bad coordinates
+    if date == '20200717': continue     #bad GEM-2 coordinates
+    if date == '20200723': continue
+    if date == '20200724': continue    
+
     if date == '20200116':
         #there is something wrong with the GEM-2 coordintes for this date - was supposed to be a regular transect day (good data)
         #try to use a GEM-2 file for one week earlier
@@ -87,6 +96,7 @@ for i in range(0,len(flist)):
     dtot = dtot+d
     
     mp_list = glob(inpath_mp+'*/*'+date+'*-track-icecs-xy.csv')
+
     for sf in mp_list:
         print(sf)
         mxx = getColumn(sf,3, delimiter=',', magnaprobe=False)
@@ -204,9 +214,9 @@ for i in range(0,len(flist)):
                 myy = myy+1
             
             #3. April (N loop only)
-            if date == '20200403':      #very strange transect/something else/bad coordinates/problem with FloeNavi
-                mxx = mxx+10
-                myy = myy+0
+            if date == '20200403':      #floenavi problem, PS coordinates used
+                mxx = mxx-10
+                myy = myy-10
                 
                 #also needs to be shifted closer to the ship
 
@@ -316,6 +326,77 @@ for i in range(0,len(flist)):
             if date == '20200410':  #Allie's
                 mxx = mxx+3
                 myy = myy-0
+                
+            #leg4
+            if date == '20200629':
+                mxx = mxx+8
+                myy = myy-0
+                
+            if date == '20200630':  #complete data!
+                mxx = mxx+8
+                myy = myy+2    
+                
+            if date == '20200703':
+                mxx = mxx+25
+                myy = myy-8
+                
+            if date == '20200704':
+                mxx = mxx+18
+                myy = myy-10
+                
+            if date == '20200705':  #decent spacing, 2m
+                mxx = mxx+18
+                myy = myy-5
+                
+            if date == '20200706':
+                mxx = mxx+17
+                myy = myy-10
+                
+            if date == '20200707' or date == '20200708':
+                mxx = mxx+27
+                myy = myy-8  
+                
+            if date == '20200710':  #1.8m spacing!
+                mxx = mxx+5
+                myy = myy+4
+                
+            if date == '20200714':
+                mxx = mxx+5
+                myy = myy+9    
+                
+            if date == '20200719':
+                mxx = mxx+20
+                myy = myy-0
+            
+            if date == '20200720':  #part of GEM-2 missing (little bit), but best spacing so far! 1.5m
+                mxx = mxx+20
+                myy = myy+5
+            
+            if date == '20200725':  #first good after a while...
+                mxx = mxx-22
+                myy = myy+20
+            
+            if date == '20200726':
+                mxx = mxx+25
+                myy = myy+20
+                
+            #leg5 (just small snake)
+            if date == '20200830':  #l:685m, 1.6m
+                mxx = mxx+13
+                myy = myy+7
+                
+            if date == '20200903':  #l:495m, 2.1m (just 230 measurements...)
+                mxx = mxx+10
+                myy = myy+23
+                
+            if date == '20200907':  #l:485m, 2.1m (just 229 measurements...)
+                mxx = mxx-5
+                myy = myy-15
+                
+            if date == '20200918':  #l:493m, 1.7m
+                mxx = mxx-13
+                myy = myy+10
+            
             
             #save all these corrected coordinates
             time = getColumn(sf,0, delimiter=',', magnaprobe=False)
@@ -353,7 +434,7 @@ for i in range(0,len(flist)):
     #dont plot the broken ones
     #if date == '20200406': continue
     #plt.plot(xxc,yyc,'o',ms=1,label=date)
-    plt.plot(xx,yy,'o',ms=1,label=date)
+    #plt.plot(xx,yy,'o',ms=1,label=date)
     
 plt.legend()
 plt.gca().set_aspect('equal')
