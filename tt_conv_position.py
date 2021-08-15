@@ -8,9 +8,6 @@ leg = 5
 path = '../../coord_trans/dshipextracts/transect_legs/'
 flist = glob(path+'position_leg'+str(leg)+'_nh.dat')
 
-
-
-
 for i in flist:
     #open data file
     fname = i

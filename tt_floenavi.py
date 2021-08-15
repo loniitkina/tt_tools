@@ -10,20 +10,19 @@ instrument='magnaprobe'
 path = '../data/MCS/MP/'
 #valid locations are:
 #leg 1: Nloop, Sloop
-#leg 2: Nloop, Sloop, snow1, runway, special, ridgeFR1 (installation), ridgeFR2 (coring), ridgeFR3 (optics), ridgeA1 (center), ridgeA2 (N), ridgeA3 (S)
+#leg 2: Nloop, Sloop, snow1, runway, special (long, dark side FYI/SYI,recon), ridgeFR1 (installation), ridgeFR2 (coring), ridgeFR3 (optics), ridgeA1 (center), ridgeA2 (N), ridgeA3 (S)
 #leg 3: Nloop, Sloop, snow1, ridgeFR1 (installation), ridgeA1 (center), ridgeA2 (N), ridgeA3 (S), ridgeD (davids), ridgeE (eco), special
-#leg 4: icestation, initialsurvey, transect, ridge, albedoLD, albedoRBB, meltponds, drillholes, ARIEL
-#leg 5: transect, transectport, ridge, ARIEL, transectstbd, kuka, transectbow, icestation1, icestation2, icestation3
-location = 'ridge*'
+#leg 4: icestation, transect, ridge, albedoLD, albedoRBB, special (meltponds, drillholes, initialsurvey), ARIEL
+#leg 5: transect(Kinder), ridge, ARIEL, kuka, special (transectstbd,transectbow,transectport,transectgrid), icestation1, icestation2, icestation3
+#location = 'ridge*'
 #location = 'Nloop'
-#location = 'transect'
-#location = 'albedoRBB'
-location = 'albedo*'
+#location = 'transect*'
+#location = 'albedo*'
+#location = 'ARIEL'
+location='initialsurvey'
 latlon=False
-#location = 'albedoRBB'
 
-
-#instrument='mosaic'     #this is GEM-2 for some reason
+#instrument='mosaic*'     #this is GEM-2 for some reason
 #path = '../data/MCS/GEM2_thickness/01-ice-thickness/'
 ##path = '../data/MCS/01-ice-thickness/'
 #location='' #no locations for GEM-2

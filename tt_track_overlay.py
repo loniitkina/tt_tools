@@ -19,10 +19,7 @@ import matplotlib.pyplot as plt
 
 #inpath = '../../../MOSAiC/thickness_workspace/01-ice-thickness/'
 inpath = '../data/MCS/GEM2_thickness/01-ice-thickness/'
-#inpath = '../data/MCS/01-ice-thickness/'
 
-
-#inpath_mp = '../data/'
 inpath_mp = '../data/MCS/MP/'
 
 #outpath = '../plots/'
@@ -32,19 +29,21 @@ outpath = '../plots_AGU/'
 locs = ['Nloop','Sloop']
 locs = ['Nloop']
 #locs = ['Nloop']
-#locs = ['snow1']
+locs = ['snow1']
 #locs = ['runway']
-#locs = ['special']
+locs = ['special']
 #locs = ['ridgeFR1','ridgeFR2','ridgeFR3','ridgeA1','ridgeA2','ridgeA3','ridgeD','ridgeE']
-#locs = ['transect']#,'transectport','transectstbd']#,'kuka','ARIEL']
-locs= ['ridge']
-#locs = ['albedoRBB','albedoLD']
+#locs = ['transect','albedoRBB','albedoLD','drillholes','ridge','meltponds','initialsurvey']
+#locs = ['albedoK','transectport','transectstbd','transectbow','transectgrid','kuka','ARIEL','ridge']
+#locs= ['ridge']
+#locs = ['ARIEL']
+#locs = ['transect','initialsurvey']
 
 #plot
 fig1 = plt.figure(figsize=(12,10))
 
 #all the files
-flist = glob(inpath+'*PS122-4*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
+flist = glob(inpath+'*PS122-5*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
 flist.sort()
 
 dtot = 0
@@ -62,10 +61,12 @@ for i in range(0,len(flist)):
     #if date == '20191031': continue     #Nloop has partially different track here - even more strange...    
     #if date == '20200123': continue     #long transect
     
-    if date == '20200716': continue     #missing data and bad coordinates
-    if date == '20200717': continue     #bad GEM-2 coordinates
-    if date == '20200723': continue
-    if date == '20200724': continue    
+    #if date == '20200716': continue     #missing data and bad coordinates
+    #if date == '20200717': continue     #bad GEM-2 coordinates
+    #if date == '20200723': continue
+    #if date == '20200724': continue    
+    #if date == '20200728': continue  
+
 
     if date == '20200116':
         #there is something wrong with the GEM-2 coordintes for this date - was supposed to be a regular transect day (good data)
@@ -83,6 +84,15 @@ for i in range(0,len(flist)):
     xx = np.ma.masked_invalid(xx)
     yy = np.ma.masked_invalid(yy)
     
+    #some GPS errors in GEM-2 data (or floenavi problems)
+    if date == '20200716':
+        xx = xx -8500
+        yy = yy -11700
+        
+    if date == '20200717':
+        xx = xx -5700
+        yy = yy -7500
+    
     dx = xx[1:]-xx[:-1]
     dy = yy[1:]-yy[:-1]
     d = np.sum(np.sqrt(dx**2+dy**2))
@@ -96,7 +106,7 @@ for i in range(0,len(flist)):
     dtot = dtot+d
     
     mp_list = glob(inpath_mp+'*/*'+date+'*-track-icecs-xy.csv')
-
+    
     for sf in mp_list:
         print(sf)
         mxx = getColumn(sf,3, delimiter=',', magnaprobe=False)
@@ -225,6 +235,21 @@ for i in range(0,len(flist)):
                 mxx = mxx+5
                 myy = myy+2  
                 
+                if loc == 'snow1':
+                    
+                    
+                    mxx = mxx-12000
+                    myy = myy+2000
+                    
+                    tmpy = myy.copy()
+                    tmpx = mxx.copy()
+                    myy = -tmpx
+                    mxx = tmpy
+                    
+                    mxx = mxx+50
+                    myy = myy+100
+
+                
             if date == '20200416':      #GPS failure on GEM-2, no coordinates
                 mxx = mxx+0
                 myy = myy+0
@@ -328,13 +353,25 @@ for i in range(0,len(flist)):
                 myy = myy-0
                 
             #leg4
-            if date == '20200629':
+            if date == '20200627':  #only part
+                mxx = mxx+14
+                myy = myy+5
+            
+            if date == '20200628':  #tiny bit og GEM-2, same part of MP as day before
+                mxx = mxx+15
+                myy = myy+8
+            
+            if date == '20200629':  #MP entire, GEM-2 majority
                 mxx = mxx+8
                 myy = myy-0
                 
             if date == '20200630':  #complete data!
                 mxx = mxx+8
-                myy = myy+2    
+                myy = myy+2
+                
+            if date == '20200702':  #
+                mxx = mxx+15
+                myy = myy+0
                 
             if date == '20200703':
                 mxx = mxx+25
@@ -356,9 +393,17 @@ for i in range(0,len(flist)):
                 mxx = mxx+27
                 myy = myy-8  
                 
+            if date == '20200709':
+                mxx = mxx+10
+                myy = myy+5
+                
             if date == '20200710':  #1.8m spacing!
                 mxx = mxx+5
                 myy = myy+4
+                
+            if date == '20200713':  #ridge
+                mxx = mxx+3
+                myy = myy+3
                 
             if date == '20200714':
                 mxx = mxx+5
@@ -371,6 +416,18 @@ for i in range(0,len(flist)):
             if date == '20200720':  #part of GEM-2 missing (little bit), but best spacing so far! 1.5m
                 mxx = mxx+20
                 myy = myy+5
+                
+            if date == '20200721':  #most of GEM-2 missing, but best spacing so far! 1.3m
+                mxx = mxx+15
+                myy = myy-8
+                
+            if date == '20200723':  #strange shape
+                mxx = mxx+18
+                myy = myy-15
+                
+            if date == '20200724':  #just one albedo line
+                mxx = mxx+2
+                myy = myy+32
             
             if date == '20200725':  #first good after a while...
                 mxx = mxx-22
@@ -380,7 +437,15 @@ for i in range(0,len(flist)):
                 mxx = mxx+25
                 myy = myy+20
                 
-            #leg5 (just small snake)
+            if date == '20200727':  #partial transect with both albedo lines
+                mxx = mxx+35
+                myy = myy+18
+                
+                if loc=='albedoLD':
+                    mxx = mxx-20   
+                    myy = myy-5
+                
+            #leg5 (just small snake) - Kinder line
             if date == '20200830':  #l:685m, 1.6m
                 mxx = mxx+13
                 myy = myy+7
@@ -389,15 +454,58 @@ for i in range(0,len(flist)):
                 mxx = mxx+10
                 myy = myy+23
                 
+                if loc == 'transectport':
+                    mxx = mxx-10
+                
             if date == '20200907':  #l:485m, 2.1m (just 229 measurements...)
                 mxx = mxx-5
                 myy = myy-15
                 
+                if loc == 'kuka':
+                    mxx = mxx+5
+                    myy = myy-5
+                
+                if loc == 'ARIEL':
+                    mxx = mxx+4
+                    myy = myy-1
+            
+            if date == '20200910':
+                mxx = mxx-10
+                myy = myy-2
+
             if date == '20200918':  #l:493m, 1.7m
                 mxx = mxx-13
                 myy = myy+10
+                
+            #leg 5 - other transects
+            if date == '20200827':
+                mxx = mxx+10
+                myy = myy+10
             
-            
+            if date == '20200828':
+                mxx = mxx+2
+                myy = myy+6
+                
+            if date == '20200902':
+                mxx = mxx+8
+                myy = myy+10
+                
+            if date == '20200909':
+                mxx = mxx-22
+                myy = myy-12
+           
+            if date == '20200917':
+                mxx = mxx+0
+                myy = myy-4   
+                
+                if loc == 'kuka':
+                    mxx = mxx-10
+                    myy = myy-8
+                    
+            if date == '20200919':
+                mxx = mxx-8
+                myy = myy-10
+                
             #save all these corrected coordinates
             time = getColumn(sf,0, delimiter=',', magnaprobe=False)
             lon = getColumn(sf,1, delimiter=',', magnaprobe=False)
@@ -433,8 +541,7 @@ for i in range(0,len(flist)):
     #plot GEM-tracks
     #dont plot the broken ones
     #if date == '20200406': continue
-    #plt.plot(xxc,yyc,'o',ms=1,label=date)
-    #plt.plot(xx,yy,'o',ms=1,label=date)
+    plt.plot(xx,yy,'o',ms=1,label=date)
     
 plt.legend()
 plt.gca().set_aspect('equal')

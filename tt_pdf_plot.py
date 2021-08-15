@@ -62,7 +62,7 @@ dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','2
 loc = 'transect'
 title = 'Leg 4 Transect '
 #all data
-dates = ['20200629','20200630','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200719','20200720','20200725','20200726']
+dates = ['20200627','20200629','20200630','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200719','20200720','20200725','20200726']
 
 #leg5
 #loc = 'transect'
@@ -78,7 +78,8 @@ combo=True
 loco = 'combi'
 title = 'Combined MOSAiC Transects '
 dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507',
-'20200630','20200706','20200714','20200719','20200726','20200830','20200903','20200907','20200918']
+'20200617','20200630','20200706','20200714','20200719','20200726',
+'20200830','20200903','20200907','20200910','20200918']
 
 #colors = plt.cm.rainbow(np.linspace(0, 1, len(dates)))
 #datel=dates
@@ -97,22 +98,26 @@ outname_ts_type = 'ts_'+loc+'_'+'2m_gridded_it_type.png'
 
 colors = plt.cm.rainbow(np.linspace(0, 1, len(dates)))
 if combo==True:
-    colors = plt.cm.rainbow(np.linspace(0, 1, len(dates)-9))
+    #add some grey shading into the box plots for the dates when transects were not in the winter locations (Sloop)
+    #make rainbow colors for the Sloop
+    colors = plt.cm.rainbow(np.linspace(0, 1, len(dates)-11))
     print(colors)
+    #add grey color for leg 4 dates
+    colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
     colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
     colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
     colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
     colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
     colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
 
+    #and grey colors for leg 5 dates
+    colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
     colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
     colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
     colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
     colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
     
-    
-    
-    print(colors)
+    #print(colors)
     
     
 #datel=dates
@@ -149,9 +154,6 @@ bx.tick_params(axis="x", labelsize=14)
 bx.tick_params(axis="y", labelsize=14)
 bx.set_xlim(0,2)
 
-
-
-
 #store data for time series
 ts_snow=[]
 ts_ice=[]
@@ -159,8 +161,6 @@ ts_mo=[]
 #level and deformed ice
 ts_snow_l=[]
 ts_snow_d=[]
-
-
 
 i=0
 for date in dates:
@@ -171,6 +171,8 @@ for date in dates:
 
         if datei < datetime(2020,6,1):
             loc='Sloop'
+        elif datei > datetime(2020,8,15):
+            loc='albedoK'
         else:
             loc='transect'
             
@@ -215,8 +217,21 @@ for date in dates:
     snod = np.array(snod,dtype=np.float)
     it = np.array(it,dtype=np.float)
     
-    #print(it)
-    #exit()
+    if loc=='albedoK':
+        loc2='ARIEL'
+        date2=date
+        if date=='20200918':
+            date2='20200917'
+        fname = glob(inpath_table+'*/magna+gem2-transect-'+date2+'*'+loc2+'*.csv')[0]
+        tmps = getColumn(fname,5, delimiter=',', magnaprobe=False)
+        tmpi = getColumn(fname,6, delimiter=',', magnaprobe=False)
+        snod2 = np.array(tmps,dtype=np.float)
+        it2 = np.array(tmpi,dtype=np.float)
+        
+        snod = np.append(snod,snod2)
+        it = np.append(it,it2)  
+        #print(it)
+        #exit()
     
     #means and modes
     mn = np.mean(snod)
@@ -329,7 +344,7 @@ if ts==True:
         
         dt1 = [ x-timedelta(days=366) for x in dt if x > datetime(2020,8,1)  ]
         
-        dt[-4:] = dt1
+        dt[-5:] = dt1
         
     #import ipdb;ipdb.set_trace()
     
@@ -344,7 +359,7 @@ if ts==True:
         dx.boxplot([ts_ice[i],ts_ice[i]], notch=True, showfliers=False, positions=[dt_diff[i],dt_diff[i]],widths=5,patch_artist=True,
                 boxprops=dict(facecolor=colors[i],alpha=.4))
         
-    dx.plot(dt_diff,ts_mo,'s',ms=15, label='mode',c='0.3')
+    #dx.plot(dt_diff,ts_mo,'s',ms=15, label='mode',c='0.3')
 
     dx.legend(fontsize=20)
 

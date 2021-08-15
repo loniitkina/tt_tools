@@ -7,8 +7,8 @@ from datetime import datetime
 
 
 inpath = '../data/MCS/MP/'
-locs = ['Nloop','Sloop','transect','ridge*','snow1','runway','special','albedoRBB','albedoLD']
-cols = ['r','b','m','g','y','c','k','royalblue','hotpink']
+locs = ['Nloop','Sloop','transect','combi','ridge*','snow1','runway','special','albedoRBB','albedoLD','albedoK','kuka','ARIEL','transectstbd','transectport','transectbow','transectgrid','drillholes','initialsurvey']
+cols = ['b','m','m','m','g','y','c','k','hotpink','royalblue','hotpink','orange','darkred','k','k','k','k','k','k','k','k']
 
 
 #Timeseries scatter plot
@@ -26,7 +26,8 @@ bx.tick_params(axis="y", labelsize=14)
 #bx.set_xlim(0,1)
 #bx.set_ylim(0,2)
 
-
+total_l=0
+total_n=0
 
 for loc in range(0,len(locs)):
     #get list of all files for listed locations
@@ -49,18 +50,36 @@ for loc in range(0,len(locs)):
         if locs[loc] == 'snow1' and datem=='20200223':
             ll = 400.
             ss = 1.
+            
+        #combi
+        if locs[loc]=='combi':
+            print(combi)
+            #here we need to manually alter the statistics...
         
-        if fn == flist[0]:
-            ax.scatter(date,ll,c=cols[loc],label=locs[loc])
-        else:
+        if fn != flist[0] or locs[loc]=='transectstbd' or locs[loc]=='transectbow' or locs[loc]=='transectport' or locs[loc]=='transectgrid' or locs[loc]=='drillholes' or locs[loc]=='initialsurvey':
             ax.scatter(date,ll,c=cols[loc])
+        else:
+            ax.scatter(date,ll,c=cols[loc],label=locs[loc])
         bx.scatter(date,ss,c=cols[loc])
         
-        
+        if locs[loc]!='combi':
+            total_l = total_l+ll
+            total_n = total_n+int(ll/ss)
 
-ax.legend()
+
+#print total lenght of all MOSAiC transects:
+print('Total lenght (km) of all MOSAiC transects')
+print(total_l/1000)
+print('Total number of all MOSAiC MP measurements')
+print(total_n)
+
+
+
+ax.legend(ncol=4)
 fig1.autofmt_xdate()
 plt.show()
+
+
 
 #get dates from file names
 

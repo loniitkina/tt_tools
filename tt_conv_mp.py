@@ -8,13 +8,18 @@ from tt_func import *
 #rm ../data/MCS/MP/*-PS122-4_*/magnaprobe-transect-*_PS122-4_*_*-track.csv
 
 
-leg = 5
+leg = 0 #use zero for Nansen Legacy
 ext = '.dat'
 
+#MOSAiC
 path = '../data/MCS/MP/'
+#NansenLegacy
+path = '../data/NansenLegacy/'
 
-flist = sorted(glob(path+'/*PS122-'+str(leg)+'*/magnaprobe-*'+ext))
+flist = sorted(glob(path+'/**/magnaprobe-*'+ext))
 print(flist)
+
+
 
 for i in flist:
     #open data file
@@ -28,28 +33,20 @@ for i in flist:
     lon2 = getColumn(fname,15, delimiter=',', magnaprobe=True)
 
     date = getColumn(fname,0, delimiter=',', magnaprobe=True)
-    
-    
-
-    
-    #if i=='../data/MCS/MP/20200919-PS122-5_62-244/magnaprobe-transect-20200919_PS122-5_62-244_transect.csv' or i=='../data/MCS/MP/20200910-PS122-5_61-217/magnaprobe-transect-20200910_PS122-5_61-217_transectport.csv' or i=='../data/MCS/MP/20200917-PS122-5_62-239/magnaprobe-transect-20200917_PS122-5_62-239_ARIEL.csv' or i=='../data/MCS/MP/20200914-PS122-5_62-17/magnaprobe-transect-20200914_PS122-5_62-17_kuka.csv' or i== '../data/MCS/MP/20200914-PS122-5_62-17/magnaprobe-transect-20200914_PS122-5_62-17_ARIEL.csv' or i=='../data/MCS/MP/20200910-PS122-5_61-216/magnaprobe-transect-20200910_PS122-5_61-216_transect.csv' or i=='../data/MCS/MP/20200910-PS122-5_61-216/magnaprobe-transect-20200910_PS122-5_61-216_kuka.csv' or i=='../data/MCS/MP/20200910-PS122-5_61-216/magnaprobe-transect-20200910_PS122-5_61-216_ARIEL.csv':
-        #lat1 = getColumn(fname,6, delimiter=',', magnaprobe=True)
-        #lat2 = getColumn(fname,15, delimiter=',', magnaprobe=True)
-
-        #lon1 = getColumn(fname,8, delimiter=',', magnaprobe=True)
-        #lon2 = getColumn(fname,16, delimiter=',', magnaprobe=True)
-
-        #date = getColumn(fname,1, delimiter=',', magnaprobe=True)
-                
-    #if i=='../data/MCS/MP/20200824-PS122-5_59-256/magnaprobe-transect-20200824_PS122-5_59-256_transect.csv':
-        #continue
-    
+        
     dc = [ date[x].split('.')[0] for x in range(len(date)) ]                        #get rid of the annoyting milliseconds
     
     if leg<4 or i.split('_')[-1]=='raw.dat' or \
     i=='../data/MCS/MP/20200721-PS122-4_48-275/magnaprobe-transect-20200721_PS122-4_48-275_ridge.dat' or \
     i=='../data/MCS/MP/20200824-PS122-5_59-256/magnaprobe-transect-20200824_PS122-5_59-256_transect.dat' or \
-    i=='../data/MCS/MP/20200910-PS122-5_61-216/magnaprobe-transect-20200910_PS122-5_61-216_ARIEL.dat'    :
+    i=='../data/MCS/MP/20200910-PS122-5_61-216/magnaprobe-transect-20200910_PS122-5_61-216_ARIEL.dat' or \
+    i=='../data/MCS/MP/20200910-PS122-5_61-216/magnaprobe-transect-20200910_PS122-5_61-216_kuka.dat' or \
+    i=='../data/MCS/MP/20200910-PS122-5_61-216/magnaprobe-transect-20200910_PS122-5_61-216_transect.dat' or \
+    i=='../data/MCS/MP/20200910-PS122-5_61-217/magnaprobe-transect-20200910_PS122-5_61-217_transectport.dat' or \
+    i=='../data/MCS/MP/20200914-PS122-5_62-17/magnaprobe-transect-20200914_PS122-5_62-17_ARIEL.dat' or \
+    i=='../data/MCS/MP/20200914-PS122-5_62-17/magnaprobe-transect-20200914_PS122-5_62-17_kuka.dat'  or \
+    i=='../data/MCS/MP/20200917-PS122-5_62-239/magnaprobe-transect-20200917_PS122-5_62-239_ARIEL.dat' or \
+    i=='../data/MCS/MP/20200919-PS122-5_62-244/magnaprobe-transect-20200919_PS122-5_62-244_transect.dat'    :
         dt = [ datetime.strptime(dc[x], "%Y-%m-%d %H:%M:%S") for x in range(len(dc)) ]  #"2020-02-20 10:43:44"
         dt64 = np.array(dt, dtype='datetime64[s]')
         
@@ -93,7 +90,10 @@ for i in flist:
         
         lat2 = getColumn(fname,13, delimiter=',', magnaprobe=True)
         lon2 = getColumn(fname,14, delimiter=',', magnaprobe=True)
-        
+    #Glen's Magnaprobe is in Alaska Standard time (UTC-9)
+    if leg==0:
+        dt64 = dt64 + np.timedelta64(9, 'h')
+    
     lat1 = np.array(lat1,dtype=np.float)
     lat2 = np.array(lat2,dtype=np.float)
     lat = lat1+lat2
