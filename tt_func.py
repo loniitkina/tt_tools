@@ -1,11 +1,30 @@
 import numpy as np
 import csv
 
-def getColumn(filename, column, delimiter=',', skipinitialspace=False, skipheader=True, magnaprobe=False):
+def getColumn(filename, column, delimiter=',', skipinitialspace=False, skipheader=True, magnaprobe=False, rtkpost=False):
     results = csv.reader(open(filename),delimiter=delimiter,skipinitialspace=skipinitialspace)
     if skipheader==True:
         next(results, None)
     if magnaprobe==True: #has 4 headers
+        next(results, None)
+        next(results, None)
+        next(results, None)
+    if rtkpost==True: #has 18 headers
+        next(results, None)
+        next(results, None)
+        next(results, None)
+        next(results, None)
+        next(results, None)
+        next(results, None)
+        next(results, None)
+        next(results, None)
+        next(results, None)
+        next(results, None)
+        next(results, None)
+        next(results, None)
+        next(results, None)
+        next(results, None)
+        next(results, None)
         next(results, None)
         next(results, None)
         next(results, None)

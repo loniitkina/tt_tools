@@ -16,17 +16,17 @@ path = '../data/MCS/MP/'
 #leg 5: transect(Kinder), ridge, ARIEL, kuka, special (transectstbd,transectbow,transectport,transectgrid), icestation1, icestation2, icestation3
 #location = 'ridge*'
 #location = 'Nloop'
-#location = 'transect*'
+location = 'transect*'
 #location = 'albedo*'
 #location = 'ARIEL'
-location='initialsurvey'
+#location='initialsurvey'
 latlon=False
 
-#instrument='mosaic*'     #this is GEM-2 for some reason
-#path = '../data/MCS/GEM2_thickness/01-ice-thickness/'
-##path = '../data/MCS/01-ice-thickness/'
-#location='' #no locations for GEM-2
-#latlon=True #GEM-2 data is written as latlon and not lonlat
+instrument='mosaic*'     #this is GEM-2 for some reason
+path = '../data/MCS/GEM2_thickness/01-ice-thickness/'
+#path = '../data/MCS/01-ice-thickness/'
+location='' #no locations for GEM-2
+latlon=True #GEM-2 data is written as latlon and not lonlat
 
 #reference position file
 #refstat_csv_file = glob('../data/floenavi/data_master-solution_mosaic-leg'+str(leg)+'*-floenavi-refstat-v1p0.csv')[0]
@@ -41,7 +41,7 @@ refstat = GeoReferenceStation.from_csv(refstat_csv_file)
 icecs = IceCoordinateSystem(refstat)
 
 #get data for which you need coordinate transformation
-all_transect_files = sorted(glob(path+'*PS122-'+str(leg)+'*/'+instrument+'-*-*'+location+'-track.csv'))
+all_transect_files = sorted(glob(path+'*PS122-'+str(leg)+'*/'+instrument+'-*-20200716*'+location+'-track.csv'))
 
 ##for Nloop on 20200403 and 06 the conversion from floenavi is bad
 #all_transect_files = sorted(glob(path+'*PS122-'+str(leg)+'*/'+instrument+'-transect-20200403*'+location+'-track.csv'))

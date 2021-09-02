@@ -4,24 +4,27 @@ from icedrift import GeoReferenceStation, IceCoordinateSystem, GeoPositionData
 import matplotlib.pyplot as plt 
 from tt_func import *
 
-#instrument='magnaprobe'
-#path = '../data/NansenLegacy/magnaprobe/'
-#location='P4'
-#latlon=False
+instrument='magnaprobe'
+path = '../data/NansenLegacy/magnaprobe/'
+location='P7*'
+latlon=False
 
-instrument='transect*'     #this is GEM-2 for some reason
-path = '../data/NansenLegacy/gem2/'
-location='' #no locations for GEM-2
-latlon=True #GEM-2 data is written as latlon and not lonlat
+#instrument='transect*'     #this is GEM-2 for some reason
+#path = '../data/NansenLegacy/gem2/'
+#location='' #no locations for GEM-2
+#latlon=True #GEM-2 data is written as latlon and not lonlat
 
 #reference position file
 refstat_csv_file = '../data/NansenLegacy/position/garmin_transect_P4_2021-05-05.csv-track.csv'
+refstat_csv_file = '../data/NansenLegacy/position/garmin_transect_P5_2021-05-08.csv-track.csv'
+refstat_csv_file = '../data/NansenLegacy/position/garmin_transect_P6_2021-05-10.csv-track.csv'
+refstat_csv_file = '../data/NansenLegacy/position/base3_P7_2021-05-13-track.csv'
 
 refstat = GeoReferenceStation.from_csv(refstat_csv_file)
 icecs = IceCoordinateSystem(refstat)
 
 #get data for which you need coordinate transformation
-all_transect_files = sorted(glob(path+instrument+'*'+location+'-track.csv'))
+all_transect_files = sorted(glob(path+'/*/'+instrument+'*'+location+'-track.csv'))
 
 plt.figure(figsize=(10, 10))
 plt.gca().set_aspect('equal')

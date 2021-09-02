@@ -13,6 +13,16 @@ from tt_func import *
 
 station='P4'
 date='2021-05-05'
+
+station='P5'
+date='2021-05-08'
+
+#station='P6'
+#date='2021-05-10'
+
+#station='P7'
+#date='2021-05-14'
+
 path = '../data/NansenLegacy/position/'
 flist = glob(path+'garmin_transect_'+station+'*'+date+'.csv')
 
@@ -65,8 +75,8 @@ for i in flist:
     outname = fname.split('.dat')[0]+'-track.csv'
     print(outname)
     with open(outname, 'wb') as f:
-        #add header manually afterwards:
-        #time,longitude,latitude,heading,origin_uncertainty_m,heading_uncertainty_deg
+        header = ['time,longitude,latitude,heading,origin_uncertainty_m,heading_uncertainty_deg']
+        np.savetxt(f, header, fmt="%s", delimiter=",")
         np.savetxt(f, table, fmt="%s", delimiter=",")
 
 

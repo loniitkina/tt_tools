@@ -49,10 +49,10 @@ title='Northern transect loop '
 
 
 
-#loc= 'snow1'
-#dates = ['20191222','20200112','20200126','20200207']    #20200126 is reduced track (square!)
-#datel = ['2019/12/22','2020/01/12','2020/01/26','2020/02/07']
-#title='Snow1 transect '
+loc= 'snow1'
+dates = ['20191222','20200112','20200126','20200207']    #20200126 is reduced track (square!)
+dates = ['20200126']
+title='Snow1 transect '
 
 #loc= 'special'
 #dates = ['20200123']
@@ -121,6 +121,26 @@ title='Northern transect loop '
 #datel = ['2020/01/15']
 #title='Dark Side SYI '
 
+
+##Nansen Legacy
+#loc='P4'
+#dates = ['20210505']
+#title='Nansen Legacy Q2 - P4 '
+
+#loc='P5'
+#dates = ['20210508']
+#title='Nansen Legacy Q2 - P5 '
+
+##loc='P6'
+##dates = ['20210510']
+##title='Nansen Legacy Q2 - P6 '
+
+#loc='P7'
+#dates = ['20210513']
+#title='Nansen Legacy Q2 - P7 '
+
+
+
 dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
 datel = [ datetime.strftime(x, '%Y/%m/%d') for x in dt ]
 
@@ -132,10 +152,17 @@ colors = plt.cm.Blues(np.linspace(0, 1, len(dates)))
 if len(dates) == 1:
     colors = ['.1','.5']
     
-
+#MOSAiC
 inpath_table = '../data/MCS/MP/'
 outpath = '../plots_AGU/'
 inpath_grid = '../data/grids_AGU/'
+
+##Nansen Legacy
+#inpath_table = '../data/NansenLegacy/magnaprobe/'
+#outpath = '../plots_NL/'
+
+station = True
+#station = False
 
 fb_list=[]
 si_list=[]
@@ -144,91 +171,87 @@ x_list=[]
 
 for dd in range(0,len(dates)):
     date = dates[dd]
-    
-
     print(date)
 
-    
-    #outname = 'profile_'+date+'_'+loc+'gridded.png'
-
-    ##choose one 'most perfct' MP track to compare to the others
-    #fname = glob(inpath_table+'*/magna+gem2-transect-'+date+'*'+loc+'.csv')[0]
-    #print(fname)
-    #mxx = getColumn(fname,3, delimiter=',', magnaprobe=False)
-    #myy = getColumn(fname,4, delimiter=',', magnaprobe=False)
-    #snod = getColumn(fname,5, delimiter=',', magnaprobe=False)
-    
-    #if 'ridge' in loc:
-        ##Date,Lon,Lat,X,Y,Snow,f1525Hz_hcp_i,f1525Hz_hcp_q,f5325Hz_hcp_i,f5325Hz_hcp_q,18325Hz_hcp_i,f18325Hz_hcp_q,f63025Hz_hcp_i,f63025Hz_hcp_q,f93075Hz_hcp_i,f93075Hz_hcp_q
-        #it = getColumn(fname,6, delimiter=',', magnaprobe=False)
-        #it2 = getColumn(fname,7, delimiter=',', magnaprobe=False)
-        #it3 = getColumn(fname,8, delimiter=',', magnaprobe=False)
-        #it4 = getColumn(fname,9, delimiter=',', magnaprobe=False)
-        #it5 = getColumn(fname,10, delimiter=',', magnaprobe=False)       #closer to real thickness, but still influenced by consolidation (has detection limit)
-        #it6 = getColumn(fname,11, delimiter=',', magnaprobe=False)       #consolidation can be seen in column 13 (63kHz q) and 15 (93kHz q)
-        #it7 = getColumn(fname,12, delimiter=',', magnaprobe=False)
-        #it8 = getColumn(fname,13, delimiter=',', magnaprobe=False)
-        #it9 = getColumn(fname,14, delimiter=',', magnaprobe=False)
-        #it10 = getColumn(fname,15, delimiter=',', magnaprobe=False)
+    if station:
+        outname = 'profile_'+date+'_'+loc+'gridded.png'
         
-        #it2 = np.array(it2,dtype=np.float)
-        #it3 = np.array(it3,dtype=np.float)
-        #it4 = np.array(it4,dtype=np.float)
-        #it5 = np.array(it5,dtype=np.float)
-        #it6 = np.array(it6,dtype=np.float)
-        #it7 = np.array(it7,dtype=np.float)
-        #it8 = np.array(it8,dtype=np.float)
-        #it9 = np.array(it9,dtype=np.float)
-        #it10 = np.array(it10,dtype=np.float)
+        #choose one 'most perfct' MP track to compare to the others
+        fname = glob(inpath_table+'*/magna+gem2*'+date+'*'+loc+'.csv')[0]
+        print(fname)
+        mxx = getColumn(fname,3, delimiter=',', magnaprobe=False)
+        myy = getColumn(fname,4, delimiter=',', magnaprobe=False)
+        snod = getColumn(fname,5, delimiter=',', magnaprobe=False)
         
-    #else:
-        #it = getColumn(fname,6, delimiter=',', magnaprobe=False)
-    #mxx = np.array(mxx,dtype=np.float)
-    #myy = np.array(myy,dtype=np.float)
-    #si = np.array(snod,dtype=np.float)
-    #ii = np.array(it,dtype=np.float)
-    
-    ##it looks like they started somewhere else the last two times, still went same direction...
-    #if date=='20200330' or date=='20200426':
-        ##fb = np.concatenate((fb[-215:],fb[:-215]))
-        #ii = np.concatenate((ii[-215:],ii[:-215]))
-        #si = np.concatenate((si[-215:],si[:-215]))
+        if 'ridge' in loc:
+            #Date,Lon,Lat,X,Y,Snow,f1525Hz_hcp_i,f1525Hz_hcp_q,f5325Hz_hcp_i,f5325Hz_hcp_q,18325Hz_hcp_i,f18325Hz_hcp_q,f63025Hz_hcp_i,f63025Hz_hcp_q,f93075Hz_hcp_i,f93075Hz_hcp_q
+            it = getColumn(fname,6, delimiter=',', magnaprobe=False)
+            it2 = getColumn(fname,7, delimiter=',', magnaprobe=False)
+            it3 = getColumn(fname,8, delimiter=',', magnaprobe=False)
+            it4 = getColumn(fname,9, delimiter=',', magnaprobe=False)
+            it5 = getColumn(fname,10, delimiter=',', magnaprobe=False)       #closer to real thickness, but still influenced by consolidation (has detection limit)
+            it6 = getColumn(fname,11, delimiter=',', magnaprobe=False)       #consolidation can be seen in column 13 (63kHz q) and 15 (93kHz q)
+            it7 = getColumn(fname,12, delimiter=',', magnaprobe=False)
+            it8 = getColumn(fname,13, delimiter=',', magnaprobe=False)
+            it9 = getColumn(fname,14, delimiter=',', magnaprobe=False)
+            it10 = getColumn(fname,15, delimiter=',', magnaprobe=False)
+            
+            it2 = np.array(it2,dtype=np.float)
+            it3 = np.array(it3,dtype=np.float)
+            it4 = np.array(it4,dtype=np.float)
+            it5 = np.array(it5,dtype=np.float)
+            it6 = np.array(it6,dtype=np.float)
+            it7 = np.array(it7,dtype=np.float)
+            it8 = np.array(it8,dtype=np.float)
+            it9 = np.array(it9,dtype=np.float)
+            it10 = np.array(it10,dtype=np.float)
+            
+        else:
+            it = getColumn(fname,6, delimiter=',', magnaprobe=False)
+        mxx = np.array(mxx,dtype=np.float)
+        myy = np.array(myy,dtype=np.float)
+        si = np.array(snod,dtype=np.float)
+        ii = np.array(it,dtype=np.float)
         
-    #alternativelly, completely gridded data (snow too!)
-    #step = 2
-    step = 1
-    stp = str(step)
-    method_gem2 = 'nearest'
-    #method_gem2 = 'linear'
-    ch_name = '_18kHz'
+        #it looks like they started somewhere else the last two times, still went same direction...
+        if date=='20200330' or date=='20200426':
+            #fb = np.concatenate((fb[-215:],fb[:-215]))
+            ii = np.concatenate((ii[-215:],ii[:-215]))
+            si = np.concatenate((si[-215:],si[:-215]))
+    else:
+        #not a single data collection station, but a camp with several repeats over same transect
+    
+        #alternativelly, completely gridded data (snow too!)
+        #step = 2
+        step = 1
+        stp = str(step)
+        method_gem2 = 'nearest'
+        #method_gem2 = 'linear'
+        ch_name = '_18kHz'
 
-    outname = loc+'_profile_'+date+'_'+stp+'_gridded_full.png'
-    #inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track_test.npz'
-    inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track.npz'
-    
-    data = np.load(inf)
+        outname = loc+'_profile_'+date+'_'+stp+'_gridded_full.png'
+        #inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track_test.npz'
+        inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track.npz'
+        
+        data = np.load(inf)
 
-    transect_snow = data['snow']
-    transect_ice = data['ice']
-    
-    del data
-    
-    mxx = transect_snow[:,0]
-    myy = transect_snow[:,1]
-    si = transect_snow[:,dd+2]
-    it = transect_ice[:,dd+2]
-    
-    it = np.ma.masked_invalid(it)
-    si = np.ma.array(si,mask=it.mask)
-    mxx = np.ma.array(mxx,mask=it.mask); mxx = mxx.compressed()
-    myy = np.ma.array(myy,mask=it.mask); myy = myy.compressed()
-    
-    si = si.compressed()
-    ii = it.compressed()
-    
-    
-    
-    
+        transect_snow = data['snow']
+        transect_ice = data['ice']
+        
+        del data
+        
+        mxx = transect_snow[:,0]
+        myy = transect_snow[:,1]
+        si = transect_snow[:,dd+2]
+        it = transect_ice[:,dd+2]
+        
+        it = np.ma.masked_invalid(it)
+        si = np.ma.array(si,mask=it.mask)
+        mxx = np.ma.array(mxx,mask=it.mask); mxx = mxx.compressed()
+        myy = np.ma.array(myy,mask=it.mask); myy = myy.compressed()
+        
+        si = si.compressed()
+        ii = it.compressed()
     
     #get distances between fixed date MP points
     dx = mxx[1:]-mxx[:-1]
@@ -242,9 +265,10 @@ for dd in range(0,len(dates)):
     rho_s = 313
 
     #plot
-    #fig1 = plt.figure(figsize=(20,10))
-    fig1 = plt.figure(figsize=(40,20))
+    fig1 = plt.figure(figsize=(20,10))
+    #fig1 = plt.figure(figsize=(40,20))
     fig1.patch.set_facecolor('0.5')
+    fig1.patch.set_facecolor('1')
     
     ax = fig1.add_subplot(111)
     ax.set_xlabel('Length (m)', fontsize=25)
@@ -252,7 +276,10 @@ for dd in range(0,len(dates)):
     ax.set_ylabel('Distance from water surface (m)', fontsize=25)
     ax.tick_params(axis="x", labelsize=24)
     ax.tick_params(axis="y", labelsize=24)
-    ax.set_facecolor('0.3')
+    if station:
+        ax.set_facecolor('0.8')
+    else:
+        ax.set_facecolor('0.3')
     
     #if loc=='Sloop' and date == '20191226':
         #bad = np.zeros_like(ii)
@@ -268,7 +295,7 @@ for dd in range(0,len(dates)):
     #following Forsstrom et al, 2011, Annals of Glaciology
     fb = (ii - si * (rho_s/(rho_w-rho_i))) * (rho_w-rho_i)/rho_w
     x = range(0,len(fb))
-    
+       
     #cumulative distance allong the fixed date MP transect
     x = np.zeros_like(fb)
     x[1:] = np.cumsum(md)
@@ -290,17 +317,20 @@ for dd in range(0,len(dates)):
     #ax.plot(fb-ii,label='ice bottom'+date)
     #ax.plot(fb+si,label='snow surface'+date)
     ax.fill_between(x, fb, fb+si,alpha=.6, color=colors[1], label='snow')
-    ax.fill_between(x, fb, fb-ii,alpha=.6, color=colors[4], label='ice')
+    ax.fill_between(x, fb, fb-ii,alpha=.6, color=colors[0], label='ice')
     
     if loc == 'Nloop':
         ax.set_ylim(-8,1.8)
+    elif loc == 'P4' or loc == 'P5':
+        ax.set_ylim(-2,1)
     else:
         ax.set_ylim(-4,1.3)
     
     ax.set_xlim(0,x[-2])        #beacause last MP value/coordinate is typically same as first (at large distance)
-    ax.legend(fontsize=25,loc='lower left',fancybox=True,facecolor=colors[0],framealpha=.6)
+    ax.legend(fontsize=25,loc='lower left',fancybox=True,facecolor=fig1.get_facecolor(),framealpha=.6)
     print(outname)
     fig1.savefig(outpath+outname,bbox_inches='tight', facecolor=fig1.get_facecolor(), edgecolor='none')
+    exit()
 
     #save all these data and try to overlay them in a multi-profile plot
     fb_hat = savgol_filter(fb, window, polyorder) # window size 51, polynomial order 3

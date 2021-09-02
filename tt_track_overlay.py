@@ -29,21 +29,21 @@ outpath = '../plots_AGU/'
 locs = ['Nloop','Sloop']
 locs = ['Nloop']
 #locs = ['Nloop']
-locs = ['snow1']
+#locs = ['snow1']
 #locs = ['runway']
 locs = ['special']
-#locs = ['ridgeFR1','ridgeFR2','ridgeFR3','ridgeA1','ridgeA2','ridgeA3','ridgeD','ridgeE']
-#locs = ['transect','albedoRBB','albedoLD','drillholes','ridge','meltponds','initialsurvey']
-#locs = ['albedoK','transectport','transectstbd','transectbow','transectgrid','kuka','ARIEL','ridge']
+locs = ['Nloop','Sloop','snow1','runway','ridgeFR1','ridgeFR2','ridgeFR3','ridgeA1','ridgeA2','ridgeA3','ridgeD','ridgeE']
+locs = ['transect']#,'albedoRBB','albedoLD']
+#locs = ['albedoK']#,'kuka','ARIEL','ridge']
 #locs= ['ridge']
 #locs = ['ARIEL']
-#locs = ['transect','initialsurvey']
+#locs = ['transect']
 
 #plot
 fig1 = plt.figure(figsize=(12,10))
 
 #all the files
-flist = glob(inpath+'*PS122-5*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
+flist = glob(inpath+'*PS122-[1-5]?*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
 flist.sort()
 
 dtot = 0
@@ -52,7 +52,7 @@ n_mp = 0
 mp_spacing=[]
 
 for i in range(0,len(flist)):
-    #if flist[i] !=flist[11]: continue
+    #if flist[i] !=flist[15]: continue
     fname = flist[i]
     print(fname)
     
@@ -60,20 +60,39 @@ for i in range(0,len(flist)):
     #if date == '20191024': continue     #Nloop has partially different track here - more resembling the planned square
     #if date == '20191031': continue     #Nloop has partially different track here - even more strange...    
     #if date == '20200123': continue     #long transect
+    #if date == '20200223': continue     #bad MP coordinates on snow1
     
     #if date == '20200716': continue     #missing data and bad coordinates
     #if date == '20200717': continue     #bad GEM-2 coordinates
     #if date == '20200723': continue
     #if date == '20200724': continue    
     #if date == '20200728': continue  
-
+    
+    #best dates for plotting (comment if you want somehting else!)
+    #legs 1-3
+    #if date != '20200221':
+        #if date != '20200130':
+            #if date != '20200131':
+                #if date != '20200228':
+                    #if date != '20191222':
+                        #if date != '2020221': 
+                            #if date != '20200424':
+                                #continue
+    #leg 4
+    #if date != '20200630':
+        #continue
+    
+    #leg5
+    #if date != '20200907':
+        #if date != '20200828':
+            #continue
 
     if date == '20200116':
         #there is something wrong with the GEM-2 coordintes for this date - was supposed to be a regular transect day (good data)
         #try to use a GEM-2 file for one week earlier
         fname = flist[7]
     
-    print(fname)
+    #print(fname)
     xx = getColumn(fname,3, delimiter=',', magnaprobe=False)
     xx = np.array(xx,dtype=np.float)
     
@@ -97,11 +116,11 @@ for i in range(0,len(flist)):
     dy = yy[1:]-yy[:-1]
     d = np.sum(np.sqrt(dx**2+dy**2))
     
-    print('transect length:')
-    print(d)
-    print('GEM-2 measurement spacing:')
-    spacing = np.mean(np.sqrt(dx**2+dy**2))
-    print(spacing)
+    #print('transect length:')
+    #print(d)
+    #print('GEM-2 measurement spacing:')
+    #spacing = np.mean(np.sqrt(dx**2+dy**2))
+    #print(spacing)
 
     dtot = dtot+d
     
@@ -119,6 +138,16 @@ for i in range(0,len(flist)):
         print(loc)
         
         if loc in locs:
+            
+            ##some plotting exceptions:
+            #if date=='20200424' and loc=='Nloop':
+                #continue
+            #if date=='20200131' and loc=='ridgeA1':
+                #continue
+            #if fname=='../data/MCS/GEM2_thickness/01-ice-thickness/20200228-PS122-3_29-72/mosaic-transect-20200228-gem2-556-track-icecs-xy.csv':
+                #continue
+            #if fname=='../data/MCS/GEM2_thickness/01-ice-thickness/20200221-PS122-2_25-121/mosaic-transect-20200221-gem2-556-track-icecs-xy.csv':
+                #continue
             
             #The tru position is Sloop on 20191205
             
@@ -178,7 +207,12 @@ for i in range(0,len(flist)):
             if date == '20200116':
                 if loc == 'Sloop':
                     mxx = mxx-11
-                    myy = myy-4                
+                    myy = myy-4  
+            
+            if date == '20200126':
+                if loc == 'special':
+                    mxx = mxx-5
+                    myy = myy-5
 
             if date == '20200130':
                 mxx = mxx-4
@@ -536,12 +570,13 @@ for i in range(0,len(flist)):
             #plot MP tracks
             #dont plot the broken ones
             #if date == '20200406': continue
-            plt.plot(mxx,myy,'o',ms=1,label=date+loc)
+            plt.plot(mxx,myy,'o',ms=1,label='magnaprobe '+date+' '+loc)
+            #plt.plot(mxx,myy,'o',ms=1,label='leg 5 '+loc)
 
     #plot GEM-tracks
     #dont plot the broken ones
     #if date == '20200406': continue
-    plt.plot(xx,yy,'o',ms=1,label=date)
+    #plt.plot(xx,yy,'o',ms=1,label='GEM-2 '+date+' '+loc)
     
 plt.legend()
 plt.gca().set_aspect('equal')
@@ -549,7 +584,7 @@ plt.grid()
 #outname = 'gem2_tracks_'+date+'.png'
 #print(outname)
 #fig1.savefig(outpath+outname)
-fig1.savefig(outpath+'track_test.png')
+fig1.savefig(outpath+'track_test.png',bbox_inches='tight')
 #fig1.savefig(outpath+'deformation_both_loops.png')
 #fig1.savefig(outpath+'track_gem2+mp_CO.png')
 

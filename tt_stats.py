@@ -4,12 +4,9 @@ from tt_func import getColumn
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-
-
 inpath = '../data/MCS/MP/'
-locs = ['Nloop','Sloop','transect','combi','ridge*','snow1','runway','special','albedoRBB','albedoLD','albedoK','kuka','ARIEL','transectstbd','transectport','transectbow','transectgrid','drillholes','initialsurvey']
-cols = ['b','m','m','m','g','y','c','k','hotpink','royalblue','hotpink','orange','darkred','k','k','k','k','k','k','k','k']
-
+locs = ['Nloop','Sloop','transect','ridge*','snow1','runway','albedoRBB','albedoLD','albedoK','kuka','ARIEL','special']
+cols = ['b','r','m','g','y','c','hotpink','royalblue','purple','orange','darkred','k']
 
 #Timeseries scatter plot
 fig1 = plt.figure(figsize=(10,10))
@@ -36,13 +33,16 @@ for loc in range(0,len(locs)):
     for fn in flist:
         print(fn)
         
+        #get dates from file names
         datem = fn.split('-')[-4].split('_')[0]
         date = datetime.strptime(datem, '%Y%m%d')
         
+        #open files
         with open(fn) as f:
             content = f.readlines()
         f.close()
         
+        #read spacing and total lenght
         ll=float(content[0])
         ss=float(content[1])
         
@@ -56,16 +56,17 @@ for loc in range(0,len(locs)):
             print(combi)
             #here we need to manually alter the statistics...
         
-        if fn != flist[0] or locs[loc]=='transectstbd' or locs[loc]=='transectbow' or locs[loc]=='transectport' or locs[loc]=='transectgrid' or locs[loc]=='drillholes' or locs[loc]=='initialsurvey':
+        #plot dates vs total lenght
+        if fn != flist[0]:
             ax.scatter(date,ll,c=cols[loc])
         else:
             ax.scatter(date,ll,c=cols[loc],label=locs[loc])
+            
+        #plot dates vs spacings
         bx.scatter(date,ss,c=cols[loc])
         
-        if locs[loc]!='combi':
-            total_l = total_l+ll
-            total_n = total_n+int(ll/ss)
-
+        total_l = total_l+ll
+        total_n = total_n+int(ll/ss)
 
 #print total lenght of all MOSAiC transects:
 print('Total lenght (km) of all MOSAiC transects')
@@ -73,20 +74,9 @@ print(total_l/1000)
 print('Total number of all MOSAiC MP measurements')
 print(total_n)
 
-
-
 ax.legend(ncol=4)
 fig1.autofmt_xdate()
 plt.show()
 
 
 
-#get dates from file names
-
-#open files
-
-#read spacing and total lenght
-
-#plot dates vs total lenght
-
-#plot dates vs spacings

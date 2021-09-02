@@ -8,15 +8,15 @@ from tt_func import *
 #rm ../data/MCS/MP/*-PS122-4_*/magnaprobe-transect-*_PS122-4_*_*-track.csv
 
 
-leg = 0 #use zero for Nansen Legacy
+leg = 4 #use zero for Nansen Legacy
 ext = '.dat'
 
 #MOSAiC
 path = '../data/MCS/MP/'
-#NansenLegacy
-path = '../data/NansenLegacy/'
+##NansenLegacy
+#path = '../data/NansenLegacy/magnaprobe/'
 
-flist = sorted(glob(path+'/**/magnaprobe-*'+ext))
+flist = sorted(glob(path+'/*PS122-'+str(leg)+'*/magnaprobe-*'+ext))
 print(flist)
 
 
@@ -72,7 +72,7 @@ for i in flist:
     date = dt[0].strftime('%Y%m%d')
     print(date)
     #Kathrin is UTC-6h
-    if date == '20191222' or date == '20191219' or date == '20191226':    #some dates at the start of leg 2
+    if date == '20191222' or date == '20191219' or date == '20191226' or date == '20200716':    #some dates at the start of leg 2 and one on leg 4
         dt64 = dt64 + np.timedelta64(6, 'h')
     if leg == 1:
         dt64 = dt64 + np.timedelta64(6, 'h')                              #Katrin was used always on leg 1
