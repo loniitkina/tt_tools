@@ -151,9 +151,30 @@ def ridge_xy(fname):
 
     return(mit1,mit2)
 
-def semivar(h,lim,maxd,val,mxx,myy):
+def semivar(h,lim,val,xx,yy):
+    '''A function to create semivariogram parameters. 
+    Sum of all squares of all differences between measurements inside each of the loops - divided by sample number and halved (semi-variogram).
+    Normally, they can be done in 3-D, but in our case the distance is just along the track
+    
+    Parameters
+    ---------
+    h       : distance step in m
+    lim     : longest distance in m
+    val     : variable (e.g. snow depth)
+    xx     : x coordinate in m
+    yy     : y coordinate in m
+    
+    Returns
+    ---------
+    maxd    : distances
+    semivar : semi-var values for each distance
+    
+    '''
+    
     #get a list/array of distances for each point to all other points
     semivar = []
+    
+    maxd = np.arange(0,lim,h)
     for i in range(0,len(maxd)):
         #print(i)
         
@@ -161,8 +182,8 @@ def semivar(h,lim,maxd,val,mxx,myy):
         ssum=0
         scnt=0
         for j in range(0,len(val)):
-            dx = mxx[j]-mxx
-            dy = myy[j]-myy
+            dx = xx[j]-xx
+            dy = yy[j]-yy
             d = np.sqrt(dx**2+dy**2)            
             #print(d)
             
@@ -183,7 +204,7 @@ def semivar(h,lim,maxd,val,mxx,myy):
     
         semivar.append(svh)
         
-    return(semivar)
+    return(maxd,semivar)
 
 def polymodel(x,y,lim,deg=1):    
     ## LOOCV selects the correct model

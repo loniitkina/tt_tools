@@ -27,9 +27,9 @@ polyorder = 3
 #window = 3  #smoothing filter window for GEM-2 (with spacing .2m is this 60cm!)
 #polyorder = 0
 
-#show gridded data
+#show gridded data plot
 show=True
-#show=False
+show=False
 
 #make mp+gem2 table output
 table_output=True
@@ -46,10 +46,12 @@ inpath_snow = '../data/MCS/MP/'
 inpath_ice = '../data/MCS/GEM2_thickness/01-ice-thickness/'
 #inpath_ice = '../data/MCS/01-ice-thickness/'
 
+#subset locations
+loc1=None
 
 #location
-loc = 'Nloop'
-#loc1 = 'Nloop_spine'
+#loc = 'Nloop'
+#loc1 = 'Nloop_spine'    ##overlap with the leg 4 transect (comment if you want the whole loop!) - this will simply cut a small grid
 #date = '20191024'   #quite different track
 #date = '20191031'   #quite different track
 #date = '20191107'
@@ -75,9 +77,7 @@ loc = 'Nloop'
 #date = '20200430'   #
 #date = '20200507'
 
-dates = ['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507'] 
-
-dates = ['20200507'] 
+#dates = ['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507'] 
 
 loc = 'Sloop'
 #date = '20191031'   #2m spacing!
@@ -96,7 +96,14 @@ loc = 'Sloop'
 #date = '20200330'
 #date = '20200406'   #floenavi problem
 #date = '20200426'
-date = '20200507'   #only a part of the loop: from cross-roads to the main ridge corner
+#date = '20200507'   #only a part of the loop: from cross-roads to the main ridge corner
+
+#dates = ['20191031','20191107','20191114','20191205',
+         #'20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227',
+         #'20200305','20200330','20200406','20200426','20200507']
+
+dates = ['20200102','20200109','20200116','20200130','20200206','20200220','20200227',
+         '20200305','20200330','20200406','20200426','20200507']
 
 #location
 #loc = 'snow1'
@@ -106,8 +113,8 @@ date = '20200507'   #only a part of the loop: from cross-roads to the main ridge
 #date = '20200207'
 #date = '20200223'   #MP GPS is really off the track and messy!
 #date = '20200406'  #leg 4 - floenavi problem (measurements are not at the same time, 30min delay), do plots by counting the MP measurements
+
 #dates = ['20191222','20200112','20200126','20200207','20200406']
-#dates = ['20200406']
 
 #location
 #loc = 'runway'
@@ -115,15 +122,17 @@ date = '20200507'   #only a part of the loop: from cross-roads to the main ridge
 #date = '20200119'
 #date = '20200207'
 
+#dates = ['20200112','20200119','20200207']
+
 #location - ridges
 #only for ridges that were surveyed with a pulk: othrwise use script tt_grid_ridge.py
 #loc = 'ridgeFR1'    #installation (also very close to snow)
-#date = '20200305'
+#dates = ['20200305']
 
 #loc = 'ridgeA1'    #
 #loc = 'ridgeA2'
 #loc = 'ridgeA3'
-#date = '20200410'
+#dates = ['20200410']
 #loc = 'ridge'
 #dates = ['20200628','20200728']
 
@@ -135,11 +144,13 @@ date = '20200507'   #only a part of the loop: from cross-roads to the main ridge
 #date = '20200507'
 
 #loc = 'ridgeE'
-#date = '20200424'
+#dates = ['20200424']
 
+#loc = 'ridge'  #ridge of leg 5
+#dates = ['20200828','20200918']    
 
 ###location
-loc = 'special'
+#loc = 'special'
 #date = '20200107'   #Dark site FYI
 #date = '20200115'   #Dark site SYI
 #date = '20200123'  #long transect
@@ -148,7 +159,8 @@ loc = 'special'
 #date = '20200326'  #leg 3 lead at the Nloop (chicken beak)
 #date = '20200403'   #RS site (floenavi problem)
 #date = '20200430'   #RS site
-dates = ['20200126']
+
+#dates = ['20200107','20200115','20200123','20200126','20200226','20200326','20200403','20200430']
 
 #special transects of leg 4
 #dates = ['20200617']   #'initialsurvey'
@@ -156,17 +168,16 @@ dates = ['20200126']
 #dates = ['20200719']   #'drillholes'
 #dates = ['20200709']   #meltponds
 
+#dates = ['20200617','20200719','20200719','20200709']
+
 #special transects of leg 5
 #dates = ['20200827','20200903','20200910'] #'transectport'
 #dates = ['20200902']   #'transectstbd'
 #dates = ['20200909']   #'transectbow'
 #dates = ['20200919']   #'transectgrid' aka RS site
 
-#dates = ['20200107','20200115','20200123','20200226','20200326','20200403','20200430','20200709','20200718']
-#dates = ['20200709']
-
-#loc = 'ridge'  #ridge of leg 5
-#dates = ['20200828','20200918']    
+#all special transects
+#dates = ['20200107','20200115','20200123','20200226','20200326','20200403','20200430','20200617','20200719','20200719','20200709','20200827','20200903','20200910','20200902','20200909','20200919']
 
 #loc = 'recon'
 #date = '20200228'   #airport recon - has no MP data
@@ -190,16 +201,18 @@ dates = ['20200126']
 #date = '20200708'
 #date = '20200710'  #1.8m spacing!
 #date = '20200714'
-#date = '20200716'   #done with Kathrin, still not processed!, strange GEM-2 data - looks like strong drift
+#date = '20200716'  #done with Kathrin, still not processed!, strange GEM-2 data - looks like strong drift
 #date = '20200719'  #little GEM-2 data
 #date = '20200720'  #part of GEM-2 missing (little bit), but best spacing so far! 1.5m
 #date = '20200721'  #1.3 m spacing! most of GEM-2 track is missing
 #date = '20200723'  #strange shape
 #date = '20200725'  #first good after a while...
 #date = '20200726'  #
-#date = '20200727'   #partial (and likely wrong direction)
+#date = '20200727'  #partial (and likely wrong direction)
+#dates = ['20200617','20200627','20200628','20200629','20200630','20200702','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200716','20200719','20200720','20200721','20200723','20200725','20200726','20200727']
+#most useful selection
 #dates = ['20200627','20200629','20200630','20200702','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200719','20200720','20200721','20200723','20200725','20200726','20200727']
-#dates = ['20200716']
+
 
 #leg5
 #loc = 'transect'    #Kinder grid
@@ -210,7 +223,7 @@ dates = ['20200126']
 #date = '20200918'  #l:493m, 1.7m
 #dates = ['20200830','20200903','20200907','20200910','20200918']
 
-##special transects of leg 4
+##short transects of leg 4 and 5
 #loc = 'albedoLD'
 #dates = ['20200630','20200706','20200707','20200719','20200721','20200724','20200727']
 
@@ -285,20 +298,20 @@ for dd in dates:
     yy = []
     fname = glob(inpath_ice+date_gem2+'*/*-track-icecs-xy.csv')
     for fn in fname:
-        print(fname)
+        print(fn)
         x = getColumn(fn,3, delimiter=',', magnaprobe=False)
         y = getColumn(fn,4, delimiter=',', magnaprobe=False)
     
         xx.extend(x); yy.extend(y)
         
-    xx_full = np.array(xx,dtype=np.float)
-    yy_full  = np.array(yy,dtype=np.float)
+    xx_full = np.array(xx,dtype=float)
+    yy_full  = np.array(yy,dtype=float)
         
     #ice thickness data
     tt18 = []; tt5 = []; tt93 = []
     fname = glob(inpath_ice+date_gem2+'*/*-channel-thickness.csv')
     for fn in fname:
-        
+        print(fn)
         #time, record_id, longitude, latitude, xc, yc, f1525Hz_hcp_i, f1525Hz_hcp_q, f5325Hz_hcp_i, f5325Hz_hcp_q, f18325Hz_hcp_i, f18325Hz_hcp_q, f63025Hz_hcp_i, f63025Hz_hcp_q, f93075Hz_hcp_i, f93075Hz_hcp_q
         t18 = getColumn(fn,10, delimiter=',', magnaprobe=False)        #take 18KHz ip
         t5 = getColumn(fn,8, delimiter=',', magnaprobe=False)        #take 5KHz ip
@@ -308,9 +321,9 @@ for dd in dates:
         tt5.extend(t5[1:-1])
         tt93.extend(t93[1:-1])
         
-    tt18 = np.array(tt18,dtype=np.float)
-    tt5 = np.array(tt5,dtype=np.float)
-    tt93 = np.array(tt93,dtype=np.float)
+    tt18 = np.array(tt18,dtype=float)
+    tt5 = np.array(tt5,dtype=float)
+    tt93 = np.array(tt93,dtype=float)
         
     #run these through a running window smoothing filter - we can then easily use the nearest neighbor also for the GEM-2
     tt18 = savgol_filter(tt18, window, polyorder)
@@ -327,10 +340,10 @@ for dd in dates:
         lat = getColumn(fname,2, delimiter=',', magnaprobe=False)
 
         mxx = getColumn(fname,3, delimiter=',', magnaprobe=False)
-        mxx = np.array(mxx,dtype=np.float)
+        mxx = np.array(mxx,dtype=float)
 
         myy = getColumn(fname,4, delimiter=',', magnaprobe=False)
-        myy = np.array(myy,dtype=np.float)
+        myy = np.array(myy,dtype=float)
             
         #get some meta data for the MP transect:
         dx = mxx[1:]-mxx[:-1]
@@ -361,7 +374,7 @@ for dd in dates:
         fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+ext_mp)[0]
         print(fname)
         snod = getColumn(fname,3, delimiter=',', magnaprobe=True)
-        snod = np.array(snod,dtype=np.float)[:-2]/100             #convert from cm to m
+        snod = np.array(snod,dtype=float)[:-2]/100             #convert from cm to m
         #change all negative data to zero
         snod = np.where(snod<0,0,snod)
 
@@ -429,22 +442,21 @@ for dd in dates:
         grid_x, grid_y = np.mgrid[-1000:250:step, -800:1100:step]
         extent=(-1000,250,-800,1100)
     
-    #if loc1 == 'Nloop_spine':
-        #loc = loc1
-        #grid_x, grid_y = np.mgrid[460:850:step, -500:-180:step]
-        #extent=(460,850,-500,-180)
+    if loc1 == 'Nloop_spine':
+        grid_x, grid_y = np.mgrid[460:850:step, -500:-180:step]
+        extent=(460,850,-500,-180)
         
-        #if date == '20200320':
-            #grid_x, grid_y = np.mgrid[450:850:step, -550:-200:step]
-            #extent=(450,850,-550,-200)
+        if date == '20200320':
+            grid_x, grid_y = np.mgrid[450:850:step, -550:-200:step]
+            extent=(450,850,-550,-200)
             
-        #if date == '20200326':
-            #grid_x, grid_y = np.mgrid[420:850:step, -550:-210:step]
-            #extent=(420,850,-550,-210)
+        if date == '20200326':
+            grid_x, grid_y = np.mgrid[420:850:step, -550:-210:step]
+            extent=(420,850,-550,-210)
             
-        #if date == '20200424' or date == '20200430' or date == '20200507':
-            #grid_x, grid_y = np.mgrid[460:850:step, -550:-210:step]
-            #extent=(460,850,-550,-210)
+        if date == '20200424' or date == '20200430' or date == '20200507':
+            grid_x, grid_y = np.mgrid[460:850:step, -550:-210:step]
+            extent=(460,850,-550,-210)
             
     #assign values to be used for gridding
     sd_points = np.column_stack((mxx,myy))
@@ -546,6 +558,8 @@ for dd in dates:
         of = outpath_grid+loc+'_'+date+'_'+stp+'m_'+method_gem2+ch_name[ch]+'.npz'
         if (date_gem2 == '20200223') or (date_gem2 == '20191226' and loc=='Nloop'):
             of = outpath_grid+loc+'_'+date_gem2+'_'+stp+'m_'+method_gem2+ch_name[ch]+'.npz'
+        if loc1=='Nloop_spine':
+            of = outpath_grid+loc1+'_'+date+'_'+stp+'m_'+method_gem2+ch_name[ch]+'.npz'
         print(of)
         with open(of, 'wb') as f:
             np.savez(f, x = grid_x, y = grid_y, snow = grid_sd, tt = grid_tt, ice = grid_it)
@@ -558,7 +572,7 @@ for dd in dates:
         outname = fname.split('probe')[0]+'+gem2'+fname.split('probe')[1].split('.dat')[0]+'.csv'
         
         #sampling subsets
-        if loc == 'Nloop_spine':
+        if loc1=='Nloop_spine':
             outname = fname.split('probe')[0]+'+gem2'+fname.split('probe')[1].split('.dat')[0]+'_spine.csv'
         
         if (date_gem2 == '20200223'):
@@ -609,7 +623,7 @@ for dd in dates:
         tt_nn18 = np.ma.array(tt_nn18, mask=mask);tt_nn18 = tt_nn18.compressed()
         tt_nn5 = np.ma.array(tt_nn5, mask=mask);tt_nn5 = tt_nn5.compressed()
         tt_nn93 = np.ma.array(tt_nn93, mask=mask);tt_nn93 = tt_nn93.compressed()
-        sd_values = np.ma.array(sd_values, mask=mask);sd_values = sd_values.compressed()
+        sd = np.ma.array(sd_values, mask=mask);sd = sd.compressed()
         
         dt = np.ma.array(dt, mask=mask);dt = dt.compressed()
         lon = np.ma.array(lon , mask=mask);lon = lon.compressed()
@@ -617,9 +631,9 @@ for dd in dates:
         sd_points0 = np.ma.array(sd_points[:,0], mask=mask);sd_points0 = sd_points0.compressed()
         sd_points1 = np.ma.array(sd_points[:,1], mask=mask);sd_points1 = sd_points1.compressed()
         
-        it_nn18 = tt_nn18 - sd_values
-        it_nn5 = tt_nn5 - sd_values
-        it_nn93 = tt_nn93 - sd_values
+        it_nn18 = tt_nn18 - sd
+        it_nn5 = tt_nn5 - sd
+        it_nn93 = tt_nn93 - sd
         print(it_nn18)
         
         #mixed surface data (snow=1, SSL/mixed=2 and melt ponds=-1) for legs 4 and 5
@@ -632,15 +646,27 @@ for dd in dates:
             
             #make all SSL or melt pond surface into zero snow depth
             surface_mask = np.ma.array(surface_mask, mask=mask);surface_mask = surface_mask.compressed()
-            sd_values = sd_values*surface_mask
+            sd = sd*surface_mask
+            
+            #melt pond depths
+            mpd = sd*np.where(surface_mask==0,1,0)
+            
+            #use unphysicial value (-1) where zero
+            sd = np.where(sd==0,-1,sd_values)
+            mpd = np.where(mpd==0,-1,mpd)
+            
+        else:
+            #winter legs get some dummy values
+            mpd = np.ones_like(sd)*-1
+            surface = np.ones_like(sd_values)
             
         #write new csv file with all the ice mass balance variables
-        tt = [dt,lon,lat,sd_points0,sd_points1,sd_values,it_nn18,it_nn5,it_nn93]
+        tt = [dt,lon,lat,sd_points0,sd_points1,sd,mpd,surface,it_nn18,it_nn5,it_nn93]
         table = list(zip(*tt))
 
         print(outname)
         with open(outname, 'wb') as f:
             #header
-            f.write(b'Date/Time, Lon, Lat, Local X, Local Y, Snow Depth (m), Ice Thickness 18kHz ip (m), Ice Thickness 5kHz ip (m), Ice Thickness 93kHz ip (m),\n')
+            f.write(b'Date/Time, Lon, Lat, Local X, Local Y, Snow Depth (m), Melt Pond Depth (m), Surface Type, Ice Thickness 18kHz ip (m), Ice Thickness 5kHz ip (m), Ice Thickness 93kHz ip (m),\n')
             np.savetxt(f, table, fmt="%s", delimiter=",")
 

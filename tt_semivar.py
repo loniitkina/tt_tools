@@ -4,6 +4,7 @@ from tt_func import getColumn, semivar, polymodel
 from scipy.signal import savgol_filter
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
+from scipy.fft import fft, fftfreq
 
 
 #def loocv(x, y, fit, pred, deg):
@@ -23,7 +24,7 @@ dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','2
 
 dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
 
-#dates = ['20191031','20200130','20200507']
+#dates = ['20191031','20200130','20200330']
 
 ##early winter
 #dates = ['20191031','20191107','20191114']
@@ -117,6 +118,17 @@ bx.tick_params(axis="y", labelsize=14)
 fig2 = plt.figure(figsize=(10,10))
 cx = fig2.add_subplot(111)
 
+fig3 = plt.figure(figsize=(10,10))
+fx = fig3.add_subplot(211)
+gx = fig3.add_subplot(212)
+fx.set_xlabel('Frequency (1/m)', fontsize=20)
+fx.set_ylabel('Power', fontsize=20)
+gx.set_xlabel('Frequency (1/m)', fontsize=20)
+gx.set_ylabel('Power', fontsize=20)
+
+fx.set_ylim(0,.1)
+gx.set_ylim(0,.2)
+
 for dd in range(0,len(dates)):
     date = dates[dd]
     dt = datetime.strptime(date, '%Y%m%d')
@@ -183,7 +195,6 @@ for dd in range(0,len(dates)):
     myy = np.ma.array(myy,mask=mask).compressed()
     
     cx.plot(mxx,myy,'o',ms=1,label=date)
-    plt.show()
         
     it = np.ma.masked_invalid(it)
     si = np.ma.array(si,mask=it.mask)
@@ -193,15 +204,14 @@ for dd in range(0,len(dates)):
     
     si = si.compressed()
     it = it.compressed()
-    
+        
     #sum of all squares of all differences between measurements inside each of the loops - divided by sample number and halved (semi-variogram)
     #normally, they can be done in 3-d, but in our case the distance is just along the track
     
     h=.75
     lim=30                      #max for lim: 200m is roughly the radius of the loop => 2*Pi*r=1300m ~total loop lenght
-    maxd = np.arange(0,lim,h)
     
-    semivar_si = semivar(h,lim,maxd,si,mxx,myy)
+    maxd,semivar_si = semivar(h,lim,si,mxx,myy)
     
     #plotting
     ax.scatter(maxd,semivar_si,s=1, color=colors[dd])
@@ -210,18 +220,52 @@ for dd in range(0,len(dates)):
     xmodel,ymodel = polymodel(maxd,semivar_si,lim,3)
     ax.plot(xmodel, ymodel, color=colors[dd],ls='-',label=date)
     
+    #Fourier transform
+    #number of sample points
+    N = si.shape[0]
+
+    #sample spacing
+    dx = mxx[1:]-mxx[:-1]
+    dy = myy[1:]-myy[:-1]
+    d = np.sqrt(dx**2+dy**2)
+    T=np.mean(d)      #This is already gridded data!!!, default T=1
+    print(T)
+    
+    #signal
+    y = si
+    yf = fft(y)         #should we use fftn (instead of fft) to compute the DFT, since it has more than one dimension (map)?
+    
+    #frequency
+    #unit: cycles/meter (5m=0.25,10m=.1,40m=0.025) - larger values are shorter lenghts!!!
+    #[:N//2] takes only real/positive part of the spectrum
+    xf = fftfreq(N, T)[:N//2]   
+
+    #plotting
+    fx.plot(xf, 2.0/N * np.abs(yf[0:N//2]), color=colors[dd],label=date)
+        
     #some bad ice data - dont plot:
     if date=='20191226' or date=='20200116' or date=='20200206' or date=='20200507':
         continue
     
     else:
-        semivar_it = semivar(h,lim,maxd,it,mxx,myy)
+        maxd,semivar_it = semivar(h,lim,it,mxx,myy)
         
         bx.scatter(maxd,semivar_it,s=1, color=colors[dd])
         
         xmodel,ymodel = polymodel(maxd,semivar_it,lim,3)
         bx.plot(xmodel, ymodel, color=colors[dd],ls='-',label=date)
 
+        #Fourier transform
+        if date=='20200426': #why is this data strange?
+            continue
+        
+        y = it
+        yf = fft(y)
+        xf = fftfreq(N, T)[:N//2]
+
+        #plotting
+        gx.plot(xf, 2.0/N * np.abs(yf[0:N//2]), color=colors[dd],label=date)
+    
 bx.legend(ncol=3)    
 ax.legend(ncol=3)    
 fig1.savefig(outpath+'semivar_'+str(step))
@@ -229,6 +273,10 @@ fig1.savefig(outpath+'semivar_'+str(step))
 cx.legend(ncol=3)    
 fig2.savefig(outpath+'semivar_map_'+str(step))
 
-
+fx.grid()
+gx.grid()
+fx.legend(ncol=3)   
+gx.legend(ncol=3)
+fig3.savefig(outpath+'fft_'+str(step))
 
     
