@@ -17,17 +17,24 @@ ch_name = '_18kHz'
 loc = 'Sloop'
 dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']    #best data
 
-loc = 'Nloop'
-dates = ['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
 
 
+#loc = 'Nloop'
+#dates = ['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
+
+reference_date = '20200116'
+
+#loc = 'snow1'
+#dates = ['20191222','20200112','20200126','20200207','20200223','20200406']
+
+#reference_date = '20200207'
 
 inpath_snow = '../data/MCS/MP/'
 inpath_grid = '../data/grids_AGU/'
 outpath = '../plots_AGU/'
 
 #MP coordinates (for a day with good spacing!)
-fn = glob(inpath_snow+'*/magnaprobe-transect-'+'20200116'+'*'+loc+'-track-icecs-xy_corr.csv')[0]
+fn = glob(inpath_snow+'*/magnaprobe-transect-'+reference_date+'*'+loc+'-track-icecs-xy_corr.csv')[0]
 x_track = getColumn(fn,3, delimiter=',', magnaprobe=False)
 y_track = getColumn(fn,4, delimiter=',', magnaprobe=False)
 
@@ -41,6 +48,9 @@ transect_ice = np.zeros((len(x_track),2+len(dates)))
 
 transect_snow[:,0] = x_track
 transect_snow[:,1] = y_track
+
+transect_ice[:,0] = x_track
+transect_ice[:,1] = y_track
 
 dt_list=[]
 
@@ -77,8 +87,8 @@ for dd in range(0,len(dates)):
         #there can be nans...
         #replace with mean in the closest n values
         n=3
-        while (np.isnan(it[i]) and n < 400):    #100 values is just 20x20m on 2-m grid!!! - largest spatial problems are with first transects - level snow/ice
-            nn = np.argpartition(dgf,n)[:n]
+        while (np.isnan(it[i]) and n < 900):    #100 values is just 20x20m on 2-m grid!!! (400=20x20, 900=30x30)
+            nn = np.argpartition(dgf,n)[:n]     #largest spatial problems are with first transects - level snow/ice
             tmp_it = i_grid.flatten()[nn]
             tmp_sd = s_grid.flatten()[nn]
 
@@ -95,7 +105,7 @@ for dd in range(0,len(dates)):
 plt.show()
 
 #save the data
-ouf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track.npz'
+ouf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track1.npz'
 
 with open(ouf, 'wb') as f:
     np.savez(f, dates = dates, snow = transect_snow, ice = transect_ice)

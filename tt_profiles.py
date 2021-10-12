@@ -1,6 +1,6 @@
 import numpy as np
 from glob import glob
-from tt_func import getColumn
+from tt_func import getColumn, running_stats
 from scipy.signal import savgol_filter
 from datetime import datetime
 import matplotlib.pyplot as plt
@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 #maxdist = 10   #how far away to search in case of nan
 ##maxdist = 5
 
-#window size for savgol smoothing savgol_filter (must be odd and more than polyorder=3)
+#window size for savgol smoothing savgol_filter (must be odd and m.e. polyorder=3)
 polyorder=3
 widow=21
 window=5
@@ -22,42 +22,20 @@ window=5
 
 #location and dates
 loc = 'Sloop'
-
-dates = ['20191031','20191107','20191114','20191205',   '20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200426','20200507']
-
-#dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200426','20200507']    #best data
-
 dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
-
 title='Southern transect loop '
 
-loc = 'Nloop'
-dates = ['20191205','20191219','20200220','20200227','20200305','20200416','20200507']
-
-dates = ['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
-
-
-
-
-title='Northern transect loop '
+#loc = 'Nloop'
+#dates = ['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
+#title='Northern transect loop '
 
 #loc = 'Nloop_spine'
 #dates = ['20191205','20191219','20200220','20200227','20200305','20200424','20200507']
-#datel = ['2019/12/05','2019/12/19','2020/02/20','2020/02/27','2020/03/05','2020/04/24','2020/05/07']
 #title='Northern transect loop spine '
 
-
-
-
-loc= 'snow1'
-dates = ['20191222','20200112','20200126','20200207']    #20200126 is reduced track (square!)
-dates = ['20200126']
-title='Snow1 transect '
-
-#loc= 'special'
-#dates = ['20200123']
-#datel = ['2020/01/23']
-#title='Long transect '
+#loc= 'snow1'
+#dates = ['20191222','20200112','20200126','20200207','20200223','20200406']    #20200126 and 20200406 are reduced tracks
+#title='Snow1 transect '
 
 #loc = 'ridgeFR1'
 #dates = ['20200108']#,'20200119','20200221']#,'20200305']
@@ -105,22 +83,46 @@ title='Snow1 transect '
 ##comparable loop transects
 #loc = 'Sloop'
 #dates = ['20200130']
-#datel = ['2020/01/30']
+##dates = ['20200109']
 #title='Southeren transect loop '
+
+#loc = 'Nloop'
+#dates = ['20200130']
+##dates = ['20200109']
+#title='Northeren transect loop '
+
+#loc= 'snow1'
+#dates = ['20200126']
+##dates = ['20200207']
+#title='Snow1 transect '
+
+#loc= 'special'
+#dates = ['20200126']
+#title='Event transect '
 
 #loc = 'runway'
 #dates = ['20200207']
-#datel = ['2020/02/07']
+##dates = ['20200112']
 #title='Runway transect '
 
+#loc= 'special'
 #dates = ['20200107']
-#datel = ['2020/01/07']
 #title='Dark Side FYI '
 
+#loc= 'special'
 #dates = ['20200115']
-#datel = ['2020/01/15']
 #title='Dark Side SYI '
 
+#loc= 'special'
+#dates = ['20200123']
+#title='Long transect '
+
+#special (long) transects of leg 5
+loc= 'special'
+dates = ['20200827']
+dates = ['20200903']
+#dates = ['20200910']
+title='Transect Port '
 
 ##Nansen Legacy
 #loc='P4'
@@ -131,9 +133,9 @@ title='Snow1 transect '
 #dates = ['20210508']
 #title='Nansen Legacy Q2 - P5 '
 
-##loc='P6'
-##dates = ['20210510']
-##title='Nansen Legacy Q2 - P6 '
+#loc='P6'
+#dates = ['20210510']
+#title='Nansen Legacy Q2 - P6 '
 
 #loc='P7'
 #dates = ['20210513']
@@ -164,6 +166,9 @@ inpath_grid = '../data/grids_AGU/'
 station = True
 #station = False
 
+plot_mode = False
+plot_mode = True
+
 fb_list=[]
 si_list=[]
 ii_list=[]
@@ -174,15 +179,17 @@ for dd in range(0,len(dates)):
     print(date)
 
     if station:
-        outname = 'profile_'+date+'_'+loc+'gridded.png'
+        print('station/unique transect')
+        outname = 'profile_'+date+'_'+loc+'gridded_lf.png'
         
-        #choose one 'most perfct' MP track to compare to the others
         fname = glob(inpath_table+'*/magna+gem2*'+date+'*'+loc+'.csv')[0]
         print(fname)
         mxx = getColumn(fname,3, delimiter=',', magnaprobe=False)
         myy = getColumn(fname,4, delimiter=',', magnaprobe=False)
-        snod = getColumn(fname,5, delimiter=',', magnaprobe=False)
+        snod = getColumn(fname,5, delimiter=',', magnaprobe=False)  #snow depth
+        mpd = getColumn(fname,6, delimiter=',', magnaprobe=False)   #melt pond depth
         
+        #ice thickness
         if 'ridge' in loc:
             #Date,Lon,Lat,X,Y,Snow,f1525Hz_hcp_i,f1525Hz_hcp_q,f5325Hz_hcp_i,f5325Hz_hcp_q,18325Hz_hcp_i,f18325Hz_hcp_q,f63025Hz_hcp_i,f63025Hz_hcp_q,f93075Hz_hcp_i,f93075Hz_hcp_q
             it = getColumn(fname,6, delimiter=',', magnaprobe=False)
@@ -207,19 +214,24 @@ for dd in range(0,len(dates)):
             it10 = np.array(it10,dtype=np.float)
             
         else:
-            it = getColumn(fname,6, delimiter=',', magnaprobe=False)
+            it = getColumn(fname,8, delimiter=',', magnaprobe=False)
         mxx = np.array(mxx,dtype=np.float)
         myy = np.array(myy,dtype=np.float)
         si = np.array(snod,dtype=np.float)
         ii = np.array(it,dtype=np.float)
+        mi = np.array(mpd,dtype=np.float)
         
         #it looks like they started somewhere else the last two times, still went same direction...
         if date=='20200330' or date=='20200426':
             #fb = np.concatenate((fb[-215:],fb[:-215]))
             ii = np.concatenate((ii[-215:],ii[:-215]))
             si = np.concatenate((si[-215:],si[:-215]))
+            
+        
+        
     else:
         #not a single data collection station, but a camp with several repeats over same transect
+        print('repeated transect')
     
         #alternativelly, completely gridded data (snow too!)
         #step = 2
@@ -229,9 +241,9 @@ for dd in range(0,len(dates)):
         #method_gem2 = 'linear'
         ch_name = '_18kHz'
 
-        outname = loc+'_profile_'+date+'_'+stp+'_gridded_full.png'
-        #inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track_test.npz'
-        inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track.npz'
+        outname = loc+'_profile_'+date+'_'+stp+'_gridded_full1.png'
+        
+        inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track1.npz'
         
         data = np.load(inf)
 
@@ -245,24 +257,44 @@ for dd in range(0,len(dates)):
         si = transect_snow[:,dd+2]
         it = transect_ice[:,dd+2]
         
-        it = np.ma.masked_invalid(it)
-        si = np.ma.array(si,mask=it.mask)
-        mxx = np.ma.array(mxx,mask=it.mask); mxx = mxx.compressed()
-        myy = np.ma.array(myy,mask=it.mask); myy = myy.compressed()
+        ii=it
         
-        si = si.compressed()
-        ii = it.compressed()
+        #dummy melt pond depth for now
+        mi = np.zeros_like(si)
+        
+        #if loc=='snow1':
+            #ii=it
+        #else:
+            ##not sure how this works for the other locations - check!
+            #it = np.ma.masked_invalid(it)
+            #si = np.ma.array(si,mask=it.mask)
+            #mxx = np.ma.array(mxx,mask=it.mask); mxx = mxx.compressed()
+            #myy = np.ma.array(myy,mask=it.mask); myy = myy.compressed()
+            
+            #si = si.compressed()
+            #ii = it.compressed()
+    
+    #convert dummy snow depth, ice thickness and melt pond depth to zeros
+    ii = np.where(ii==-1,0,ii)
+    si = np.where(si==-1,0,si)
+    mi = np.where(mi==-1,0,mi)
+    
+    #in summer there can be negative thicknesses in salty melt ponds, set those to zero
+    ii = np.where(ii<0,0,ii)
+    #and they have some bias (bad calibration?)
+    if date=='20200903':
+        ii = np.where(ii>0,ii-.4,ii)
+    
+    
+    #use meltponds as separate color in summer. They should be blue and bellow FB
+    #at all late summer dates: melt ponds FB=0, then plot blue water bellow, then ice if any (if ice negative, then zero)
+    
     
     #get distances between fixed date MP points
     dx = mxx[1:]-mxx[:-1]
     dy = myy[1:]-myy[:-1]
     md = np.sqrt(dx**2+dy**2)
 
-    #what is the surface elevation? ALS geotiff???
-    #hydrostatic equilibrium with mean snow density and sea ice density
-    rho_i = 882
-    rho_w = 1025
-    rho_s = 313
 
     #plot
     fig1 = plt.figure(figsize=(20,10))
@@ -287,14 +319,13 @@ for dd in range(0,len(dates)):
         #ii = np.ma.array(ii,mask=bad)
 
     #what is the surface elevation? ALS geotiff???
-    #hydrostatic equilibtium with mean snow density and sea ice density
+    #hydrostatic equilibrium with mean snow density and sea ice density
     rho_i = 882
     rho_w = 1025
     rho_s = 313
 
     #following Forsstrom et al, 2011, Annals of Glaciology
     fb = (ii - si * (rho_s/(rho_w-rho_i))) * (rho_w-rho_i)/rho_w
-    x = range(0,len(fb))
        
     #cumulative distance allong the fixed date MP transect
     x = np.zeros_like(fb)
@@ -310,14 +341,70 @@ for dd in range(0,len(dates)):
         if date=='20200117' or  date=='20200228' or date=='20200410':
             x = x+18
 
+    if plot_mode:
+        #find mode of thickness
+        irbins = np.arange(0,2,.06)
+        ii_pos = np.ma.array(ii,mask=ii==0);ii_pos=ii_pos.compressed()  #take only non-zero (not detected as negative) values
+        hist = np.histogram(ii_pos,bins=irbins)
+        srt = np.argsort(hist[0])                           #indexes that would sort the array
+        mm = srt[-1]                                        #same as: np.argmax(hist[0])
+        mm1 = np.argmax(hist[0])
+        mo = (hist[1][mm] + hist[1][mm+1])/2           #take mean of the bin for the mode value
+        print(mo)
+        
+        #find mode of fb
+        hist = np.histogram(fb,bins=irbins)
+        srt = np.argsort(hist[0])
+        mm = srt[-1]
+        mm1 = np.argmax(hist[0])
+        mofb = (hist[1][mm] + hist[1][mm+1])/2
+        print(mofb)
+        
+        ##mode==level ice thickness
+        fbm = np.ones_like(fb)*mofb
+        ax.plot(x,fbm-mo,c='purple',ls=':')
+        t = '$h_i$ level '+str(np.round(mo,2))
+        ax.text(10, mofb-mo+.1, t, ha='left', wrap=True, c='purple',size=24)
+        
+        #roughness
+        nit=30
+        itm,itv = running_stats(ii,nit)
+        std = np.sqrt(itv)
+        
+        rubble=0.15
+        ridge=0.4
+        level_cls=np.where(std<rubble,1,np.nan)
+        ridge_cls=np.where(std>ridge,1,np.nan)
+        mask = (std > rubble) & (std < ridge)
+        rubble_cls=np.where(mask,1,np.nan)
+        
+        if loc== 'runway':
+            mo=1.11
+            ax.plot(x,fbm-mo,c='darkred',ls=':')
+            t = 'level ice thickness on 2020/01/12: '+str(mo)
+            ax.text(10, mofb-mo+.1, t, ha='left', wrap=True, c='darkred',size=24)
+            
+        if loc== 'Nloop':
+            mo=1.17
+            ax.plot(x,fbm-mo,c='darkred',ls=':')
+            t = 'level ice thickness on 2020/01/09: '+str(mo)
+            ax.text(400, mofb-mo+.1, t, ha='left', wrap=True, c='darkred',size=24)
+            
+        if loc== 'Sloop':
+            mo=1.11
+            ax.plot(x,fbm-mo,c='darkred',ls=':')
+            t = '$h_i$ level on 2020/01/09: '+str(mo)
+            ax.text(400, mofb-mo+.1, t, ha='left', wrap=True, c='darkred',size=24)
+            
+            ax.scatter(x,np.ones_like(x)*level_cls*1.15,c='y',ls='-',label='level ice')
+            ax.scatter(x,np.ones_like(x)*rubble_cls*1.15,c='royalblue',ls='-',label='rubble')
+            ax.scatter(x,np.ones_like(x)*ridge_cls*1.15,c='purple',ls='-',label='ridge/lead edge')
 
     #plot with equilibrium
     ax.plot(x,fb,label='ice surface',c='k',ls=':')
-    
-    #ax.plot(fb-ii,label='ice bottom'+date)
-    #ax.plot(fb+si,label='snow surface'+date)
     ax.fill_between(x, fb, fb+si,alpha=.6, color=colors[1], label='snow')
-    ax.fill_between(x, fb, fb-ii,alpha=.6, color=colors[0], label='ice')
+    ax.fill_between(x, fb, fb-mi,alpha=.6, color='royalblue', label='melt pond')
+    ax.fill_between(x, fb, fb-mi-ii,alpha=.6, color=colors[0], label='ice')
     
     if loc == 'Nloop':
         ax.set_ylim(-8,1.8)
@@ -330,17 +417,25 @@ for dd in range(0,len(dates)):
     ax.legend(fontsize=25,loc='lower left',fancybox=True,facecolor=fig1.get_facecolor(),framealpha=.6)
     print(outname)
     fig1.savefig(outpath+outname,bbox_inches='tight', facecolor=fig1.get_facecolor(), edgecolor='none')
-    exit()
+    
 
     #save all these data and try to overlay them in a multi-profile plot
     fb_hat = savgol_filter(fb, window, polyorder) # window size 51, polynomial order 3
     ii_hat = savgol_filter(ii, window, polyorder)
     si_hat = savgol_filter(si, window, polyorder)  
     
+    
+    print(np.ma.masked_invalid(si_hat).compressed().shape)
+        
+    
+  
     fb_list.append(fb_hat)
     ii_list.append(ii_hat) 
     si_list.append(si_hat)
-    x_list.append(x)
+    #x_list.append(x)
+
+if station:
+    exit()
     
 fig2 = plt.figure(figsize=(20,10))
 ax = fig2.add_subplot(111)
@@ -356,36 +451,42 @@ for i in range(0,len(fb_list)):
     print(dates[i])
     
     #some bad ice data - dont plot:
-    if dates[i]=='20191031' or dates[i]=='20191205' or dates[i]=='20200227' or dates[i]=='20200426':
+    if loc=='snow1' or dates[i]=='20191205' or dates[i]=='20200102' or dates[i]=='20200220' or dates[i]=='20200305' or dates[i]=='20200426' or dates[i]=='20200507':
     
-        x=x_list[i]
         
         #use the same freeboard all the times
         #for a static feature e.g. cosolidating ridge, last measurement is best
         #for a deforming transect e.g. Nloop or Sloop each transect might be separate
         if loc == 'Sloop' or loc == 'Nloop':
-            fb = fb_list[i]
-        else:
-            fb = fb_list[-1]
-        
-        #some (ridge) transects were getting longer (typically over level ice, so not much changes there...)
-        if len(fb) < len(x):
-            extra = len(x)-len(fb)
-            fb = np.append(fb,fb_list[i][-extra:])
+            li = -5  #list index for the date
+            li = -1
+            fbli = fb_list[li]
             
-        #while some are getting shorter...
-        if len(fb) > len(x):
-            extra = len(fb)-len(x)
-            fb = fb[:-extra]
+        elif loc == 'snow1':
+            li=0
+            fbli = fb_list[li]   #last transect is not complete, use 1st transect
+            
+        else:
+            li=-1
+            fbli = fb_list[li]
+            
         
-        #ax.plot(x, fb,c='0.75')
-        ax.plot(x, fb-ii_list[i],c=colors[i],label=datel[i]+' bottom')
-        ax.plot(x, fb+si_list[i],c=colors[i])
+        ##some (ridge) transects were getting longer (typically over level ice, so not much changes there...)
+        #if len(fb) < len(x):
+            #extra = len(x)-len(fb)
+            #fb = np.append(fb,fb_list[i][-extra:])
+            
+        ##while some are getting shorter...
+        #if len(fb) > len(x):
+            #extra = len(fb)-len(x)
+            #fb = fb[:-extra]
+                
+        ax.plot(x, fbli-ii_list[i],c=colors[i],label=datel[i])
+        ax.plot(x, fbli+si_list[i],c=colors[i])
 
-x=x_list[-2]
-ax.plot(x,fb,label='ice surface',c=colors[-1],ls=':')    
-ax.fill_between(x, fb, fb+si_list[-2],alpha=1, color=colors[1], label='snow')
-ax.fill_between(x, fb, fb-ii_list[-2],alpha=.3, color=colors[-1], label='ice')
+ax.plot(x,fbli,label='ice surface',c=colors[-1],ls=':')    
+ax.fill_between(x, fbli, fbli+si_list[li],alpha=1, color=colors[1], label='snow')
+ax.fill_between(x, fbli, fbli-ii_list[li],alpha=.3, color=colors[-1], label='ice')
 
     
 #x=x_list[0]
@@ -401,6 +502,10 @@ if loc=='Sloop':
     
 if loc=='Nloop':
     ax.set_xlim(0,1310)
+    
+if loc=='snow1':
+    ax.set_xlim(0,420)
+    ax.set_ylim(-2,1.8)
 
 #if loc=='special':
     #ax.set_ylim(-6,1.5)
@@ -749,13 +854,13 @@ ax.tick_params(axis="x", labelsize=14)
 ax.tick_params(axis="y", labelsize=14)
 
 for i in range(0,len(fb_list)-1):
-    x=x_list[i]
+    #x=x_list[i]
     zero_level = np.zeros_like(x)
     
     #ax.plot(x, fb_list[i],c='0.75')
     ax.plot(x, zero_level+si_list[i],c=colors[i],label=datel[i]+' surface')
 
-x=x_list[-1]
+#x=x_list[-1]
 zero_level = np.zeros_like(x)
 #ax.fill_between(x, fb_list[-1], fb_list[-1]-ii_list[-1],alpha=.3, color=colors[-1], label='ice')
 ax.fill_between(x, zero_level, zero_level+si_list[-1],alpha=.3, color=colors[-2], label='snow')

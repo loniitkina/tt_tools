@@ -49,13 +49,8 @@ for loc in range(0,len(locs)):
         #GPS problem on MP
         if locs[loc] == 'snow1' and datem=='20200223':
             ll = 400.
-            ss = 1.
-            
-        #combi
-        if locs[loc]=='combi':
-            print(combi)
-            #here we need to manually alter the statistics...
-        
+            ss = 400./276   #Ian only took 276 valid MP measurements (compared to normal ~450)
+                    
         #plot dates vs total lenght
         if fn != flist[0]:
             ax.scatter(date,ll,c=cols[loc])

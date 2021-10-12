@@ -59,10 +59,10 @@ dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191
 #dates = ['20200112','20200119','20200207']
 
 ##leg4
-#loc = 'transect'
-#title = 'Leg 4 Transect '
+loc = 'transect'
+title = 'Leg 4 Transect '
 ##all data
-#dates = ['20200627','20200629','20200630','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200719','20200720','20200725','20200726']
+dates = ['20200627','20200629','20200630','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200719','20200720','20200725','20200726']
 
 #leg5
 #loc = 'transect'
@@ -76,10 +76,12 @@ combo=False
 ##combinations
 #combo=True
 #loco = 'combi'
+#loc = 'Sloop'
 #title = 'Combined MOSAiC Transects '
 #dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507',
 #'20200617','20200630','20200706','20200714','20200719','20200726',
-#'20200830','20200903','20200907','20200910','20200918']
+#'20200827','20200903','20200910']   #port transects of leg 5
+##'20200830','20200903','20200907','20200910','20200918']    #short transects in CO of leg 5 (thick ice!)
 
 #colors = plt.cm.rainbow(np.linspace(0, 1, len(dates)))
 #datel=dates
@@ -88,7 +90,7 @@ outname = 'pdf_'+loc+'_ice.png'
 #outname_ts = 'ts_'+loc+'_'+stp+'.png'
 #outname_ts_type = 'ts_'+loc+'_'+stp+'_type.png'
 
-outname_ts = 'ts_'+loc+'_'+'2m_gridded_it.png'
+outname_ts = 'ts_'+loc+'_'+'2m_gridded_it1.png'
 outname_ts_type = 'ts_'+loc+'_'+'2m_gridded_it_type.png'
 
 
@@ -114,8 +116,8 @@ if combo==True:
     colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
     colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
     colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
-    colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
-    colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
+    #colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
+    #colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
     
     #print(colors)
     
@@ -172,7 +174,8 @@ for date in dates:
         if datei < datetime(2020,6,1):
             loc='Sloop'
         elif datei > datetime(2020,8,15):
-            loc='albedoK'
+            #loc='albedoK'
+            loc='special'
         else:
             loc='transect'
             
@@ -213,9 +216,20 @@ for date in dates:
     #load the csv data created in tt_grid.py
     fname = glob(inpath_table+'*/magna+gem2-transect-'+date+'*'+loc+'*.csv')[0]
     snod = getColumn(fname,5, delimiter=',', magnaprobe=False)
-    it = getColumn(fname,6, delimiter=',', magnaprobe=False)
+    it = getColumn(fname,8, delimiter=',', magnaprobe=False)
     snod = np.array(snod,dtype=np.float)
     it = np.array(it,dtype=np.float)
+    
+    #dummy data and negative value treatment (important for summer data)
+    it = np.where(it==-1,0,it)
+    snod = np.where(snod==-1,0,snod)
+    
+    #in summer there can be negative thicknesses in salty melt ponds, set those to zero
+    it = np.where(it<0,0,it)
+    #and they have some bias (bad calibration?)
+    if date=='20200903':
+        it = np.where(it>0,it-.4,it)
+
     
     #add some more measurements for leg5
     if loc=='albedoK':
@@ -239,9 +253,10 @@ for date in dates:
     print(mn)
     print(np.std(snod))
     #mni = np.mean(it)
-    
+        
     #find mode
-    hist = np.histogram(it,bins=irbins)
+    it_pos = np.ma.array(it,mask=it==0);it_pos=it_pos.compressed()  #take only non-zero (not detected as negative) values
+    hist = np.histogram(it_pos,bins=irbins)
     srt = np.argsort(hist[0])                           #indexes that would sort the array
     mm = srt[-1]                                        #same as: np.argmax(hist[0])
     mm1 = np.argmax(hist[0])
@@ -332,10 +347,17 @@ if ts==True:
     dx.set_ylabel('Ice thickness (m)', fontsize=20)
     dx.tick_params(axis="x", labelsize=14)
     dx.tick_params(axis="y", labelsize=14)
-    dx.set_ylim(0,11)
-    if loc=='Sloop': dx.set_ylim(0,4)
-    if loc=='transect': dx.set_ylim(0,6)
-    if loc=='snow1': dx.set_ylim(0,4)
+    
+    if loc=='Sloop': 
+        dx.set_ylim(0,4)
+    elif loc=='Nloop':
+        dx.set_ylim(0,11)
+    elif loc=='transect': 
+        dx.set_ylim(0,6)
+    elif loc=='snow1': 
+        dx.set_ylim(0,4)
+    else:
+        dx.set_ylim(0,6)
 
     #spacing between the box plots
     dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
@@ -346,7 +368,7 @@ if ts==True:
         
         dt1 = [ x-timedelta(days=366) for x in dt if x > datetime(2020,8,1)  ]
         
-        dt[-5:] = dt1
+        dt[-3:] = dt1   #check how many transect we have (3 for special, 5 for albedoK)
         
     #import ipdb;ipdb.set_trace()
     

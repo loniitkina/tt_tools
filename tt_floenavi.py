@@ -29,10 +29,9 @@ location='' #no locations for GEM-2
 latlon=True #GEM-2 data is written as latlon and not lonlat
 
 #reference position file
+#Floenavi
 #refstat_csv_file = glob('../data/floenavi/data_master-solution_mosaic-leg'+str(leg)+'*-floenavi-refstat-v1p0.csv')[0]
-
-##for Sloop on 20191226 the conversion from floenavi is bad, but DSHIP data format is not compatible
-#refstat_csv_file = '../../coord_trans/dshipextracts/polarstern-ref-20191101to20200222.dat.txt'
+#floenavi alternatives bellow (PS GPS data with ship heading)
 #refstat_csv_file = '../../coord_trans/dshipextracts/transect_legs/position_leg3_nh-track.csv'
 refstat_csv_file = '../../coord_trans/dshipextracts/transect_legs/position_leg4_nh-track.csv'
 #refstat_csv_file = '../../coord_trans/dshipextracts/transect_legs/position_leg5_nh-track.csv'

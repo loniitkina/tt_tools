@@ -13,28 +13,41 @@ method_gem2 = 'nearest'
 ch_name = '_18kHz'
 
 #location and dates
-#selected main date -to wich all other transects are centered - pick a date with good spacing and no detours etc!!!
-#selected main date: 20200116
+#selected reference date -to wich all other transects are centered - pick a date with good spacing and no detours etc!!!
+#selected reference date: 20200116
 locs = ['Sloop','Nloop']
 dates = [['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507'],
          
 ['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']]
 
+#locs = ['Sloop']
+#dates = [ ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']        
+#]
 
-#locs = ['Nloop']
-#dates = [         
-#['20200116','20200424']]
+#selected reference date:20200207
+#locs = ['snow1']
+#dates = [['20191222','20200112','20200126','20200207','20200223','20200406']]
 
-
-
+#all leg1-4 transects on selected dates
+locs = ['Sloop','Nloop','snow1','transect']
+dates = [['20200116'],
+['20200116'],
+['20200207'],
+['20200630']
+]
 
 
 inpath_grid = '../data/grids_AGU/'
 outpath = '../plots_AGU/'
-outname = 'grid_maps1.png'
+outname = 'grid_maps3.png'
+outname = 'grid_maps_legs1-4.png'
+outname2 = 'map_legs1-4.png'
+
+print(outpath+outname)
 
 #set up plot
-extent=(-950,850,-600,620)
+#extent=(-950,850,-600,620) #old
+extent=(-950,820,-1200,650) #extended
 fig1 = plt.figure(figsize=(40,50))
 ax = fig1.add_subplot(131)
 ax.set_title('Original')
@@ -42,6 +55,10 @@ bx = fig1.add_subplot(132)
 bx.set_title('Shifted and Rotated')
 cx = fig1.add_subplot(133)
 cx.set_title('De-deformed')
+
+fig2 = plt.figure(figsize=(40,50))
+dx = fig2.add_subplot(111)
+dx.set_title('Final Map')
 
 for ll in range(0,len(locs)):
     print(locs[ll])
@@ -53,6 +70,8 @@ for ll in range(0,len(locs)):
         #load data
         of = inpath_grid+locs[ll]+'_'+date+'_'+stp+'m_'+method_gem2+ch_name+'.npz'
         #of = inpath_grid+loc+'_'+date+'_'+stp+'m_'+method_gem2+'.npz'
+        print(of)
+        
         data = np.load(of)
 
         x_grid = data['x']
@@ -65,26 +84,32 @@ for ll in range(0,len(locs)):
         #lets check how this looks like before the shifting and rotation
         if dd == 0:
             i_grid1 = np.ma.masked_invalid(i_grid).filled(0)
+            
+            i_grid2=i_grid1.copy()
+            i_grid3=i_grid1.copy()
+            
         else:
              i_grid1 = i_grid1+np.ma.masked_invalid(i_grid).filled(0)
-        
-        
         
         #get rid of nans for the operations
         i_grid=np.ma.masked_invalid(i_grid).filled(-999)
         s_grid=np.ma.masked_invalid(s_grid).filled(-999)
         
-        #fit to the reference date: 20200116
+        #fit to the reference date
         
         if locs[ll]=='Sloop':
             #move along y axis
             if date == '20191031' or date == '20191107' or date == '20191114':
-                i_grid = np.append(i_grid[:,int(-75/step):],i_grid[:,:int(-75/step)],axis=1)            #this is same as numpy.roll
-                s_grid = np.append(s_grid[:,int(-75/step):],s_grid[:,:int(-75/step)],axis=1)
+                i_grid = np.append(i_grid[:,int(-66/step):],i_grid[:,:int(-66/step)],axis=1)            #this is same as numpy.roll
+                s_grid = np.append(s_grid[:,int(-66/step):],s_grid[:,:int(-66/step)],axis=1)
                 
             if date == '20191226':
                 i_grid = np.append(i_grid[:,int(8/step):],i_grid[:,:int(8/step)],axis=1)
                 s_grid = np.append(s_grid[:,int(8/step):],s_grid[:,:int(8/step)],axis=1)
+                
+            if date == '20200130':
+                i_grid = np.append(i_grid[:,int(2/step):],i_grid[:,:int(2/step)],axis=1)
+                s_grid = np.append(s_grid[:,int(2/step):],s_grid[:,:int(2/step)],axis=1)
                 
             if date == '20200206':
                 i_grid = np.append(i_grid[:,int(6/step):],i_grid[:,:int(6/step)],axis=1)
@@ -99,12 +124,12 @@ for ll in range(0,len(locs)):
                 s_grid = np.append(s_grid[:,int(-510/step):],s_grid[:,:int(-510/step)],axis=1)
                 
             if date == '20200406':
-                i_grid = np.append(i_grid[:,int(-220/step):],i_grid[:,:int(-220/step)],axis=1)
-                s_grid = np.append(s_grid[:,int(-220/step):],s_grid[:,:int(-220/step)],axis=1)
+                i_grid = np.append(i_grid[:,int(140/step):],i_grid[:,:int(140/step)],axis=1)
+                s_grid = np.append(s_grid[:,int(140/step):],s_grid[:,:int(140/step)],axis=1)
                 
             if date == '20200426':
-                i_grid = np.append(i_grid[:,int(-470/step):],i_grid[:,:int(-470/step)],axis=1)
-                s_grid = np.append(s_grid[:,int(-470/step):],s_grid[:,:int(-470/step)],axis=1)
+                i_grid = np.append(i_grid[:,int(-484/step):],i_grid[:,:int(-484/step)],axis=1)
+                s_grid = np.append(s_grid[:,int(-484/step):],s_grid[:,:int(-484/step)],axis=1)
                 
             if date == '20200507':
                 i_grid = np.append(i_grid[:,int(-460/step):],i_grid[:,:int(-460/step)],axis=1)
@@ -112,8 +137,8 @@ for ll in range(0,len(locs)):
                         
             #move along x axis
             if date == '20191031' or date == '20191107' or date == '20191114':
-                i_grid = np.append(i_grid[int(470/step):,:],i_grid[:int(470/step),:],axis=0)
-                s_grid = np.append(s_grid[int(470/step):,:],s_grid[:int(470/step),:],axis=0)
+                i_grid = np.append(i_grid[int(490/step):,:],i_grid[:int(490/step),:],axis=0)
+                s_grid = np.append(s_grid[int(490/step):,:],s_grid[:int(490/step),:],axis=0)
                 
             if date == '20191205':
                 i_grid = np.append(i_grid[int(26/step):,:],i_grid[:int(26/step),:],axis=0)
@@ -127,9 +152,13 @@ for ll in range(0,len(locs)):
                 i_grid = np.append(i_grid[int(-4/step):,:],i_grid[:int(-4/step),:],axis=0)
                 s_grid = np.append(s_grid[int(-4/step):,:],s_grid[:int(-4/step),:],axis=0)
                     
-            if date == '20200130' or date == '20200227':
+            if date == '20200227':
                 i_grid = np.append(i_grid[int(8/step):,:],i_grid[:int(8/step),:],axis=0)
                 s_grid = np.append(s_grid[int(8/step):,:],s_grid[:int(8/step),:],axis=0)
+                
+            if date == '20200130':
+                i_grid = np.append(i_grid[int(10/step):,:],i_grid[:int(10/step),:],axis=0)
+                s_grid = np.append(s_grid[int(10/step):,:],s_grid[:int(10/step),:],axis=0)   
                 
             if date == '20200206':
                 i_grid = np.append(i_grid[int(12/step):,:],i_grid[:int(12/step),:],axis=0)
@@ -144,20 +173,20 @@ for ll in range(0,len(locs)):
                 s_grid = np.append(s_grid[int(14/step):,:],s_grid[:int(14/step),:],axis=0)   
                 
             if date == '20200330':
-                i_grid = np.append(i_grid[int(-254/step):,:],i_grid[:int(-254/step),:],axis=0)
-                s_grid = np.append(s_grid[int(-254/step):,:],s_grid[:int(-254/step),:],axis=0)
+                i_grid = np.append(i_grid[int(-280/step):,:],i_grid[:int(-280/step),:],axis=0)
+                s_grid = np.append(s_grid[int(-280/step):,:],s_grid[:int(-280/step),:],axis=0)
             
             if date == '20200406': #for this case the axes are mixed up...
-                i_grid = np.append(i_grid[int(-290/step):,:],i_grid[:int(-290/step),:],axis=0)
-                s_grid = np.append(s_grid[int(-290/step):,:],s_grid[:int(-290/step),:],axis=0)
+                i_grid = np.append(i_grid[int(-490/step):,:],i_grid[:int(-490/step),:],axis=0)
+                s_grid = np.append(s_grid[int(-490/step):,:],s_grid[:int(-490/step),:],axis=0)
             
             if date == '20200426':
-                i_grid = np.append(i_grid[int(-144/step):,:],i_grid[:int(-144/step),:],axis=0)
-                s_grid = np.append(s_grid[int(-144/step):,:],s_grid[:int(-144/step),:],axis=0)
+                i_grid = np.append(i_grid[int(-160/step):,:],i_grid[:int(-160/step),:],axis=0)
+                s_grid = np.append(s_grid[int(-160/step):,:],s_grid[:int(-160/step),:],axis=0)
                 
             if date == '20200507':
-                i_grid = np.append(i_grid[int(-205/step):,:],i_grid[:int(-205/step),:],axis=0)
-                s_grid = np.append(s_grid[int(-205/step):,:],s_grid[:int(-205/step),:],axis=0)
+                i_grid = np.append(i_grid[int(-238/step):,:],i_grid[:int(-238/step),:],axis=0)
+                s_grid = np.append(s_grid[int(-238/step):,:],s_grid[:int(-238/step),:],axis=0)
             
             #rotate
             #chose order=1 for no interpolation at boundaries!
@@ -183,8 +212,8 @@ for ll in range(0,len(locs)):
                 s_grid = ndimage.rotate(s_grid, 3, reshape=False,order=0,mode='nearest')
                 
             if date == '20200507':
-                i_grid = ndimage.rotate(i_grid, 3, reshape=False,order=0,mode='nearest')
-                s_grid = ndimage.rotate(s_grid, 3, reshape=False,order=0,mode='nearest')
+                i_grid = ndimage.rotate(i_grid, 4, reshape=False,order=0,mode='nearest')
+                s_grid = ndimage.rotate(s_grid, 4, reshape=False,order=0,mode='nearest')
             
             #check how it looks like after the lateral shifts
             tmpi = np.ma.array(i_grid,mask=i_grid<0).filled(np.nan)
@@ -197,26 +226,48 @@ for ll in range(0,len(locs)):
             #slice and move for deformation (x-axis)
             if date == '20191031' or date == '20191107' or date == '20191114':
                 #Large ridge in the corner (Stakes 2)
-                i_grid[int(210/step):int(310/step),:] = i_grid[int(150/step):int(250/step),:]
-                i_grid[int(150/step):int(210/step),:] = np.nan
+                i_grid[int(205/step):int(325/step),int(1630/step):int(1800/step)] = i_grid[int(150/step):int(270/step),int(1630/step):int(1800/step)]
+                i_grid[int(170/step):int(230/step),int(1630/step):int(1800/step)] = np.nan
                 
-                s_grid[int(210/step):int(310/step),:] = s_grid[int(150/step):int(250/step),:]
-                s_grid[int(150/step):int(210/step),:] = np.nan
+                s_grid[int(205/step):int(325/step),int(1630/step):int(1800/step)] = s_grid[int(150/step):int(270/step),int(1630/step):int(1800/step)]
+                s_grid[int(170/step):int(230/step),int(1630/step):int(1800/step)] = np.nan
                 
                 #Rubble field after the ridge
-                i_grid[int(240/step):int(340/step),int(700/step):int(1040/step)] = i_grid[int(200/step):int(300/step),int(700/step):int(1040/step)]
-                i_grid[int(200/step):int(240/step),int(700/step):int(1040/step)] = np.nan
+                tmp = i_grid[int(120/step):int(170/step),int(1500/step):int(1650/step)]
+                tmp = ndimage.rotate(tmp, 15, reshape=False,order=0,mode='nearest')
+                i_grid[int(210/step):int(260/step),int(1520/step):int(1670/step)] = tmp
+                i_grid[int(120/step):int(220/step),int(1500/step):int(1650/step)] = np.nan
                 
-                s_grid[int(240/step):int(340/step),int(700/step):int(1040/step)] = s_grid[int(200/step):int(300/step),int(700/step):int(1040/step)]
-                s_grid[int(200/step):int(240/step),int(700/step):int(1040/step)] = np.nan
+                tmp = s_grid[int(120/step):int(170/step),int(1500/step):int(1650/step)]
+                tmp = ndimage.rotate(tmp, 15, reshape=False,order=0,mode='nearest')
+                s_grid[int(210/step):int(260/step),int(1520/step):int(1670/step)] = tmp
+                s_grid[int(120/step):int(220/step),int(1500/step):int(1650/step)] = np.nan
                 
                 #End/Start (misterious lead) part
-                i_grid[int(360/step):int(600/step),int(630/step):int(1030/step)] = i_grid[int(360/step):int(600/step),int(600/step):int(1000/step)]
+                tmp = i_grid[int(220/step):int(600/step),int(1340/step):int(1520/step)]
+                tmp = ndimage.rotate(tmp, 7, reshape=False,order=0,mode='nearest')
+                i_grid[int(250/step):int(630/step),int(1370/step):int(1550/step)] = tmp
                 
-                s_grid[int(360/step):int(600/step),int(630/step):int(1030/step)] = s_grid[int(360/step):int(600/step),int(600/step):int(1000/step)]
+                tmp = s_grid[int(220/step):int(600/step),int(1340/step):int(1520/step)]
+                tmp = ndimage.rotate(tmp, 7, reshape=False,order=0,mode='nearest')
+                s_grid[int(250/step):int(630/step),int(1370/step):int(1550/step)] = tmp
+             
+            if date == '20200406':
+                i_grid[int(195/step):int(795/step),int(1350/step):int(1850/step)] = i_grid[int(200/step):int(800/step),int(1250/step):int(1750/step)]
                 
+                s_grid[int(195/step):int(795/step),int(1350/step):int(1850/step)] = s_grid[int(200/step):int(800/step),int(1250/step):int(1750/step)]
+            
             if date == '20200426':
-                print('needs more work')
+                #top
+                i_grid[int(385/step):int(755/step),int(1680/step):int(1800/step)] = i_grid[int(380/step):int(750/step),int(1690/step):int(1810/step)]
+                s_grid[int(385/step):int(755/step),int(1680/step):int(1800/step)] = s_grid[int(380/step):int(750/step),int(1690/step):int(1810/step)]
+                
+                #bottom
+                i_grid[int(220/step):int(600/step),int(1380/step):int(1665/step)] = i_grid[int(220/step):int(600/step),int(1365/step):int(1650/step)]
+                i_grid[int(400/step):int(600/step),int(1390/step):int(1510/step)] = i_grid[int(400/step):int(600/step),int(1380/step):int(1500/step)]
+                
+                s_grid[int(220/step):int(600/step),int(1380/step):int(1665/step)] = s_grid[int(220/step):int(600/step),int(1365/step):int(1650/step)]
+                s_grid[int(400/step):int(600/step),int(1390/step):int(1510/step)] = s_grid[int(400/step):int(600/step),int(1380/step):int(1500/step)]
                         
         if locs[ll]=='Nloop':
             #move along y axis
@@ -436,6 +487,68 @@ for ll in range(0,len(locs)):
                 rsample = ndimage.rotate(sample, -5, reshape=False,order=0,mode='nearest')
                 s_grid[int(1310/step):int(1465/step),int(855/step):int(1120/step)] = rsample
                 
+        if locs[ll]=='snow1':
+            #move along y axis
+            if date == '20191222':
+                i_grid = np.append(i_grid[:,int(-2/step):],i_grid[:,:int(-2/step)],axis=1)
+                s_grid = np.append(s_grid[:,int(-2/step):],s_grid[:,:int(-2/step)],axis=1)
+                
+            if date == '20200112':
+                i_grid = np.append(i_grid[:,int(-8/step):],i_grid[:,:int(-8/step)],axis=1)
+                s_grid = np.append(s_grid[:,int(-8/step):],s_grid[:,:int(-8/step)],axis=1)    
+                
+            if date == '20200126':
+                i_grid = np.append(i_grid[:,int(-2/step):],i_grid[:,:int(-2/step)],axis=1)
+                s_grid = np.append(s_grid[:,int(-2/step):],s_grid[:,:int(-2/step)],axis=1)
+                            
+            if date == '20200406':
+                i_grid = np.append(i_grid[:,int(177/step):],i_grid[:,:int(177/step)],axis=1)
+                s_grid = np.append(s_grid[:,int(177/step):],s_grid[:,:int(177/step)],axis=1)
+
+            #move along x axis
+            if date == '20191222':
+                i_grid = np.append(i_grid[int(12/step):,:],i_grid[:int(12/step),:],axis=0)
+                s_grid = np.append(s_grid[int(12/step):,:],s_grid[:int(12/step),:],axis=0)
+                
+            if date == '20200112':
+                i_grid = np.append(i_grid[int(-18/step):,:],i_grid[:int(-18/step),:],axis=0)
+                s_grid = np.append(s_grid[int(-18/step):,:],s_grid[:int(-18/step),:],axis=0)
+            
+            if date == '20200126':
+                i_grid = np.append(i_grid[int(1/step):,:],i_grid[:int(1/step),:],axis=0)
+                s_grid = np.append(s_grid[int(1/step):,:],s_grid[:int(1/step),:],axis=0)
+                            
+            if date == '20200406': #for this case the axes are mixed up...
+                i_grid = np.append(i_grid[int(-586/step):,:],i_grid[:int(-586/step),:],axis=0)
+                s_grid = np.append(s_grid[int(-586/step):,:],s_grid[:int(-586/step),:],axis=0)
+
+            #rotate
+            if date == '20200406':
+                i_grid = ndimage.rotate(i_grid, 107, reshape=False,order=0,mode='nearest')
+                s_grid = ndimage.rotate(s_grid, 107, reshape=False,order=0,mode='nearest')
+                
+            #check how it looks like after the lateral shifts
+            tmpi = np.ma.array(i_grid,mask=i_grid<0).filled(np.nan)
+            if dd == 0:
+                i_grid2 = np.ma.masked_invalid(tmpi).filled(0)
+            else:
+                i_grid2 = i_grid2+np.ma.masked_invalid(tmpi).filled(0)
+            del tmpi
+
+        if locs[ll]=='transect':
+                        
+            #rotate
+            if date == '20200630':
+                i_grid = ndimage.rotate(i_grid, -40, reshape=False,order=0,mode='nearest')
+                s_grid = ndimage.rotate(s_grid, -40, reshape=False,order=0,mode='nearest')
+                
+            #move along x axis
+            if date == '20200630':
+                i_grid = np.append(i_grid[int(1100/step):,:],i_grid[:int(1100/step),:],axis=0)
+                s_grid = np.append(s_grid[int(1000/step):,:],s_grid[:int(1000/step),:],axis=0)
+            
+            
+        
         i_grid = np.ma.array(i_grid,mask=i_grid<0).filled(np.nan)
         s_grid = np.ma.array(s_grid,mask=s_grid<0).filled(np.nan)
         
@@ -452,7 +565,11 @@ for ll in range(0,len(locs)):
             np.savez(f, x = x_grid, y = y_grid, snow = s_grid, ice = i_grid)
         f.close()    
         
-        del x_grid, y_grid, s_grid, i_grid
+        #check if the sizes of both grids match
+        print(np.ma.masked_invalid(i_grid).compressed().shape)
+        print(np.ma.masked_invalid(s_grid).compressed().shape)
+        
+        
 
     #get the transparency for the plots
     i_grid1 = np.ma.array(i_grid1,mask=i_grid1==0).filled(np.nan)
@@ -463,7 +580,12 @@ for ll in range(0,len(locs)):
     bx.imshow(i_grid2.T, extent=extent, origin='lower',vmin=0,vmax=3)
     cx.imshow(i_grid3.T, extent=extent, origin='lower',vmin=0,vmax=3)
     
+    #get plots with coordinates
+    dx.contourf(x_grid.T, y_grid.T, i_grid3.T)
+    
+    del x_grid, y_grid, s_grid, i_grid
     del i_grid1, i_grid2, i_grid3
     
 #plt.show()    
 fig1.savefig(outpath+outname,bbox_inches='tight')
+fig2.savefig(outpath+outname2,bbox_inches='tight')

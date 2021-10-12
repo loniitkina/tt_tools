@@ -219,5 +219,26 @@ def polymodel(x,y,lim,deg=1):
 
     return(x_lin_reg,y_lin_reg)
     
+def running_stats(x, n):            #n has to be dividable by 2!
+        sum1 = np.zeros_like(x)
+        sum2 = np.zeros_like(x)
+        x2 = x**2
+        n2 = int(n/2)
+        
+        for i in range(n2,len(x)-n2):
+            #print(i)
+            #print(len(x[i-n2:i+n2]))
+            #print(x[i-n2:i+n2])
+            #print(np.sum(x[i-n2:i+n2]))
+            sum1[i] = np.sum(x[i-n2:i+n2])
+            sum2[i] = np.sum(x2[i-n2:i+n2])
+            
+            #print(sum1[i])
+            #print(sum2[i])
+        #exit()
+        
+        mean = sum1/n
+        var = (sum2/n - mean**2)
+        return (mean,var)
     
 

@@ -1,6 +1,6 @@
 import numpy as np
 from glob import glob
-from tt_func import getColumn
+from tt_func import getColumn, running_stats
 from scipy.signal import savgol_filter
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
@@ -161,7 +161,7 @@ for dd in range(0,len(dates)):
     
     else:
         inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track_test.npz'
-        inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track.npz'
+        inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track1.npz'
         
         data = np.load(inf)
 
@@ -172,29 +172,6 @@ for dd in range(0,len(dates)):
         myy = transect_snow[:,1]
         si = transect_snow[:,dd+2]
         it = transect_ice[:,dd+2]
-                
-        if date=='20191226':
-            #This date had no data over ridges and the roughness in that part is wrong (nearest neighbor is flat)
-            #Replace by it from previous week.
-            it = it_old
-            
-        if date=='20200206':
-            #Too thin ice
-            it = it_old
-        
-        #time derivative of snow depth (erosion=negative!)
-        if dd == 0:
-            si_old=si
-        
-        dsi = si_old - si
-        #convert to mm/week
-        
-        si_old = si
-        #print(dsi)
-
-        #keep it for dates with problems
-        it_old = it.copy()
-       
         
         #clean up the nans
         it = np.ma.masked_invalid(it)
@@ -203,7 +180,7 @@ for dd in range(0,len(dates)):
         mxx = np.ma.array(mxx,mask=it.mask); mxx = mxx.compressed()
         myy = np.ma.array(myy,mask=it.mask); myy = myy.compressed()
         
-        dsi = np.ma.array(dsi,mask=it.mask); dsi = dsi.compressed()
+        
         
         si = si.compressed()
         it = it.compressed()
@@ -268,27 +245,6 @@ for dd in range(0,len(dates)):
     ##plt.plot(itm,label='convolve')
     
     
-    def running_stats(x, n):            #n has to be dividable by 2!
-        sum1 = np.zeros_like(x)
-        sum2 = np.zeros_like(x)
-        x2 = x**2
-        n2 = int(n/2)
-        
-        for i in range(n2,len(x)-n2):
-            #print(i)
-            #print(len(x[i-n2:i+n2]))
-            #print(x[i-n2:i+n2])
-            #print(np.sum(x[i-n2:i+n2]))
-            sum1[i] = np.sum(x[i-n2:i+n2])
-            sum2[i] = np.sum(x2[i-n2:i+n2])
-            
-            #print(sum1[i])
-            #print(sum2[i])
-        #exit()
-        
-        mean = sum1/n
-        var = (sum2/n - mean**2)
-        return (mean,var)
 
     itm,itv = running_stats(it,nit)
     std = np.sqrt(itv)
@@ -308,25 +264,12 @@ for dd in range(0,len(dates)):
     sim = np.ma.array(sim,mask=mask);sim=sim.compressed()
     
 
-    #plot    
-    #std1 = np.ma.array(std,mask=std<.1)
-    #si1 = np.ma.array(si,mask=std<.1)
-    #dsi1 = np.ma.array(dsi,mask=std<.1)
+    #plot  
     
-    #std1 = std1.compressed()
-    #si1 = si1.compressed()
-    #dsi1 = dsi1.compressed()
     
     
     #ax.scatter(std,si,alpha=0.3,c='g')
-    ax.scatter(std,sim,alpha=0.1,c=colors[dd])
-    
-    #dsi1 = np.ma.array(dsi1,mask=dsi1<0)
-    
-    #dsi1 = dsi1**2
-    
-    #ax.scatter(std1,dsi1,alpha=0.3,c='r')
-    
+    ax.scatter(std,sim,alpha=0.1,c=np.array([colors[dd]]))
     
     #r2 estimates
     x = std
@@ -344,9 +287,53 @@ for dd in range(0,len(dates)):
         
         x_lin_reg = np.arange(0, 1.1,.1)
         y_lin_reg = predict(x_lin_reg)
-        ax.plot(x_lin_reg, y_lin_reg, c = colors[dd], label = datel[dd])
+        ax.plot(x_lin_reg, y_lin_reg, c=colors[dd], label=datel[dd])
         
         r2_ts_roughness.append(r2)
+        
+        
+        #estimate some mean values
+        level=0
+        rubble=0.15
+        ridge=0.4
+        
+        #level ice
+        y_pred = predict(level)
+        print('level: ',level,y_pred)
+        #estimate the volume
+        mask = std>rubble
+        level_sim = np.ma.array(sim,mask=mask);level_sim=level_sim.compressed()
+        vol = np.sum(level_sim)/np.sum(sim)
+        print('volume fraction of level ice snow: ',vol)
+        level_n = level_sim.shape[0]/sim.shape[0]
+        print('volume fraction of level ice: ',level_n)
+        
+        #rubble
+        y_pred = predict(rubble)
+        print('rubble: ',rubble,y_pred)
+        #estimate the volume
+        mask = (std<rubble)
+        level_sim = np.ma.array(sim,mask=mask);level_sim=level_sim.compressed()
+        vol = np.sum(level_sim)/np.sum(sim)
+        print('volume fraction of rubble ice snow: ',vol)
+        level_n = level_sim.shape[0]/sim.shape[0]
+        print('volume fraction of rubble ice: ',level_n)
+
+        #ridges
+        y_pred = predict(ridge)
+        print('ridge: ',ridge,y_pred)
+        #estimate the volume
+        mask = (std<ridge)
+        level_sim = np.ma.array(sim,mask=mask);level_sim=level_sim.compressed()
+        vol = np.sum(level_sim)/np.sum(sim)
+        print('volume fraction of ridge ice snow: ',vol)
+        level_n = level_sim.shape[0]/sim.shape[0]
+        print('volume fraction of ridge ice: ',level_n)
+        
+        
+        #give snow volume for these classes
+
+        
     
     ##snow depth derivative
     #x = std1
@@ -428,9 +415,11 @@ for dd in range(0,len(dates)):
 
     x_lin_reg = np.arange(0, 1.1,.1)
     y_lin_reg = predict(x_lin_reg)
-
-    bx.plot(x_lin_reg, y_lin_reg, c = colors[dd], label = datel[dd])
     
+    print(x_lin_reg)
+    print(y_lin_reg)
+
+    bx.plot(x_lin_reg, y_lin_reg, c=colors[dd], label=datel[dd])
     
     std_list.extend(std_whole)
     si_list.extend(si)
@@ -439,12 +428,12 @@ for dd in range(0,len(dates)):
 
 #Roughness scatterplot
 ax.legend(ncol=3)
-fig4.savefig(outpath+'roughness_'+suff,bbox_inches='tight')
+fig4.savefig(outpath+'roughness_1'+suff,bbox_inches='tight')
 plt.close(fig4)
 
 
 bx.legend(ncol=3)
-fig1.savefig(outpath+'thermo_scatter_'+suff,bbox_inches='tight')
+fig1.savefig(outpath+'thermo_scatter_1'+suff,bbox_inches='tight')
 plt.close(fig1)
 
 
@@ -570,7 +559,7 @@ cx.plot(date,temp,c='darkred')
 
 fig2.autofmt_xdate()
 
-fig2.savefig(outpath+'r2_ts'+suff,bbox_inches='tight')
+fig2.savefig(outpath+'r2_ts1'+suff,bbox_inches='tight')
 
 print(nit_ts)
 print(spacing_ts)

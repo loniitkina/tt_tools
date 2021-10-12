@@ -6,38 +6,21 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 from scipy.fft import fft, fftfreq
 
-
-#def loocv(x, y, fit, pred, deg):
-    #"""LOOCV RSS for fitting a polynomial model."""
-    #x = np.array(x); y = np.array(y)
-    #n = len(x)
-    #idx = np.arange(n)
-    #rss = np.sum([(y - pred(fit(x[idx!=i], y[idx!=i], deg), x))**2.0 for i in range(n)])
-    #return(rss)
+#this script always takes all dates in the '_track.npz' file (list of dates must be identical to the one in tt_grid_roll.py)!
+#if you dont want some dates, skip in the script!
 
 
 #location and dates
+title='Southern transect loop '
 loc = 'Sloop'
-dates = ['20191031','20191107','20191114','20191205',   '20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200426']#,'20200507']    #best data
-
-dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200426','20200507']    #best data
 
 dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
 
-#dates = ['20191031','20200130','20200330']
-
-##early winter
-#dates = ['20191031','20191107','20191114']
-###deep winter
-#dates = ['20191205','20200102','20200109','20200116','20200130','20200206','20200220']
-###late winter
-#dates = ['20200227','20200305','20200330','20200406','20200426','20200507']
-
-#dense data
-#dates = ['20200102','20200109','20200116','20200130','20200206','20200220','20200227']
+selection = ['20191031','20191205','20200220','20200227','20200330','20200426']
+selection = ['20191031','20191114','20191205','20191226','20200102','20200109','20200130','20200220','20200227','20200305','20200330','20200426']  #best data
 
 
-title='Southern transect loop '
+
 
 #loc = 'Nloop'
 #dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
@@ -49,11 +32,14 @@ title='Southern transect loop '
 ##late
 #dates =['20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
 
-
-#loc= 'snow1'
-#dates = ['20191222','20200112','20200126','20200207']    #20200126 is reduced track (square!)
-#datel = ['2019/12/22','2020/01/12','2020/01/26','2020/02/07']
 #title='Snow1 transect '
+#loc= 'snow1'
+#dates = ['20191222','20200112','20200126','20200207','20200223','20200406']    #20200126,20200406  are reduced tracks
+#selection = dates
+
+
+mix=True
+mix=False
 
 #loc = 'runway'
 #dates = ['20200207']
@@ -121,13 +107,21 @@ cx = fig2.add_subplot(111)
 fig3 = plt.figure(figsize=(10,10))
 fx = fig3.add_subplot(211)
 gx = fig3.add_subplot(212)
-fx.set_xlabel('Frequency (1/m)', fontsize=20)
+fx.set_xlabel('Frequency (cycle/m)', fontsize=20)
 fx.set_ylabel('Power', fontsize=20)
-gx.set_xlabel('Frequency (1/m)', fontsize=20)
+gx.set_xlabel('Frequency (cycle/m)', fontsize=20)
 gx.set_ylabel('Power', fontsize=20)
 
-fx.set_ylim(0,.1)
-gx.set_ylim(0,.2)
+fx.set_ylim(0,.2)
+gx.set_ylim(0,.3)
+
+#fx.set_xlim(0,.2)
+#gx.set_xlim(0,.2)
+
+#fx.set_xscale('log')
+
+#fx.set_yscale('log')
+#gx.set_yscale('log')
 
 for dd in range(0,len(dates)):
     date = dates[dd]
@@ -135,29 +129,14 @@ for dd in range(0,len(dates)):
     dt_list.append(dt)
     print(date)
     
-    #outname = 'profile_'+date+'_'+loc+'gridded.png'
-    
-    ##choose one 'most perfct' MP track to compare to the others
-    #fname = glob(inpath_table+'*/magna+gem2-transect-'+date+'*'+loc+'.csv')[0]
-    #print(fname)
-    #mxx = getColumn(fname,3, delimiter=',', magnaprobe=False)
-    #myy = getColumn(fname,4, delimiter=',', magnaprobe=False)
-    #snod = getColumn(fname,5, delimiter=',', magnaprobe=False)
-    #it = getColumn(fname,6, delimiter=',', magnaprobe=False)
-    #mxx = np.array(mxx,dtype=np.float)
-    #myy = np.array(myy,dtype=np.float)
-    #si = np.array(snod,dtype=np.float)
-    #it = np.array(it,dtype=np.float)
-    
-    inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track_test.npz'
     inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track.npz'
-    
+    inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track1.npz'
     data = np.load(inf)
 
     transect_snow = data['snow']
     transect_ice = data['ice']
     
-    mxx = transect_snow[:,0]
+    mxx = transect_snow[:,0]    #these are MP coordinates from 20200116
     myy = transect_snow[:,1]
     si = transect_snow[:,dd+2]
     it = transect_ice[:,dd+2]
@@ -174,13 +153,23 @@ for dd in range(0,len(dates)):
     
     #all level ice between 200 and 700m distance - level ice always thinner than 1m
     ax.set_title('All level ice - several lines', fontsize=25)
-    mask = (x<100) | (x>750)  | (it>2)
+    
+    if loc=='Sloop':
+        mask = (x<100) | (x>750)  | (it>2)  #level ice is never > 2m, some rubble and ridges are just between 2 and 3 m thick!)
+        
+        #mask = (x<100) | (x>750)  | (it>2) | (it<.3)
+        
+    if loc=='snow1':
+        mask = it>2
     
     ##parallel to ship heading
-    #mask = (x<100) | (x>260)  | (it>3)
+    #mask = (x<100) | (x>260)  | (it>2)
     
     ##perpendicular to ship heading
     #mask = (x<262) | (x>435)  | (it>2)
+    
+    ##other level ice
+    #mask = (x<435) | (x>750)  | (it>2)
     
     ##all ridges and rubble
     #mask = ~((x<100) | (x>750))
@@ -194,8 +183,47 @@ for dd in range(0,len(dates)):
     mxx = np.ma.array(mxx,mask=mask).compressed()
     myy = np.ma.array(myy,mask=mask).compressed()
     
-    cx.plot(mxx,myy,'o',ms=1,label=date)
+    print(it.shape)
+    
+    if mix:
         
+        #snow1
+        #asign a similar date
+        if date=='20191226':
+            ds=0
+        elif date=='20200109':
+            ds=1
+        elif date=='20200130':
+            ds=2
+        elif date=='20200220':
+            ds=3
+        elif date=='20200227':
+            ds=4
+        elif date=='20200406':
+            ds=5
+        else:
+            ds=-1   #no similar date
+            
+        if ds>-1:
+            print('combi mix')
+            loc1='snow1'
+            
+            inf = inpath_grid+loc1+'_'+stp+'m_'+method_gem2+ch_name+'_track.npz'
+            data = np.load(inf)
+
+            transect_snow = data['snow']
+            transect_ice = data['ice']
+            
+            mxx_s = transect_snow[:,0]    #these are MP coordinates from xxxxxx
+            myy_s = transect_snow[:,1]
+            si_s = transect_snow[:,ds+2]
+            it_s = transect_ice[:,ds+2]
+            
+            #add snow1 to Sloop data
+            mxx=np.append(mxx,mxx_s); myy=np.append(myy,myy_s)
+            si=np.append(si,si_s)
+            it=np.append(it,it_s)
+    
     it = np.ma.masked_invalid(it)
     si = np.ma.array(si,mask=it.mask)
     
@@ -204,79 +232,86 @@ for dd in range(0,len(dates)):
     
     si = si.compressed()
     it = it.compressed()
-        
-    #sum of all squares of all differences between measurements inside each of the loops - divided by sample number and halved (semi-variogram)
-    #normally, they can be done in 3-d, but in our case the distance is just along the track
     
-    h=.75
-    lim=30                      #max for lim: 200m is roughly the radius of the loop => 2*Pi*r=1300m ~total loop lenght
+    #plot the map
+    cx.plot(mxx,myy,'o',ms=1,label=date)
     
-    maxd,semivar_si = semivar(h,lim,si,mxx,myy)
-    
-    #plotting
-    ax.scatter(maxd,semivar_si,s=1, color=colors[dd])
-    
-    #fit semivar model    
-    xmodel,ymodel = polymodel(maxd,semivar_si,lim,3)
-    ax.plot(xmodel, ymodel, color=colors[dd],ls='-',label=date)
-    
-    #Fourier transform
-    #number of sample points
-    N = si.shape[0]
+    if date in selection:
+        print('selected date: '+date)
 
-    #sample spacing
-    dx = mxx[1:]-mxx[:-1]
-    dy = myy[1:]-myy[:-1]
-    d = np.sqrt(dx**2+dy**2)
-    T=np.mean(d)      #This is already gridded data!!!, default T=1
-    print(T)
-    
-    #signal
-    y = si
-    yf = fft(y)         #should we use fftn (instead of fft) to compute the DFT, since it has more than one dimension (map)?
-    
-    #frequency
-    #unit: cycles/meter (5m=0.25,10m=.1,40m=0.025) - larger values are shorter lenghts!!!
-    #[:N//2] takes only real/positive part of the spectrum
-    xf = fftfreq(N, T)[:N//2]   
-
-    #plotting
-    fx.plot(xf, 2.0/N * np.abs(yf[0:N//2]), color=colors[dd],label=date)
+        #==================================================
+        #snow depth
         
-    #some bad ice data - dont plot:
-    if date=='20191226' or date=='20200116' or date=='20200206' or date=='20200507':
-        continue
+        #semivar
+        #sum of all squares of all differences between measurements inside each of the loops - divided by sample number and halved (semi-variogram)
+        #normally, they can be done in 3-d, but in our case the distance is just along the track
+        
+        h=.75
+        lim=30                      #max for lim: 200m is roughly the radius of the loop => 2*Pi*r=1300m ~total loop lenght
+        
+        maxd,semivar_si = semivar(h,lim,si,mxx,myy)
+        
+        #plotting
+        ax.scatter(maxd,semivar_si,s=1, color=colors[dd])
+        
+        #fit semivar model    
+        xmodel,ymodel = polymodel(maxd,semivar_si,lim,3)
+        ax.plot(xmodel, ymodel, color=colors[dd],ls='-',label=date,alpha=.9,lw=3)
     
-    else:
+        #Fourier transform (discrete)
+        #number of sample points
+        N = si.shape[0]
+
+        #sample spacing
+        dx = mxx[1:]-mxx[:-1]
+        dy = myy[1:]-myy[:-1]
+        d = np.sqrt(dx**2+dy**2)
+        T=np.mean(d)      #This is already gridded data!!!, default T=1
+        #print(T)
+        
+        #signal
+        y = si
+        yf = fft(y)         #should we use fftn (instead of fft) to compute the DFT, since it has more than one dimension (map)?
+        
+        #frequency
+        #unit: cycles/meter (5m=0.25,10m=.1,40m=0.025) - larger values are shorter lenghts!!!
+        #[:N//2] takes only real/positive part of the spectrum
+        xf = fftfreq(N, T)[:N//2]   
+
+        #plotting
+        fx.plot(xf, 2.0/N * np.abs(yf[0:N//2]), color=colors[dd],label=date,alpha=.9)
+    
+        #==================================================
+        #ice thickness
         maxd,semivar_it = semivar(h,lim,it,mxx,myy)
         
         bx.scatter(maxd,semivar_it,s=1, color=colors[dd])
         
         xmodel,ymodel = polymodel(maxd,semivar_it,lim,3)
-        bx.plot(xmodel, ymodel, color=colors[dd],ls='-',label=date)
+        bx.plot(xmodel, ymodel, color=colors[dd],ls='-',label=date,alpha=.9,lw=3)
 
-        #Fourier transform
-        if date=='20200426': #why is this data strange?
-            continue
-        
+        ##Fourier transform
         y = it
         yf = fft(y)
         xf = fftfreq(N, T)[:N//2]
 
         #plotting
-        gx.plot(xf, 2.0/N * np.abs(yf[0:N//2]), color=colors[dd],label=date)
+        gx.plot(xf, 2.0/N * np.abs(yf[0:N//2]), color=colors[dd],label=date,alpha=.9)
+
+if mix:
+    loc=loc+'_mix'
     
 bx.legend(ncol=3)    
 ax.legend(ncol=3)    
-fig1.savefig(outpath+'semivar_'+str(step))
+fig1.savefig(outpath+'semivar_'+str(step)+'_'+loc)
 
 cx.legend(ncol=3)    
-fig2.savefig(outpath+'semivar_map_'+str(step))
+fig2.savefig(outpath+'semivar_map_'+str(step)+'_'+loc)
 
 fx.grid()
 gx.grid()
 fx.legend(ncol=3)   
 gx.legend(ncol=3)
-fig3.savefig(outpath+'fft_'+str(step))
+fig3.savefig(outpath+'fft_'+str(step)+'_'+loc)
 
     

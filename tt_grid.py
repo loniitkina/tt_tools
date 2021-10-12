@@ -38,13 +38,10 @@ outpath = '../plots_AGU/'
 outpath_grid = '../data/grids_AGU/'
 
 #MP
-#inpath_snow = '../../../MOSAiC/leg2_ICE/transect/'
 inpath_snow = '../data/MCS/MP/'
 
 #GEM-2
-#inpath_ice = '../../../MOSAiC/thickness_workspace/01-ice-thickness/'
 inpath_ice = '../data/MCS/GEM2_thickness/01-ice-thickness/'
-#inpath_ice = '../data/MCS/01-ice-thickness/'
 
 #subset locations
 loc1=None
@@ -84,7 +81,7 @@ loc = 'Sloop'
 #date = '20191107'   #3.1m spacing!!!
 #date = '20191114'   #2.9m spacing!!!    - no visible snowdunes yet...
 #date = '20191205'   #1.8m spacing!
-#date = '20191226'   #GEM-2 has only level ice/part of the S loop
+#date = '20191226'   #GEM-2 has only level ice/part of the S loop, ice looks very similar to 1 Jan (~almost 1m thick) - use that GEM-2 data
 #date = '20200102'
 #date = '20200109'
 #date = '20200116'   #bad GPS data on GEM-2 - data from last week used, 1.1m MP spacing
@@ -94,16 +91,15 @@ loc = 'Sloop'
 #date = '20200227'  
 #date = '20200305'   #1.5m spacing!   
 #date = '20200330'
-#date = '20200406'   #floenavi problem
+#date = '20200406'   #floenavi problem, short cut/parallel track in the parts parallel to the main road due to active crack
 #date = '20200426'
-#date = '20200507'   #only a part of the loop: from cross-roads to the main ridge corner
+#date = '20200507'   #only a part of the loop: from cross-roads and almost to the start
 
 #dates = ['20191031','20191107','20191114','20191205',
          #'20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227',
          #'20200305','20200330','20200406','20200426','20200507']
-
-dates = ['20200102','20200109','20200116','20200130','20200206','20200220','20200227',
-         '20200305','20200330','20200406','20200426','20200507']
+         
+dates = ['20191226']
 
 #location
 #loc = 'snow1'
@@ -111,15 +107,16 @@ dates = ['20200102','20200109','20200116','20200130','20200206','20200220','2020
 #date = '20200112'
 #date = '20200126'   #just a square (half of transect)
 #date = '20200207'
-#date = '20200223'   #MP GPS is really off the track and messy!
-#date = '20200406'  #leg 4 - floenavi problem (measurements are not at the same time, 30min delay), do plots by counting the MP measurements
+#date = '20200223'   #MP GPS is really off the track and messy! Also only about half of the values (Ian did 2m MP spacing?)
+#date = '20200406'  #leg 4 - floenavi problem (measurements are not at the same time, 30min delay), do plots by counting the MP measurements, shape of the track is not recognisable...
 
-#dates = ['20191222','20200112','20200126','20200207','20200406']
+#dates = ['20191222','20200112','20200126','20200207','20200223','20200406']
+#dates = ['20200406']
 
 #location
 #loc = 'runway'
 #date = '20200112'
-#date = '20200119'
+#date = '20200119'    #GEM-2 was not used, use the earlier sea ice data
 #date = '20200207'
 
 #dates = ['20200112','20200119','20200207']
@@ -171,13 +168,15 @@ dates = ['20200102','20200109','20200116','20200130','20200206','20200220','2020
 #dates = ['20200617','20200719','20200719','20200709']
 
 #special transects of leg 5
-#dates = ['20200827','20200903','20200910'] #'transectport'
+#loc='special'
+#dates = ['20200827','20200903','20200910'] #'transectport' (August transect has negative values, last transect has a bit different track shape)
 #dates = ['20200902']   #'transectstbd'
 #dates = ['20200909']   #'transectbow'
 #dates = ['20200919']   #'transectgrid' aka RS site
 
 #all special transects
-#dates = ['20200107','20200115','20200123','20200226','20200326','20200403','20200430','20200617','20200719','20200719','20200709','20200827','20200903','20200910','20200902','20200909','20200919']
+loc='special'
+dates = ['20200107','20200115','20200123','20200226','20200326','20200403','20200430','20200617','20200719','20200719','20200709','20200827','20200903','20200910','20200902','20200909','20200919']
 
 #loc = 'recon'
 #date = '20200228'   #airport recon - has no MP data
@@ -186,8 +185,8 @@ dates = ['20200102','20200109','20200116','20200130','20200206','20200220','2020
 #limit = step*2            #no need to search far
 
 #leg4
-#loc = 'transect'
-#date = '20200617'  #initial survey - MP track looks goo and similar to transect, GEM-2 coordinates are messed up.
+loc = 'transect'
+#date = '20200617'  #initial survey - MP track looks good and similar to transect, GEM-2 coordinates are messed up.
 #date = '20200627'  #only part
 #date = '20200628'  #tiny bit og GEM-2, same part of MP as day before
 #date = '20200629'  #MP entire, GEM-2 majority
@@ -209,7 +208,7 @@ dates = ['20200102','20200109','20200116','20200130','20200206','20200220','2020
 #date = '20200725'  #first good after a while...
 #date = '20200726'  #
 #date = '20200727'  #partial (and likely wrong direction)
-#dates = ['20200617','20200627','20200628','20200629','20200630','20200702','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200716','20200719','20200720','20200721','20200723','20200725','20200726','20200727']
+dates = ['20200627','20200628','20200629','20200630','20200702','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200716','20200719','20200720','20200721','20200723','20200725','20200726','20200727']
 #most useful selection
 #dates = ['20200627','20200629','20200630','20200702','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200719','20200720','20200721','20200723','20200725','20200726','20200727']
 
@@ -224,17 +223,17 @@ dates = ['20200102','20200109','20200116','20200130','20200206','20200220','2020
 #dates = ['20200830','20200903','20200907','20200910','20200918']
 
 ##short transects of leg 4 and 5
-#loc = 'albedoLD'
-#dates = ['20200630','20200706','20200707','20200719','20200721','20200724','20200727']
+loc = 'albedoLD'
+dates = ['20200630','20200706','20200707','20200719','20200721','20200724','20200727']
 
-#loc = 'albedoRBB'
-#dates = ['20200630','20200706','20200707','20200719','20200727']
+loc = 'albedoRBB'
+dates = ['20200630','20200706','20200707','20200719','20200727']
 
-#loc = 'ARIEL'
-#dates = ['20200830','20200903','20200907','20200910','20200917']
+loc = 'ARIEL'
+dates = ['20200830','20200903','20200907','20200910','20200917']
 
-#loc = 'kuka'
-#dates = ['20200907','20200910','20200917']
+loc = 'kuka'
+dates = ['20200907','20200910','20200917']
 
 ##Nansen Legacy
 #outpath = '../plots_NL/'
@@ -264,7 +263,9 @@ for dd in dates:
     print(date)
 
     #examples of dates when there is something wrong with the GEM-2 data
-    if date == '20200116':                      #bad coordinates on both loops/not floenavi problem
+    if date == '20191226' and loc=='Sloop':     #only part of the Sloop has GEM-2 data
+        date_gem2 = '20200102'
+    elif date == '20200116':                      #bad coordinates on both loops/not floenavi problem
         date_gem2 = '20200109'
     elif date == '20200227' and loc=='Nloop':   #incomplete N loop
         date_gem2 = '20200220'
@@ -368,8 +369,18 @@ for dd in dates:
             date = '20200223'
             date_gem2 = '20200223'
             
+            #local coordinates
+            #there is only 276 valid measurements that day (compared to 458 measurements 07/02/2020) - Ian did 2m spacing with MP?
+            print(mxx.shape)
             mxx = mxx[::2]
             myy = myy[::2]
+            
+            #timestamp and lat/lon
+            dt = np.ones_like(mxx)*-999
+            
+            #use non-physical values for lat/lon
+            lat = np.ones_like(mxx)*-999
+            lon = np.ones_like(mxx)*-999
 
         fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+ext_mp)[0]
         print(fname)
@@ -379,7 +390,9 @@ for dd in dates:
         snod = np.where(snod<0,0,snod)
 
         if date == '20200223':
+            print(snod.shape)
             snod = snod[:len(mxx)+1]
+            
             
         if date == '20200406':
             #there is no floenavi data between 2 and 8 April - ship coordinates are used instead, but there is lots of deformation still...
@@ -397,14 +410,14 @@ for dd in dates:
     #####################################################################################################################################3
     #lets make a regular grid with 'step' m spacing, corresponding to the CO local coordinate boundaries
     grid_x, grid_y = np.mgrid[-950:820:step, -1200:650:step]
-    extent=(-950,850,-1200,650)
+    extent=(-950,820,-1200,650)
 
     #previously: extent=(-950,850,-600,620)
 
     #bring the data closer to the source (but keep same grid dimensions, so that we can overlay!!!)
     if date == '20200507' and loc=='Sloop':
-        grid_x, grid_y = np.mgrid[-1100:670:step, -600:650:step]
-        extent=(-1100,670,-600,650)
+        grid_x, grid_y = np.mgrid[-1100:670:step, -1200:650:step]
+        extent=(-1100,670,-1200,650)
 
     #long transect, needs a different grid
     if date == '20200123':
@@ -457,7 +470,13 @@ for dd in dates:
         if date == '20200424' or date == '20200430' or date == '20200507':
             grid_x, grid_y = np.mgrid[460:850:step, -550:-210:step]
             extent=(460,850,-550,-210)
-            
+    
+    #leg5 whole CO
+    if loc == 'special':
+        if date == '20200827' or date=='20200903' or date=='20200910':
+            grid_x, grid_y = np.mgrid[-300:700:step, -800:1000:step]
+            extent=(-300,700,-800,1000)
+    
     #assign values to be used for gridding
     sd_points = np.column_stack((mxx,myy))
 
@@ -634,24 +653,33 @@ for dd in dates:
         it_nn18 = tt_nn18 - sd
         it_nn5 = tt_nn5 - sd
         it_nn93 = tt_nn93 - sd
-        print(it_nn18)
         
-        #mixed surface data (snow=1, SSL/mixed=2 and melt ponds=-1) for legs 4 and 5
+        ##in summer some ice thickness values are negative!!! Are these salty melt ponds? (connected to sea water somewhere)
+        #negative values could be used for detection of salty melt ponds!
+        #if tt_nn18 < 0: it_nn18 = 0
+        #if tt_nn5 < 0: it_nn5 = 0
+        #if tt_nn93 < 0: it_nn93 = 0
+        
+        #print(it_nn18)
+        
+        #mixed surface data (snow=1, SSL/mixed=2 and melt ponds=-1, frozen pond=3) for legs 4 and 5
         #this has to be done here, so that SSL and melt ponds are subtracted from total thickness
-        if ('transect' in loc) or ('albedo' in loc) or loc == 'ARIEL' or loc == 'kuka':
+        if ('transect' in loc) or ('albedo' in loc) or loc == 'ARIEL' or loc == 'kuka' or date =='20200827' or date=='20200903' or date=='20200910' or date=='20200902' or date=='20200909' or date=='20200919':
             print(loc, 'has recorded surface...')
             surface = getColumn(fname,22, delimiter=',', magnaprobe=True)
-            surface = np.array(surface,dtype=np.int)[1:-2]
-            surface_mask = np.where(surface==1,1,0)
+            surface = np.array(surface,dtype=np.int)[1:-2]      #use some values less, just like sd...
             
-            #make all SSL or melt pond surface into zero snow depth
+            #SSL is also snow here
+            surface_mask = np.where(surface>0,1,0)
+            #make all melt pond surface into zero snow depth
             surface_mask = np.ma.array(surface_mask, mask=mask);surface_mask = surface_mask.compressed()
             sd = sd*surface_mask
             
             #melt pond depths
-            mpd = sd*np.where(surface_mask==0,1,0)
+            surface_mask_mpd = np.where(surface<0,1,0)
+            mpd = sd_values*surface_mask_mpd
             
-            #use unphysicial value (-1) where zero
+            #use unphysical value (-1) where zero            
             sd = np.where(sd==0,-1,sd_values)
             mpd = np.where(mpd==0,-1,mpd)
             

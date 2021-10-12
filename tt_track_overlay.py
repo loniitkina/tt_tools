@@ -29,11 +29,11 @@ outpath = '../plots_AGU/'
 locs = ['Nloop','Sloop']
 locs = ['Nloop']
 #locs = ['Nloop']
-#locs = ['snow1']
+locs = ['snow1']
 #locs = ['runway']
 locs = ['special']
-locs = ['Nloop','Sloop','snow1','runway','ridgeFR1','ridgeFR2','ridgeFR3','ridgeA1','ridgeA2','ridgeA3','ridgeD','ridgeE']
-locs = ['transect']#,'albedoRBB','albedoLD']
+#locs = ['Nloop','Sloop','snow1','runway','ridgeFR1','ridgeFR2','ridgeFR3','ridgeA1','ridgeA2','ridgeA3','ridgeD','ridgeE']
+#locs = ['transect']#,'albedoRBB','albedoLD']
 #locs = ['albedoK']#,'kuka','ARIEL','ridge']
 #locs= ['ridge']
 #locs = ['ARIEL']
@@ -44,6 +44,7 @@ fig1 = plt.figure(figsize=(12,10))
 
 #all the files
 flist = glob(inpath+'*PS122-[1-5]?*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
+flist = glob(inpath+'*PS122-[5]?*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
 flist.sort()
 
 dtot = 0
@@ -54,7 +55,7 @@ mp_spacing=[]
 for i in range(0,len(flist)):
     #if flist[i] !=flist[15]: continue
     fname = flist[i]
-    print(fname)
+    #print(fname)
     
     date = fname.split('/')[-1].split('-')[2]
     #if date == '20191024': continue     #Nloop has partially different track here - more resembling the planned square
@@ -99,9 +100,12 @@ for i in range(0,len(flist)):
     yy = getColumn(fname,4, delimiter=',', magnaprobe=False)
     yy = np.array(yy,dtype=np.float)
     
-    #GEM-2 files contain nans
-    xx = np.ma.masked_invalid(xx)
-    yy = np.ma.masked_invalid(yy)
+    #GEM-2 files contain nans and zeros
+    xx = np.ma.masked_invalid(xx).compressed()
+    yy = np.ma.masked_invalid(yy).compressed()
+    
+    xx = np.ma.array(xx,mask=xx==0).compressed()
+    yy = np.ma.array(yy,mask=yy==0).compressed()
     
     #some GPS errors in GEM-2 data (or floenavi problems)
     if date == '20200716':
@@ -127,7 +131,7 @@ for i in range(0,len(flist)):
     mp_list = glob(inpath_mp+'*/*'+date+'*-track-icecs-xy.csv')
     
     for sf in mp_list:
-        print(sf)
+        #print(sf)
         mxx = getColumn(sf,3, delimiter=',', magnaprobe=False)
         mxx = np.array(mxx,dtype=np.float)
 
@@ -135,9 +139,13 @@ for i in range(0,len(flist)):
         myy = np.array(myy,dtype=np.float)
                 
         loc = sf.split('_')[-1].split('-')[0]
-        print(loc)
+        #print(loc)
         
         if loc in locs:
+            
+            print(fname)
+            print(sf)
+            print(loc)
             
             ##some plotting exceptions:
             #if date=='20200424' and loc=='Nloop':
@@ -282,8 +290,23 @@ for i in range(0,len(flist)):
                     
                     mxx = mxx+50
                     myy = myy+100
-
-                
+                    
+                    old_len=mxx.shape[0]
+                    
+                    #what if we replace the coordinates with the GEM-2 track?
+                    if fname=='../data/MCS/GEM2_thickness/01-ice-thickness/20200406-PS122-3_35-19/mosaic-transect-20200406-gem2-556-track-icecs-xy.csv':
+                        #285 at the beginning and 600 at the end of the GEM-2 track is at the Sloop or standing at beginning of snow1 (cut them out)
+                        mxx = xx[285:-570:33]   # GEM-2 samples 10x second, MP needs ~3 seconds: take every ~30th
+                        myy = yy[285:-570:33]   #note grid_match for snow1 on this date has to be the same as it is for the Sloop!!!
+                        
+                        print(mxx[:10])
+                        print(mxx[-10:])
+                        new_len = mxx.shape[0]
+                        print(old_len,new_len)
+                        mxx = mxx[:old_len] #new_len has to be a bit longer (or same)
+                        myy = myy[:old_len]
+                        print(mxx.shape[0])
+                        
             if date == '20200416':      #GPS failure on GEM-2, no coordinates
                 mxx = mxx+0
                 myy = myy+0
@@ -570,12 +593,17 @@ for i in range(0,len(flist)):
             #plot MP tracks
             #dont plot the broken ones
             #if date == '20200406': continue
+            if date == '20200223': continue
             plt.plot(mxx,myy,'o',ms=1,label='magnaprobe '+date+' '+loc)
             #plt.plot(mxx,myy,'o',ms=1,label='leg 5 '+loc)
 
     #plot GEM-tracks
     #dont plot the broken ones
     #if date == '20200406': continue
+    #if date == '20200406':
+        #if fname=='../data/MCS/GEM2_thickness/01-ice-thickness/20200406-PS122-3_35-19/mosaic-transect-20200406-gem2-556-track-icecs-xy.csv': 
+            #loc='snow1'
+            #plt.plot(xx,yy,'o',ms=1,label='GEM-2 '+date+' '+loc)
     #plt.plot(xx,yy,'o',ms=1,label='GEM-2 '+date+' '+loc)
     
 plt.legend()
