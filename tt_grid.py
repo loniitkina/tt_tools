@@ -29,7 +29,7 @@ polyorder = 3
 
 #show gridded data plot
 show=True
-show=False
+#show=False
 
 #make mp+gem2 table output
 table_output=True
@@ -147,7 +147,7 @@ dates = ['20191226']
 #dates = ['20200828','20200918']    
 
 ###location
-#loc = 'special'
+loc = 'special'
 #date = '20200107'   #Dark site FYI
 #date = '20200115'   #Dark site SYI
 #date = '20200123'  #long transect
@@ -160,12 +160,12 @@ dates = ['20191226']
 #dates = ['20200107','20200115','20200123','20200126','20200226','20200326','20200403','20200430']
 
 #special transects of leg 4
-#dates = ['20200617']   #'initialsurvey'
+#dates = ['20200617']   #'initialsurvey' nearly full MP transect, but GEM-2 coordinates are messed up (times correspond approximately)
 #dates = ['20200719']   #'ARIEL'
 #dates = ['20200719']   #'drillholes'
 #dates = ['20200709']   #meltponds
 
-#dates = ['20200617','20200719','20200719','20200709']
+dates = ['20200617','20200719','20200719','20200709']
 
 #special transects of leg 5
 #loc='special'
@@ -175,8 +175,8 @@ dates = ['20191226']
 #dates = ['20200919']   #'transectgrid' aka RS site
 
 #all special transects
-loc='special'
-dates = ['20200107','20200115','20200123','20200226','20200326','20200403','20200430','20200617','20200719','20200719','20200709','20200827','20200903','20200910','20200902','20200909','20200919']
+#loc='special'
+#dates = ['20200107','20200115','20200123','20200226','20200326','20200403','20200430','20200617','20200719','20200719','20200709','20200827','20200903','20200910','20200902','20200909','20200919']
 
 #loc = 'recon'
 #date = '20200228'   #airport recon - has no MP data
@@ -185,7 +185,7 @@ dates = ['20200107','20200115','20200123','20200226','20200326','20200403','2020
 #limit = step*2            #no need to search far
 
 #leg4
-loc = 'transect'
+#loc = 'transect'
 #date = '20200617'  #initial survey - MP track looks good and similar to transect, GEM-2 coordinates are messed up.
 #date = '20200627'  #only part
 #date = '20200628'  #tiny bit og GEM-2, same part of MP as day before
@@ -208,7 +208,7 @@ loc = 'transect'
 #date = '20200725'  #first good after a while...
 #date = '20200726'  #
 #date = '20200727'  #partial (and likely wrong direction)
-dates = ['20200627','20200628','20200629','20200630','20200702','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200716','20200719','20200720','20200721','20200723','20200725','20200726','20200727']
+#dates = ['20200627','20200628','20200629','20200630','20200702','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200716','20200719','20200720','20200721','20200723','20200725','20200726','20200727']
 #most useful selection
 #dates = ['20200627','20200629','20200630','20200702','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200719','20200720','20200721','20200723','20200725','20200726','20200727']
 
@@ -223,17 +223,17 @@ dates = ['20200627','20200628','20200629','20200630','20200702','20200703','2020
 #dates = ['20200830','20200903','20200907','20200910','20200918']
 
 ##short transects of leg 4 and 5
-loc = 'albedoLD'
-dates = ['20200630','20200706','20200707','20200719','20200721','20200724','20200727']
+#loc = 'albedoLD'
+#dates = ['20200630','20200706','20200707','20200719','20200721','20200724','20200727']
 
-loc = 'albedoRBB'
-dates = ['20200630','20200706','20200707','20200719','20200727']
+#loc = 'albedoRBB'
+#dates = ['20200630','20200706','20200707','20200719','20200727']
 
-loc = 'ARIEL'
-dates = ['20200830','20200903','20200907','20200910','20200917']
+#loc = 'ARIEL'
+#dates = ['20200830','20200903','20200907','20200910','20200917']
 
-loc = 'kuka'
-dates = ['20200907','20200910','20200917']
+#loc = 'kuka'
+#dates = ['20200907','20200910','20200917']
 
 ##Nansen Legacy
 #outpath = '../plots_NL/'
@@ -300,8 +300,8 @@ for dd in dates:
     fname = glob(inpath_ice+date_gem2+'*/*-track-icecs-xy.csv')
     for fn in fname:
         print(fn)
-        x = getColumn(fn,3, delimiter=',', magnaprobe=False)
-        y = getColumn(fn,4, delimiter=',', magnaprobe=False)
+        x = getColumn(fn,3)
+        y = getColumn(fn,4)
     
         xx.extend(x); yy.extend(y)
         
@@ -314,9 +314,9 @@ for dd in dates:
     for fn in fname:
         print(fn)
         #time, record_id, longitude, latitude, xc, yc, f1525Hz_hcp_i, f1525Hz_hcp_q, f5325Hz_hcp_i, f5325Hz_hcp_q, f18325Hz_hcp_i, f18325Hz_hcp_q, f63025Hz_hcp_i, f63025Hz_hcp_q, f93075Hz_hcp_i, f93075Hz_hcp_q
-        t18 = getColumn(fn,10, delimiter=',', magnaprobe=False)        #take 18KHz ip
-        t5 = getColumn(fn,8, delimiter=',', magnaprobe=False)        #take 5KHz ip
-        t93 = getColumn(fn,14, delimiter=',', magnaprobe=False)        #take 93KHz ip
+        t18 = getColumn(fn,10)        #take 18KHz ip
+        t5 = getColumn(fn,8)        #take 5KHz ip
+        t93 = getColumn(fn,14)        #take 93KHz ip
 
         tt18.extend(t18[1:-1])     #floenavi scripts looses coordinates at the start and end of the file
         tt5.extend(t5[1:-1])
@@ -334,16 +334,21 @@ for dd in dates:
     #MP
     if loc != 'recon':
         fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+'-track-icecs-xy_corr.csv')[0]
+        
+        #on 16 June 2020 there were two initial surveys of floe, both with loc=special, only second one has GEM-2 measurements
+        if date=='20200617':
+            fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+'-track-icecs-xy_corr.csv')[1]
+        
         print(fname)
 
-        dt = getColumn(fname,0, delimiter=',', magnaprobe=False)
-        lon = getColumn(fname,1, delimiter=',', magnaprobe=False)
-        lat = getColumn(fname,2, delimiter=',', magnaprobe=False)
+        dt = getColumn(fname,0)
+        lon = getColumn(fname,1)
+        lat = getColumn(fname,2)
 
-        mxx = getColumn(fname,3, delimiter=',', magnaprobe=False)
+        mxx = getColumn(fname,3)
         mxx = np.array(mxx,dtype=float)
 
-        myy = getColumn(fname,4, delimiter=',', magnaprobe=False)
+        myy = getColumn(fname,4)
         myy = np.array(myy,dtype=float)
             
         #get some meta data for the MP transect:
@@ -383,8 +388,12 @@ for dd in dates:
             lon = np.ones_like(mxx)*-999
 
         fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+ext_mp)[0]
+        #on 16 June 2020 there were two initial surveys of floe, both with loc=special, only second one has GEM-2 measurements
+        if date=='20200617':
+            fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+ext_mp)[1]
+
         print(fname)
-        snod = getColumn(fname,3, delimiter=',', magnaprobe=True)
+        snod = getColumn(fname,3, delimiter=',', skipheader=4)
         snod = np.array(snod,dtype=float)[:-2]/100             #convert from cm to m
         #change all negative data to zero
         snod = np.where(snod<0,0,snod)
@@ -666,7 +675,7 @@ for dd in dates:
         #this has to be done here, so that SSL and melt ponds are subtracted from total thickness
         if ('transect' in loc) or ('albedo' in loc) or loc == 'ARIEL' or loc == 'kuka' or date =='20200827' or date=='20200903' or date=='20200910' or date=='20200902' or date=='20200909' or date=='20200919':
             print(loc, 'has recorded surface...')
-            surface = getColumn(fname,22, delimiter=',', magnaprobe=True)
+            surface = getColumn(fname,22, delimiter=',', skipheader=4)
             surface = np.array(surface,dtype=np.int)[1:-2]      #use some values less, just like sd...
             
             #SSL is also snow here

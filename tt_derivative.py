@@ -42,8 +42,8 @@ y_list=[]
 for i in range(0,len(locs)):
     loc=locs[i]
     #get data
-    #inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track.npz'
-    inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track1.npz'
+    inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track.npz'
+    #inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track1.npz'
     data = np.load(inf)
     transect_snow = data['snow']
     transect_ice = data['ice']
@@ -59,9 +59,17 @@ for i in range(0,len(locs)):
         #dsi_s = si[:,-4]-si[:,0]
         #it = it[:,-4]
 
-        ##or at last low roughness correlation: 20200102 and 20200227 - has some erosion, r2=0.34
-        dsi_s = si[:,-6]-si[:,5]
-        it = it[:,5]
+        ###or at last low roughness correlation: 20200102 and 20200227 - has some erosion, r2=0.34
+        #dsi_s = si[:,-6]-si[:,5]
+        #it = it[:,5]
+        
+        ##large dune formation and mean snow depth decrease end of February: snow moves on level ice
+        dsi_s = si[:,11]-si[:,10]
+        it = it[:,11]
+        
+        ###large dune formation and mean snow depth decrease end of February-March: snow eroded from the ridges
+        #dsi_s = si[:,12]-si[:,11]
+        #it = it[:,12]
         
         
     if loc=='Nloop':
@@ -71,9 +79,17 @@ for i in range(0,len(locs)):
         #dsi_s = si[:,-6]-si[:,6]
         #it = it[:,6]
         
-        ##or at last low roughness correlation: 27 February 2020
-        dsi_s = si[:,-6]-si[:,9]
-        it = it[:,9]
+        ###or at last low roughness correlation: 27 February 2020
+        #dsi_s = si[:,-6]-si[:,9]
+        #it = it[:,9]
+        
+        ###large dune formation after strong snow drift event (Wagner)
+        #dsi_s = si[:,14]-si[:,13]
+        #it = it[:,14]
+        
+        ##large dune formation after strong snow drift event (Wagner)
+        dsi_s = si[:,15]-si[:,14]
+        it = it[:,14]
 
         
     #roughness
@@ -173,11 +189,16 @@ ax.plot(x,fb,label='ice surface',c='k',ls=':')
 #ax.fill_between(x, fb, fb+si[:,-4],alpha=.3, color='b', label='snow 2020/03/30')
 #ax.fill_between(x, fb, fb-it,alpha=.6, color='0.5', label='ice 2020/03/30')
 
-ax.fill_between(x, fb, fb+si[:,5],alpha=.5, color='y', label='snow 2019/01/02')
-ax.fill_between(x, fb, fb+si[:,-6],alpha=.3, color='b', label='snow 2020/02/27')
-ax.fill_between(x, fb, fb-it,alpha=.6, color='0.5', label='ice 2020/01/02')
+ax.fill_between(x, fb, fb+si[:,11],alpha=.5, color='y', label='snow 2020/02/20')
+ax.fill_between(x, fb, fb+si[:,12],alpha=.3, color='b', label='snow 2020/02/27')
+ax.fill_between(x, fb, fb-it,alpha=.6, color='0.5', label='ice 2020/02/27')
 
 
 ax.legend(fontsize=25,loc='lower left',fancybox=True,facecolor=fig1.get_facecolor(),framealpha=.6)
-fig1.savefig(outpath+'profile_diff2'+loc,bbox_inches='tight', facecolor=fig1.get_facecolor(), edgecolor='none')
+fig1.savefig(outpath+'profile_diff_change'+loc,bbox_inches='tight', facecolor=fig1.get_facecolor(), edgecolor='none')
+
+
+#volume fraction estimate
+vol_frac_diff=(np.sum(si[:,14])-np.sum(si[:,15]))/np.sum(si[:,14])
+print(vol_frac_diff)
 

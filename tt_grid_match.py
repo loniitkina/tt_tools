@@ -29,10 +29,11 @@ dates = [['20191031','20191107','20191114','20191205',   '20191226','20200102','
 #dates = [['20191222','20200112','20200126','20200207','20200223','20200406']]
 
 #all leg1-4 transects on selected dates
-locs = ['Sloop','Nloop','snow1','transect']
+locs = ['Sloop','Nloop','snow1','special','transect']
 dates = [['20200116'],
 ['20200116'],
 ['20200207'],
+['20200617'],
 ['20200630']
 ]
 
@@ -56,7 +57,7 @@ bx.set_title('Shifted and Rotated')
 cx = fig1.add_subplot(133)
 cx.set_title('De-deformed')
 
-fig2 = plt.figure(figsize=(40,50))
+fig2 = plt.figure(figsize=(20,10))
 dx = fig2.add_subplot(111)
 dx.set_title('Final Map')
 
@@ -535,17 +536,17 @@ for ll in range(0,len(locs)):
                 i_grid2 = i_grid2+np.ma.masked_invalid(tmpi).filled(0)
             del tmpi
 
-        if locs[ll]=='transect':
+        #if locs[ll]=='transect':
                         
-            #rotate
-            if date == '20200630':
-                i_grid = ndimage.rotate(i_grid, -40, reshape=False,order=0,mode='nearest')
-                s_grid = ndimage.rotate(s_grid, -40, reshape=False,order=0,mode='nearest')
+            ##rotate
+            #if date == '20200630':
+                #i_grid = ndimage.rotate(i_grid, -40, reshape=False,order=0,mode='nearest')
+                #s_grid = ndimage.rotate(s_grid, -40, reshape=False,order=0,mode='nearest')
                 
-            #move along x axis
-            if date == '20200630':
-                i_grid = np.append(i_grid[int(1100/step):,:],i_grid[:int(1100/step),:],axis=0)
-                s_grid = np.append(s_grid[int(1000/step):,:],s_grid[:int(1000/step),:],axis=0)
+            ##move along x axis
+            #if date == '20200630':
+                #i_grid = np.append(i_grid[int(-1320/step):,:],i_grid[:int(-1320/step),:],axis=0)
+                #s_grid = np.append(s_grid[int(-1320/step):,:],s_grid[:int(-1320/step),:],axis=0)
             
             
         
@@ -581,7 +582,26 @@ for ll in range(0,len(locs)):
     cx.imshow(i_grid3.T, extent=extent, origin='lower',vmin=0,vmax=3)
     
     #get plots with coordinates
-    dx.contourf(x_grid.T, y_grid.T, i_grid3.T)
+    if locs[ll]=='transect':
+        x_grid = ndimage.rotate(x_grid, 40, reshape=False,order=0,mode='nearest')
+        y_grid = ndimage.rotate(y_grid, 40, reshape=False,order=0,mode='nearest')
+        
+        x_grid = x_grid+1320
+        y_grid = y_grid+10
+        
+        dx.contourf(x_grid.T, y_grid.T, i_grid3.T)
+    
+    if locs[ll]=='special':
+        x_grid = ndimage.rotate(x_grid, 40, reshape=False,order=0,mode='nearest')
+        y_grid = ndimage.rotate(y_grid, 40, reshape=False,order=0,mode='nearest')
+        
+        x_grid = x_grid+1200
+        y_grid = y_grid+150
+        
+        dx.contourf(x_grid.T, y_grid.T, i_grid3.T)
+        
+    else:
+        dx.contourf(x_grid.T, y_grid.T, i_grid3.T)
     
     del x_grid, y_grid, s_grid, i_grid
     del i_grid1, i_grid2, i_grid3

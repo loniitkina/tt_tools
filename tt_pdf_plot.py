@@ -6,28 +6,17 @@ from datetime import datetime, timedelta
 
 ts=True
 pdf=False
+rates=True
 
 #grid spacing
 stp = '5m'
 stp = '2m_linear'
 #stp = '2m_nearest'
 
-#select location
-loc = 'Nloop'
-title='Northern transect loop'
-
-#loc = 'Sloop'
-#title='Southern transect loop'
-#loc = 'both'
-
-#loc = 'snow1'
-#title='Snow1 Transect'
-
-#loc = 'runway'
-#title='Runway Transect'
-
-
-print(loc)
+inpath_grid = '../data/grids/'
+inpath_grid = '../data/grids_AGU/'
+inpath_table = '../data/MCS/MP/'
+outpath = '../plots_AGU/'
 
 
 ##two dates
@@ -47,27 +36,58 @@ colors = ['blue','green']
 #outname = 'pdf_'+loc+'_platelet.png'
 #outname = 'pdf_'+loc+'_gnss.png'
 
-#all dates
-#Sloop
-#dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
-#Nloop
-dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507'] 
-#Snow1
-#dates = ['20191222','20200112','20200126','20200207','20200223']
+#select location
+#loc = 'Nloop'
+#title='Northern transect loop'
+#dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507'] 
 
-#Runway
+
+#loc = 'Sloop'
+#title='Southern transect loop'
+#dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
+
+
+loc = 'snow1'
+title='Snow1 Transect'
+dates = ['20191222','20200112','20200126','20200207','20200223','20200406']
+
+#loc = 'runway'
+#title='Runway Transect'
 #dates = ['20200112','20200119','20200207']
+
 
 ##leg4
 loc = 'transect'
 title = 'Leg 4 Transect '
 ##all data
-dates = ['20200627','20200629','20200630','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200719','20200720','20200725','20200726']
+dates = ['20200617','20200627','20200629','20200630','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200719','20200720','20200725','20200726']
 
 #leg5
 #loc = 'transect'
 #title = 'Leg 5 Transect '
 #dates = ['20200830','20200903','20200907','20200918']
+
+loc = 'albedoLD'
+title = 'Leg 4 Transect '
+dates = ['20200630','20200706','20200707','20200719','20200721','20200724','20200727']
+
+loc = 'albedoRBB'
+dates = ['20200630','20200706','20200707','20200719','20200727']
+
+loc = 'albedoK'
+dates = ['20200830','20200903','20200907','20200910','20200918']
+
+#loc = 'ARIEL'
+#dates = ['20200830','20200903','20200907','20200910','20200917']
+
+#loc = 'kuka'
+#dates = ['20200907','20200910','20200917']
+
+
+
+#loc='special'
+#title = 'Special Transects '
+#dates = ['20200107','20200115','20200123','20200226','20200326','20200403','20200430','20200617','20200719','20200719','20200709','20200827','20200903','20200910','20200902','20200909','20200919']
 
 combo=False
 
@@ -91,8 +111,8 @@ outname = 'pdf_'+loc+'_ice.png'
 #outname_ts_type = 'ts_'+loc+'_'+stp+'_type.png'
 
 outname_ts = 'ts_'+loc+'_'+'2m_gridded_it1.png'
+file_ts = inpath_table+'ts_'+loc+'_'+'2m_gridded.csv'
 outname_ts_type = 'ts_'+loc+'_'+'2m_gridded_it_type.png'
-
 
 ##events (selected dates from leg 1-3)
 #dates = ['20191107','20191205','20200227','20200426'] #Sloop
@@ -102,8 +122,8 @@ colors = plt.cm.rainbow(np.linspace(0, 1, len(dates)))
 if combo==True:
     #add some grey shading into the box plots for the dates when transects were not in the winter locations (Sloop)
     #make rainbow colors for the Sloop
-    colors = plt.cm.rainbow(np.linspace(0, 1, len(dates)-11))
-    print(colors)
+    colors = plt.cm.rainbow(np.linspace(0, 1, len(dates)-9))
+    #print(colors)
     #add grey color for leg 4 dates
     colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
     colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
@@ -115,10 +135,7 @@ if combo==True:
     #and grey colors for leg 5 dates
     colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
     colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
-    colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
-    #colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
-    #colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)
-    
+    colors = np.append(colors,[[.5,.5,.5,.5]],axis=0)    
     #print(colors)
     
     
@@ -126,40 +143,75 @@ if combo==True:
 #outname = 'pdf_'+loc+'_events.png'
 
 
-inpath_grid = '../data/grids/'
-inpath_grid = '../data/grids_AGU/'
-inpath_table = '../data/MCS/MP/'
-outpath = '../plots_AGU/'
 
-#PDFs
-fig1 = plt.figure(figsize=(10,10))
-#fig1.suptitle(title, fontsize=30)
-#ax = fig1.add_subplot(111)
-##ax.set_title('S transect loop')
-#ymax=.2
-#ax.set_ylim(0,ymax)
-#ax.set_xlabel('Snow depth (m)', fontsize=20)
-#ax.set_ylabel('Probability', fontsize=20)
-#srbins = np.arange(0,.8,.02)
-#ax.tick_params(axis="x", labelsize=14)
-#ax.tick_params(axis="y", labelsize=14)
-#ax.set_xlim(0,.5)
+hem=True        #use HEM means and modes provided by Luisa
+inpath_hem = '../data/HEM_Luisa/'
+fname = inpath_hem+'Ice_thickness_properties.txt'
+dt_hem= getColumn(fname,1, delimiter='\t', magnaprobe=False)
+loc_hem= getColumn(fname,2, delimiter='\t', magnaprobe=False)
+m_hem= getColumn(fname,3, delimiter='\t', magnaprobe=False)
+mo_hem= getColumn(fname,4, delimiter='\t', magnaprobe=False)
+dt_hem = [ datetime.strptime(x, '%Y-%m-%d') for x in dt_hem ]
+m_hem = np.array(m_hem,dtype=np.float)
+mo_hem = np.array(mo_hem,dtype=np.float)
 
-bx = fig1.add_subplot(111)
-#bx.set_title('S transect loop')
-ymax=.5
-bx.set_ylim(0,ymax)
-bx.set_xlabel('Ice thickness (m)', fontsize=20)
-bx.set_ylabel('Probability', fontsize=20)
+#print(dt_hem)
+#exit()
+
+cs2=True    #use CS2 total ice thickness provided by Stefan (for Krumpen et al, 2021)
+inpath_cs2 = '../data/CS2/'
+fname = inpath_cs2+'l2p-extract-sit-0050km-20191001-20200430.csv'
+dt_cs2= getColumn(fname,0, delimiter=',', magnaprobe=False)
+m_cs2= getColumn(fname,4, delimiter=',', magnaprobe=False)
+dt_cs2 = [ datetime.strptime(x, '%Y-%m-%d') for x in dt_cs2 ]
+m_cs2 = np.where(m_cs2=='','0',m_cs2)
+m_cs2[m_cs2=='']='0'    #replace empty strings with values
+m_cs2 = np.array(m_cs2,dtype=np.float)
+m_cs2 = np.ma.array(m_cs2,mask=m_cs2==0)
+
+fname = inpath_cs2+'l2p-extract-sd-0050km-20191001-20200430.csv'
+m_cs2sd= getColumn(fname,4, delimiter=',', magnaprobe=False)
+m_cs2sd = np.where(m_cs2sd=='','0',m_cs2sd)
+m_cs2sd[m_cs2sd=='']='0'    #replace empty strings with values
+m_cs2sd = np.array(m_cs2sd,dtype=np.float)
+m_cs2sd = np.ma.array(m_cs2sd,mask=m_cs2sd==0)
+
+#m_cs2 = m_cs2-m_cs2sd
+
 irbins = np.arange(0,2,.06)
-bx.tick_params(axis="x", labelsize=14)
-bx.tick_params(axis="y", labelsize=14)
-bx.set_xlim(0,2)
+if pdf==True:
+    #PDFs
+    fig1 = plt.figure(figsize=(10,10))
+    #fig1.suptitle(title, fontsize=30)
+    #ax = fig1.add_subplot(111)
+    ##ax.set_title('S transect loop')
+    #ymax=.2
+    #ax.set_ylim(0,ymax)
+    #ax.set_xlabel('Snow depth (m)', fontsize=20)
+    #ax.set_ylabel('Probability', fontsize=20)
+    #srbins = np.arange(0,.8,.02)
+    #ax.tick_params(axis="x", labelsize=14)
+    #ax.tick_params(axis="y", labelsize=14)
+    #ax.set_xlim(0,.5)
+
+    bx = fig1.add_subplot(111)
+    #bx.set_title('S transect loop')
+    ymax=.5
+    bx.set_ylim(0,ymax)
+    bx.set_xlabel('Ice thickness (m)', fontsize=20)
+    bx.set_ylabel('Probability', fontsize=20)
+    bx.tick_params(axis="x", labelsize=14)
+    bx.tick_params(axis="y", labelsize=14)
+    bx.set_xlim(0,2)
 
 #store data for time series
 ts_snow=[]
 ts_ice=[]
 ts_mo=[]
+ts_snow_m=[]
+ts_snow_std=[]
+ts_ice_m=[]
+ts_ice_std=[]
 #level and deformed ice
 ts_snow_l=[]
 ts_snow_d=[]
@@ -231,25 +283,25 @@ for date in dates:
         it = np.where(it>0,it-.4,it)
 
     
-    #add some more measurements for leg5
-    if loc=='albedoK':
-        loc2='ARIEL'
-        date2=date
-        if date=='20200918':
-            date2='20200917'
-        fname = glob(inpath_table+'*/magna+gem2-transect-'+date2+'*'+loc2+'*.csv')[0]
-        tmps = getColumn(fname,5, delimiter=',', magnaprobe=False)
-        tmpi = getColumn(fname,6, delimiter=',', magnaprobe=False)
-        snod2 = np.array(tmps,dtype=np.float)
-        it2 = np.array(tmpi,dtype=np.float)
+    ##add some more measurements for leg5
+    #if loc=='albedoK':
+        #loc2='ARIEL'
+        #date2=date
+        #if date=='20200918':
+            #date2='20200917'
+        #fname = glob(inpath_table+'*/magna+gem2-transect-'+date2+'*'+loc2+'*.csv')[0]
+        #tmps = getColumn(fname,5, delimiter=',', magnaprobe=False)
+        #tmpi = getColumn(fname,6, delimiter=',', magnaprobe=False)
+        #snod2 = np.array(tmps,dtype=np.float)
+        #it2 = np.array(tmpi,dtype=np.float)
         
-        snod = np.append(snod,snod2)
-        it = np.append(it,it2)  
-        #print(it)
-        #exit()
+        #snod = np.append(snod,snod2)
+        #it = np.append(it,it2)  
+        ##print(it)
+        ##exit()
     
     #means and modes
-    mn = np.mean(snod)
+    mn = np.mean(np.ma.masked_invalid(snod).compressed())#.compressed()
     print(mn)
     print(np.std(snod))
     #mni = np.mean(it)
@@ -275,11 +327,15 @@ for date in dates:
         #bx.plot([mni,mni],[0,ymax],c='k',ls=':', label='mean = '+str(round(mni,2)))
     
     if ts==True:
-        #save data for time series
+        #save data for time series and export text files
         ts_snow.append(snod)
+        ts_snow_m.append(mn)
+        ts_snow_std.append(np.std(snod))
         #if date=='20200206' and loc == 'Sloop': continue #bad data for GEM-2 
         ts_ice.append(it)
         ts_mo.append(mo)
+        ts_ice_m.append(np.mean(it))
+        ts_ice_std.append(np.std(it))
         
         #separate deformed and level ice based on the mode
         #use this to separate the snow depth
@@ -315,6 +371,7 @@ for date in dates:
         
         outname_sc = 'scatter_'+loc+'_'+date+'.png'
         fig3.savefig(outpath+outname_sc,bbox_inches='tight')
+        plt.close(fig3)
 
         #for time series    
         level_snow = np.ma.compressed(level_snow)
@@ -325,16 +382,32 @@ for date in dates:
 
         i = i+1
     
-#ax.legend(fontsize=20)
-bx.legend(fontsize=20)
 
 if pdf==True:
     print(outname)
+    #ax.legend(fontsize=20)
+    bx.legend(fontsize=20)
+
     fig1.savefig(outpath+outname,bbox_inches='tight')
 
 
 if ts==True:
-    #time series
+    if combo==False:    #dont do this for combo as it will just double the information
+        #time series text file exports
+        tt = [dates,ts_snow_m,ts_snow_std,ts_ice_m,ts_ice_std,ts_mo]
+        table = list(zip(*tt))
+
+        print(file_ts)
+        with open(file_ts, 'wb') as f:
+            #header
+            f.write(b'Date/Time, snow depth mean, snow depth SD, ice thickness mean, ice thickness SD, ice thickness mode\n')
+            np.savetxt(f, table, fmt="%s", delimiter=",")
+
+    
+    
+    
+    
+    #time series plots
     fig2 = plt.figure(figsize=(20,10))
     cx = fig2.add_subplot(211)
     cx.set_title(title, fontsize=25)
@@ -353,11 +426,11 @@ if ts==True:
     elif loc=='Nloop':
         dx.set_ylim(0,11)
     elif loc=='transect': 
-        dx.set_ylim(0,6)
+        dx.set_ylim(0,5)
     elif loc=='snow1': 
         dx.set_ylim(0,4)
     else:
-        dx.set_ylim(0,6)
+        dx.set_ylim(0,5)
 
     #spacing between the box plots
     dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
@@ -385,7 +458,7 @@ if ts==True:
         
     dx.plot(dt_diff,ts_mo,'s',ms=15, label='mode',c='0.3')
 
-    dx.legend(fontsize=20)
+    
 
     #and a dirty trick for the X axis    
     if combo==True:
@@ -400,10 +473,58 @@ if ts==True:
         plt.xticks(dt_diff_m, ['1 Nov','1 Dec','1 Jan','1 Feb','1 Mar','1 Apr','1 May'])
 
     
+    if hem:
+        
+        dt1 = [ x-timedelta(days=366) for x in dt if x > datetime(2020,8,1)  ]
+        
+        print(dt1)
+        
+        
+        dt_hem[-1:] = dt1
+        
+        print(dt_hem)
+        
+        
+        dt_diff_hem = [ (x-dt[0]).days for x in dt_hem ]
+        
+        print(dt_diff_hem)
+        #exit()
+        
+        for hl in range(0,len(loc_hem)):
+            if loc_hem[hl]=='(DN)':
+                if hl==1:
+                    dx.plot(dt_diff_hem[hl],mo_hem[hl],'s',ms=10, markeredgecolor='k', label='HEM mode',c='r')
+                    dx.plot(dt_diff_hem[hl],m_hem[hl],'d',ms=10, markeredgecolor='k',label='HEM mean',c='r')
+                else:
+                    dx.plot(dt_diff_hem[hl],mo_hem[hl],'s',ms=10, markeredgecolor='k',c='r')
+                    dx.plot(dt_diff_hem[hl],m_hem[hl],'d',ms=10, markeredgecolor='k',c='r')
+    
+    if cs2:
+        
+        dt_diff_cs2 = [ (x-dt[0]).days for x in dt_cs2 ]
+        
+        cx.plot(dt_diff_cs2,m_cs2sd,'.',label='CS-2 snow',c='.75')
+        
+        dx.plot(dt_diff_cs2,m_cs2,'.',label='CS-2 mean',c='.75')
+        
+        
+        #for hl in range(0,len(loc_hem)):
+            #if loc_hem[hl]=='(DN)':
+                #if hl==1:
+                    
+                    #dx.plot(dt_diff_hem[hl],m_hem[hl],'.',ms=10, markeredgecolor='k',label='HEM mean',c='r')
+                #else:
+                    
+                    #dx.plot(dt_diff_hem[hl],m_hem[hl],'d',ms=10, markeredgecolor='k',c='r')
+    
+    
+    dx.legend(fontsize=20)
+    
     cx.set_xticks(dt_diff_m)
     fig2.autofmt_xdate()
 
     fig2.savefig(outpath+outname_ts,bbox_inches='tight')
+    plt.close(fig2)
 
     ###time series of deformed/level snow and ice 
     #fig4 = plt.figure(figsize=(20,5))
@@ -438,4 +559,5 @@ if ts==True:
     #cx.legend([bp1["boxes"][0], bp2["boxes"][0]], ['level ice', 'deformed ice'], loc='upper left', fontsize=20)
 
     #fig4.savefig(outpath+outname_ts_type,bbox_inches='tight')
+
 

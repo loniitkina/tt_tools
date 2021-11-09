@@ -117,12 +117,23 @@ title='Southern transect loop '
 #dates = ['20200123']
 #title='Long transect '
 
-#special (long) transects of leg 5
+#leg 4 transect
 loc= 'special'
-dates = ['20200827']
-dates = ['20200903']
-#dates = ['20200910']
-title='Transect Port '
+dates = ['20200617']
+title='Initial Survey Leg 4 '
+
+loc= 'transect'
+dates = ['20200630']
+title='First full transect of Leg 4 '
+
+
+
+##special (long) transects of leg 5
+#loc= 'special'
+#dates = ['20200827']
+#dates = ['20200903']
+##dates = ['20200910']
+#title='Transect Port '
 
 ##Nansen Legacy
 #loc='P4'
@@ -183,25 +194,29 @@ for dd in range(0,len(dates)):
         outname = 'profile_'+date+'_'+loc+'gridded_lf.png'
         
         fname = glob(inpath_table+'*/magna+gem2*'+date+'*'+loc+'.csv')[0]
+        if date=='20200617': #two special transect on this date, only one has GEM-2 measurements
+            fname = glob(inpath_table+'*/magna+gem2*'+date+'*'+loc+'.csv')[1]
         print(fname)
-        mxx = getColumn(fname,3, delimiter=',', magnaprobe=False)
-        myy = getColumn(fname,4, delimiter=',', magnaprobe=False)
-        snod = getColumn(fname,5, delimiter=',', magnaprobe=False)  #snow depth
-        mpd = getColumn(fname,6, delimiter=',', magnaprobe=False)   #melt pond depth
+        mxx = getColumn(fname,3)
+        myy = getColumn(fname,4)
+        snod = getColumn(fname,5)  #snow depth
+        mpd = getColumn(fname,6)   #melt pond depth
+        
+        print(mxx)
         
         #ice thickness
         if 'ridge' in loc:
             #Date,Lon,Lat,X,Y,Snow,f1525Hz_hcp_i,f1525Hz_hcp_q,f5325Hz_hcp_i,f5325Hz_hcp_q,18325Hz_hcp_i,f18325Hz_hcp_q,f63025Hz_hcp_i,f63025Hz_hcp_q,f93075Hz_hcp_i,f93075Hz_hcp_q
-            it = getColumn(fname,6, delimiter=',', magnaprobe=False)
-            it2 = getColumn(fname,7, delimiter=',', magnaprobe=False)
-            it3 = getColumn(fname,8, delimiter=',', magnaprobe=False)
-            it4 = getColumn(fname,9, delimiter=',', magnaprobe=False)
-            it5 = getColumn(fname,10, delimiter=',', magnaprobe=False)       #closer to real thickness, but still influenced by consolidation (has detection limit)
-            it6 = getColumn(fname,11, delimiter=',', magnaprobe=False)       #consolidation can be seen in column 13 (63kHz q) and 15 (93kHz q)
-            it7 = getColumn(fname,12, delimiter=',', magnaprobe=False)
-            it8 = getColumn(fname,13, delimiter=',', magnaprobe=False)
-            it9 = getColumn(fname,14, delimiter=',', magnaprobe=False)
-            it10 = getColumn(fname,15, delimiter=',', magnaprobe=False)
+            it = getColumn(fname,6)
+            it2 = getColumn(fname,7)
+            it3 = getColumn(fname,8)
+            it4 = getColumn(fname,9)
+            it5 = getColumn(fname,10)       #closer to real thickness, but still influenced by consolidation (has detection limit)
+            it6 = getColumn(fname,11)       #consolidation can be seen in column 13 (63kHz q) and 15 (93kHz q)
+            it7 = getColumn(fname,12)
+            it8 = getColumn(fname,13)
+            it9 = getColumn(fname,14)
+            it10 = getColumn(fname,15)
             
             it2 = np.array(it2,dtype=np.float)
             it3 = np.array(it3,dtype=np.float)
@@ -214,7 +229,7 @@ for dd in range(0,len(dates)):
             it10 = np.array(it10,dtype=np.float)
             
         else:
-            it = getColumn(fname,8, delimiter=',', magnaprobe=False)
+            it = getColumn(fname,8)
         mxx = np.array(mxx,dtype=np.float)
         myy = np.array(myy,dtype=np.float)
         si = np.array(snod,dtype=np.float)
@@ -294,6 +309,7 @@ for dd in range(0,len(dates)):
     dx = mxx[1:]-mxx[:-1]
     dy = myy[1:]-myy[:-1]
     md = np.sqrt(dx**2+dy**2)
+    print(md)
 
 
     #plot
@@ -330,6 +346,7 @@ for dd in range(0,len(dates)):
     #cumulative distance allong the fixed date MP transect
     x = np.zeros_like(fb)
     x[1:] = np.cumsum(md)
+    print(x)
     
     #extension at the FR transect
     if date!='20200305' and loc == 'ridgeFR1':

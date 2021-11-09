@@ -44,7 +44,7 @@ fig1 = plt.figure(figsize=(12,10))
 
 #all the files
 flist = glob(inpath+'*PS122-[1-5]?*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
-flist = glob(inpath+'*PS122-[5]?*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
+flist = glob(inpath+'*PS122-[4]?*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
 flist.sort()
 
 dtot = 0
@@ -53,7 +53,7 @@ n_mp = 0
 mp_spacing=[]
 
 for i in range(0,len(flist)):
-    #if flist[i] !=flist[15]: continue
+    if flist[i] !=flist[0]: continue
     fname = flist[i]
     #print(fname)
     
@@ -94,10 +94,10 @@ for i in range(0,len(flist)):
         fname = flist[7]
     
     #print(fname)
-    xx = getColumn(fname,3, delimiter=',', magnaprobe=False)
+    xx = getColumn(fname,3)
     xx = np.array(xx,dtype=np.float)
     
-    yy = getColumn(fname,4, delimiter=',', magnaprobe=False)
+    yy = getColumn(fname,4)
     yy = np.array(yy,dtype=np.float)
     
     #GEM-2 files contain nans and zeros
@@ -132,10 +132,10 @@ for i in range(0,len(flist)):
     
     for sf in mp_list:
         #print(sf)
-        mxx = getColumn(sf,3, delimiter=',', magnaprobe=False)
+        mxx = getColumn(sf,3)
         mxx = np.array(mxx,dtype=np.float)
 
-        myy = getColumn(sf,4, delimiter=',', magnaprobe=False)
+        myy = getColumn(sf,4)
         myy = np.array(myy,dtype=np.float)
                 
         loc = sf.split('_')[-1].split('-')[0]
@@ -410,6 +410,10 @@ for i in range(0,len(flist)):
                 myy = myy-0
                 
             #leg4
+            if date == '20200617':  #only part
+                mxx = mxx+0
+                myy = myy+0
+            
             if date == '20200627':  #only part
                 mxx = mxx+14
                 myy = myy+5
@@ -564,9 +568,9 @@ for i in range(0,len(flist)):
                 myy = myy-10
                 
             #save all these corrected coordinates
-            time = getColumn(sf,0, delimiter=',', magnaprobe=False)
-            lon = getColumn(sf,1, delimiter=',', magnaprobe=False)
-            lat = getColumn(sf,2, delimiter=',', magnaprobe=False)
+            time = getColumn(sf,0)
+            lon = getColumn(sf,1)
+            lat = getColumn(sf,2)
             
             tt = [time,lon,lat,mxx,myy]
             table = list(zip(*tt))
@@ -604,7 +608,9 @@ for i in range(0,len(flist)):
         #if fname=='../data/MCS/GEM2_thickness/01-ice-thickness/20200406-PS122-3_35-19/mosaic-transect-20200406-gem2-556-track-icecs-xy.csv': 
             #loc='snow1'
             #plt.plot(xx,yy,'o',ms=1,label='GEM-2 '+date+' '+loc)
-    #plt.plot(xx,yy,'o',ms=1,label='GEM-2 '+date+' '+loc)
+            
+            
+    plt.plot(xx,yy,'o',ms=1,label='GEM-2 '+date+' '+loc)
     
 plt.legend()
 plt.gca().set_aspect('equal')

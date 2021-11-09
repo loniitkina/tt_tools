@@ -1,33 +1,15 @@
 import numpy as np
 import csv
+from pyproj import Proj, transform
+from osgeo import gdal, osr
+import matplotlib.pyplot as plt
+import gc
 
-def getColumn(filename, column, delimiter=',', skipinitialspace=False, skipheader=True, magnaprobe=False, rtkpost=False):
+def getColumn(filename, column, delimiter=',', skipinitialspace=False, skipheader=1):
     results = csv.reader(open(filename),delimiter=delimiter,skipinitialspace=skipinitialspace)
-    if skipheader==True:
+    while skipheader>0:
         next(results, None)
-    if magnaprobe==True: #has 4 headers
-        next(results, None)
-        next(results, None)
-        next(results, None)
-    if rtkpost==True: #has 18 headers
-        next(results, None)
-        next(results, None)
-        next(results, None)
-        next(results, None)
-        next(results, None)
-        next(results, None)
-        next(results, None)
-        next(results, None)
-        next(results, None)
-        next(results, None)
-        next(results, None)
-        next(results, None)
-        next(results, None)
-        next(results, None)
-        next(results, None)
-        next(results, None)
-        next(results, None)
-        next(results, None)
+        skipheader=skipheader-1
     return [result[column] for result in results]
 
 #f1525Hz_hcp_i, f1525Hz_hcp_q, f5325Hz_hcp_i, f5325Hz_hcp_q, f18325Hz_hcp_i, f18325Hz_hcp_q, f63025Hz_hcp_i, f63025Hz_hcp_q, f93075Hz_hcp_i, f93075Hz_hcp_q
@@ -242,3 +224,109 @@ def running_stats(x, n):            #n has to be dividable by 2!
         return (mean,var)
     
 
+def proj_sat(tif,lon0,lat0,head0,spacing=1,band=1,alos=False,ps_pos=False):
+    ds = gdal.Open(tif, gdal.GA_ReadOnly) # Note GetRasterBand() takes band no. starting from 1 not 0
+    band = ds.GetRasterBand(band)
+    arr = band.ReadAsArray()
+    #plt.imshow(arr)
+    #plt.show()
+    
+    #lat,lon projection
+    outProj = Proj(init='epsg:4326')
+
+    if alos:
+        #get lat, lon as bands
+        band=ds.GetRasterBand(5)
+        lat = band.ReadAsArray()
+        band=ds.GetRasterBand(6)
+        lon = band.ReadAsArray()
+
+        #scale the values
+        arr=10.*np.log10(arr)
+
+
+    else:
+        #construct grid and calculate lat,lon
+        
+        ## For no. of bands and resolution
+        #print(ds.RasterCount, ds.RasterXSize, ds.RasterYSize)
+        ## stats about image
+        ##min, max, mean std
+        #print(band.GetStatistics( True, True ))
+
+        #get the geo transform matrix
+        xoffset, px_w, rot1, yoffset, rot2, px_h = ds.GetGeoTransform()
+        print(xoffset, px_w, rot1, yoffset, px_h, rot2)
+
+        #pixel coordinates
+        #x, y = np.mgrid[0:ds.RasterXSize, 0:ds.RasterYSize]
+
+        #ALS data has 0.5 meter resolution, this is way more than needed, use 10m resolution for beginning...
+        x, y = np.mgrid[0:ds.RasterXSize:spacing, 0:ds.RasterYSize:spacing]
+        arr = arr[::spacing,::spacing]
+
+        print(x.shape,y.shape)
+        print(arr.shape)
+
+        # supposing x and y are your pixel coordinate this 
+        # is how to get the coordinate in space.
+        posX = px_w * x + rot1 * y + xoffset
+        posY = rot2 * x + px_h * y + yoffset
+
+        # shift to the center of the pixel
+        posX += px_w / 2.0
+        posY += px_h / 2.0
+
+        # get CRS from dataset 
+        crs = osr.SpatialReference()
+        crs.ImportFromWkt(ds.GetProjectionRef())
+        inProj=crs.ExportToProj4()
+        print(inProj)
+
+        #transform coordinates to lat,lon
+        lon,lat = transform(inProj,outProj,posX, posY)
+        
+        del posX,posY
+        gc.collect()
+
+    #transform to the FloeNavi local coordinates
+    FloeNaviProj = Proj('+proj=stere +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 +ellps=WGS84'%(lat0,lon0))
+    x,y = transform(outProj,FloeNaviProj,lon,lat)
+    
+    del lon,lat
+    gc.collect()
+
+    #check orgin location - should be sub-meter away from 0,0
+    xref,yref = transform(outProj,FloeNaviProj,lon0,lat0)
+    print(xref,yref)
+    
+    if ps_pos:
+        #id position is not from FloeNavi but from PS, apply an offest between ship and the ref station on ice
+        ##2019/12/31 11:18:00	117.877961	86.588972	207.9
+        #lon0=117.877961
+        #lat0=86.588972
+        #xref,yref = transform(outProj,FloeNaviProj,lon0,lat0)
+        
+        #print(xref,yref)
+        ##exit()
+        ##difference in x,y
+        #0.0023430867721458927 0.0555309670589043
+        #53.43683464292577 3.5778224217515917
+        x=x+53
+        y=y+3
+
+
+    print('rotate')
+    ##Rotate into reference system of base station
+    ##The heading offset is 90: to get from default positive x-axis to positive y-axis
+    x_temp, y_temp = x.copy(), y.copy()
+    #heading_radian = np.deg2rad(-1.0 * self.refstat.heading + self.base_heading + self.heading_offset_deg)
+    heading_radian = np.deg2rad(-1.0 * (head0-90))
+
+    rot_x = np.cos(heading_radian) * x_temp + np.sin(heading_radian) * y_temp
+    rot_y = -1.0 * np.sin(heading_radian) * x_temp + np.cos(heading_radian) * y_temp
+    
+    del x,y,x_temp,y_temp
+    gc.collect()
+   
+    return(arr,rot_x,rot_y)
