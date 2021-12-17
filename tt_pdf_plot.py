@@ -37,9 +37,9 @@ colors = ['blue','green']
 #outname = 'pdf_'+loc+'_gnss.png'
 
 #select location
-#loc = 'Nloop'
-#title='Northern transect loop'
-#dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507'] 
+loc = 'Nloop'
+title='Northern transect loop'
+dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507'] 
 
 
 #loc = 'Sloop'
@@ -47,9 +47,9 @@ colors = ['blue','green']
 #dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
 
 
-loc = 'snow1'
-title='Snow1 Transect'
-dates = ['20191222','20200112','20200126','20200207','20200223','20200406']
+#loc = 'snow1'
+#title='Snow1 Transect'
+#dates = ['20191222','20200112','20200126','20200207','20200223','20200406']
 
 #loc = 'runway'
 #title='Runway Transect'
@@ -57,25 +57,25 @@ dates = ['20191222','20200112','20200126','20200207','20200223','20200406']
 
 
 ##leg4
-loc = 'transect'
-title = 'Leg 4 Transect '
-##all data
-dates = ['20200617','20200627','20200629','20200630','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200719','20200720','20200725','20200726']
+#loc = 'transect'
+#title = 'Leg 4 Transect '
+###all data
+#dates = ['20200617','20200627','20200629','20200630','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200719','20200720','20200725','20200726']
 
 #leg5
 #loc = 'transect'
 #title = 'Leg 5 Transect '
 #dates = ['20200830','20200903','20200907','20200918']
 
-loc = 'albedoLD'
-title = 'Leg 4 Transect '
-dates = ['20200630','20200706','20200707','20200719','20200721','20200724','20200727']
+#loc = 'albedoLD'
+#title = 'Leg 4 Transect '
+#dates = ['20200630','20200706','20200707','20200719','20200721','20200724','20200727']
 
-loc = 'albedoRBB'
-dates = ['20200630','20200706','20200707','20200719','20200727']
+#loc = 'albedoRBB'
+#dates = ['20200630','20200706','20200707','20200719','20200727']
 
-loc = 'albedoK'
-dates = ['20200830','20200903','20200907','20200910','20200918']
+#loc = 'albedoK'
+#dates = ['20200830','20200903','20200907','20200910','20200918']
 
 #loc = 'ARIEL'
 #dates = ['20200830','20200903','20200907','20200910','20200917']
@@ -147,10 +147,10 @@ if combo==True:
 hem=True        #use HEM means and modes provided by Luisa
 inpath_hem = '../data/HEM_Luisa/'
 fname = inpath_hem+'Ice_thickness_properties.txt'
-dt_hem= getColumn(fname,1, delimiter='\t', magnaprobe=False)
-loc_hem= getColumn(fname,2, delimiter='\t', magnaprobe=False)
-m_hem= getColumn(fname,3, delimiter='\t', magnaprobe=False)
-mo_hem= getColumn(fname,4, delimiter='\t', magnaprobe=False)
+dt_hem= getColumn(fname,1, delimiter='\t')
+loc_hem= getColumn(fname,2, delimiter='\t')
+m_hem= getColumn(fname,3, delimiter='\t')
+mo_hem= getColumn(fname,4, delimiter='\t')
 dt_hem = [ datetime.strptime(x, '%Y-%m-%d') for x in dt_hem ]
 m_hem = np.array(m_hem,dtype=np.float)
 mo_hem = np.array(mo_hem,dtype=np.float)
@@ -161,8 +161,8 @@ mo_hem = np.array(mo_hem,dtype=np.float)
 cs2=True    #use CS2 total ice thickness provided by Stefan (for Krumpen et al, 2021)
 inpath_cs2 = '../data/CS2/'
 fname = inpath_cs2+'l2p-extract-sit-0050km-20191001-20200430.csv'
-dt_cs2= getColumn(fname,0, delimiter=',', magnaprobe=False)
-m_cs2= getColumn(fname,4, delimiter=',', magnaprobe=False)
+dt_cs2= getColumn(fname,0)
+m_cs2= getColumn(fname,4)
 dt_cs2 = [ datetime.strptime(x, '%Y-%m-%d') for x in dt_cs2 ]
 m_cs2 = np.where(m_cs2=='','0',m_cs2)
 m_cs2[m_cs2=='']='0'    #replace empty strings with values
@@ -170,7 +170,7 @@ m_cs2 = np.array(m_cs2,dtype=np.float)
 m_cs2 = np.ma.array(m_cs2,mask=m_cs2==0)
 
 fname = inpath_cs2+'l2p-extract-sd-0050km-20191001-20200430.csv'
-m_cs2sd= getColumn(fname,4, delimiter=',', magnaprobe=False)
+m_cs2sd= getColumn(fname,4)
 m_cs2sd = np.where(m_cs2sd=='','0',m_cs2sd)
 m_cs2sd[m_cs2sd=='']='0'    #replace empty strings with values
 m_cs2sd = np.array(m_cs2sd,dtype=np.float)
@@ -267,8 +267,11 @@ for date in dates:
     
     #load the csv data created in tt_grid.py
     fname = glob(inpath_table+'*/magna+gem2-transect-'+date+'*'+loc+'*.csv')[0]
-    snod = getColumn(fname,5, delimiter=',', magnaprobe=False)
-    it = getColumn(fname,8, delimiter=',', magnaprobe=False)
+    snod = getColumn(fname,5)
+    it = getColumn(fname,8)
+    if date=='20200206' or date=='20200406':
+        it = getColumn(fname,9)     #bad instrument performance on that date, 63kHz q is best
+        
     snod = np.array(snod,dtype=np.float)
     it = np.array(it,dtype=np.float)
     
@@ -290,8 +293,8 @@ for date in dates:
         #if date=='20200918':
             #date2='20200917'
         #fname = glob(inpath_table+'*/magna+gem2-transect-'+date2+'*'+loc2+'*.csv')[0]
-        #tmps = getColumn(fname,5, delimiter=',', magnaprobe=False)
-        #tmpi = getColumn(fname,6, delimiter=',', magnaprobe=False)
+        #tmps = getColumn(fname,5)
+        #tmpi = getColumn(fname,6)
         #snod2 = np.array(tmps,dtype=np.float)
         #it2 = np.array(tmpi,dtype=np.float)
         

@@ -44,7 +44,7 @@ fig1 = plt.figure(figsize=(12,10))
 
 #all the files
 flist = glob(inpath+'*PS122-[1-5]?*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
-flist = glob(inpath+'*PS122-[4]?*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
+flist = glob(inpath+'*PS122-[3]?*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
 flist.sort()
 
 dtot = 0
@@ -53,7 +53,7 @@ n_mp = 0
 mp_spacing=[]
 
 for i in range(0,len(flist)):
-    if flist[i] !=flist[0]: continue
+    #if flist[i] !=flist[0]: continue
     fname = flist[i]
     #print(fname)
     
@@ -271,6 +271,9 @@ for i in range(0,len(flist)):
                 myy = myy-10
                 
                 #also needs to be shifted closer to the ship
+                if loc=='special':
+                    mxx = mxx-14000
+                    myy = myy+10500
 
             
             if date == '20200406':      #floenavi problem

@@ -5,6 +5,9 @@ from scipy.signal import savgol_filter
 from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 
+#bad data following headers deleted in thickness and track files ahead of procesing here?
+
+
 #grid parameters
 step = 1        #for ridges
 limit = step*2  #how far from MP coordinate to search 
@@ -19,6 +22,7 @@ table_output=True
 #date = '20200119'
 #date = '20200221'
 #date = '20200305'   #not a point measurement, use tt_grid.py
+
 
 #loc = 'ridgeFR2'    #coring
 #date = '20200110'
@@ -47,10 +51,10 @@ date = '20200131'   #only one GEM2 transect, but 9 holes drilled!!!
 #leg 4 Allie's Ridge
 loc = 'ridge'
 date = '20200628'
-date = '20200709' #MP and GEM-2 data quite shifted, bad coordinate match
-date = '20200713'   #GPS failure on two out of three GEM-lines
-date = '20200721'   #no MP data found
-date = '20200728'   #just one line, strange GEM-2 coordinates.
+#date = '20200709' #MP and GEM-2 data quite shifted, bad coordinate match
+#date = '20200713'   #GPS failure on two out of three GEM-lines
+#date = '20200721'   #no MP data found
+#date = '20200728'   #just one line, strange GEM-2 coordinates.
 
 
 
@@ -80,27 +84,32 @@ inpath_ice = '../data/MCS/GEM2_thickness/01-ice-thickness/'
 
 #coordinates
 fname = glob(inpath_ice+date_gem2+'*/mosaic-*-*-gem2-*-track-icecs-xy.csv')[0]
+if date=='20200628':
+    fname = glob(inpath_ice+date_gem2+'*/mosaic-*-*-gem2-*-track-icecs-xy.csv')[1]
+print(fname)
+
 xx,yy=ridge_xy(fname)   
-#print(xx)
-#print(yy)
 
 #ice thickness data
 fname = glob(inpath_ice+date_gem2+'*/mosaic-*-*-gem2-*-channel-thickness.csv')[0]
+if date=='20200628':
+    fname = glob(inpath_ice+date_gem2+'*/mosaic-*-*-gem2-*-channel-thickness.csv')[1]
+print(fname)
+
 mit1,mit2,mit3,mit4,mit5,mit6,mit7,mit8,mit9,mit10=ridge_thick(fname)
-#print(mit1)
 
 #MP
 fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+'-track-icecs-xy_corr.csv')[0]
 print(fname)
 
-dt = getColumn(fname,0, delimiter=',', magnaprobe=False)
-lon = getColumn(fname,1, delimiter=',', magnaprobe=False)
-lat = getColumn(fname,2, delimiter=',', magnaprobe=False)
+dt = getColumn(fname,0)
+lon = getColumn(fname,1)
+lat = getColumn(fname,2)
 
-mxx = getColumn(fname,3, delimiter=',', magnaprobe=False)
+mxx = getColumn(fname,3)
 mxx = np.array(mxx,dtype=np.float)
 
-myy = getColumn(fname,4, delimiter=',', magnaprobe=False)
+myy = getColumn(fname,4)
 myy = np.array(myy,dtype=np.float)
     
 #get some meta data for the MP transect:
@@ -120,7 +129,7 @@ np.savetxt(of, (d,spacing))
 #snow depth data
 fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+'.dat')[0]
 print(fname)
-snod = getColumn(fname,3, delimiter=',', magnaprobe=True)
+snod = getColumn(fname,3, delimiter=',', skipheader=4)
 snod = np.array(snod,dtype=np.float)[:-2]/100             #convert from cm to m
 #change all negative data to zero
 snod = np.where(snod<0,0,snod)
@@ -128,7 +137,13 @@ snod = np.where(snod<0,0,snod)
 #####################################################################################################################################3
 #lets make a regular grid with 'step' m spacing, corresponding to the CO local coordinate boundaries
 grid_x, grid_y = np.mgrid[200:900:step, -600:0:step]
-extent=(200,900,-600,0)   
+extent=(200,900,-600,0)
+
+#leg 4 data has different coordinates
+if date=='20200628':
+    grid_x, grid_y = np.mgrid[-450:-350:step, -600:-500:step]
+    extent=(-450,-350,-600,-500)
+
 
 #assign values to be used for gridding
 sd_points = np.column_stack((mxx,myy))

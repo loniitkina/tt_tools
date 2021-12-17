@@ -21,28 +21,33 @@ dates = [['20191031','20191107','20191114','20191205',   '20191226','20200102','
 ['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']]
 
 #locs = ['Sloop']
-#dates = [ ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']        
-#]
+###dates = [ ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507'] ]
 
 #selected reference date:20200207
 #locs = ['snow1']
 #dates = [['20191222','20200112','20200126','20200207','20200223','20200406']]
 
-#all leg1-4 transects on selected dates
-locs = ['Sloop','Nloop','snow1','special','transect']
-dates = [['20200116'],
-['20200116'],
-['20200207'],
-['20200617'],
-['20200630']
-]
+#selected reference date:20200207
+locs = ['runway']
+dates = [['20200112','20200207']]
+
+###all leg1-4 transects on selected dates
+#locs = ['Sloop','Nloop','snow1','runway','special','transect']
+#dates = [['20200116'],
+#['20200116'],
+#['20200207'],
+#['20200207'],
+#['20200617'],
+#['20200630']
+#]
 
 
 inpath_grid = '../data/grids_AGU/'
 outpath = '../plots_AGU/'
-outname = 'grid_maps3.png'
-outname = 'grid_maps_legs1-4.png'
-outname2 = 'map_legs1-4.png'
+outname='grid_test.png'
+#outname = 'grid_maps3.png'
+#outname = 'grid_maps_legs1-4.png'
+#outname2 = 'map_legs1-4.png'
 
 print(outpath+outname)
 
@@ -84,13 +89,13 @@ for ll in range(0,len(locs)):
         
         #lets check how this looks like before the shifting and rotation
         if dd == 0:
-            i_grid1 = np.ma.masked_invalid(i_grid).filled(0)
+            i_grid1 = np.ma.masked_invalid(s_grid).filled(0)
             
             i_grid2=i_grid1.copy()
             i_grid3=i_grid1.copy()
             
         else:
-             i_grid1 = i_grid1+np.ma.masked_invalid(i_grid).filled(0)
+             i_grid1 = i_grid1+np.ma.masked_invalid(s_grid).filled(0)
         
         #get rid of nans for the operations
         i_grid=np.ma.masked_invalid(i_grid).filled(-999)
@@ -133,8 +138,8 @@ for ll in range(0,len(locs)):
                 s_grid = np.append(s_grid[:,int(-484/step):],s_grid[:,:int(-484/step)],axis=1)
                 
             if date == '20200507':
-                i_grid = np.append(i_grid[:,int(-460/step):],i_grid[:,:int(-460/step)],axis=1)
-                s_grid = np.append(s_grid[:,int(-460/step):],s_grid[:,:int(-460/step)],axis=1)    
+                i_grid = np.append(i_grid[:,int(-467/step):],i_grid[:,:int(-467/step)],axis=1)
+                s_grid = np.append(s_grid[:,int(-467/step):],s_grid[:,:int(-467/step)],axis=1)    
                         
             #move along x axis
             if date == '20191031' or date == '20191107' or date == '20191114':
@@ -186,8 +191,8 @@ for ll in range(0,len(locs)):
                 s_grid = np.append(s_grid[int(-160/step):,:],s_grid[:int(-160/step),:],axis=0)
                 
             if date == '20200507':
-                i_grid = np.append(i_grid[int(-238/step):,:],i_grid[:int(-238/step),:],axis=0)
-                s_grid = np.append(s_grid[int(-238/step):,:],s_grid[:int(-238/step),:],axis=0)
+                i_grid = np.append(i_grid[int(-234/step):,:],i_grid[:int(-234/step),:],axis=0)
+                s_grid = np.append(s_grid[int(-234/step):,:],s_grid[:int(-234/step),:],axis=0)
             
             #rotate
             #chose order=1 for no interpolation at boundaries!
@@ -269,7 +274,7 @@ for ll in range(0,len(locs)):
                 
                 s_grid[int(220/step):int(600/step),int(1380/step):int(1665/step)] = s_grid[int(220/step):int(600/step),int(1365/step):int(1650/step)]
                 s_grid[int(400/step):int(600/step),int(1390/step):int(1510/step)] = s_grid[int(400/step):int(600/step),int(1380/step):int(1500/step)]
-                        
+                                        
         if locs[ll]=='Nloop':
             #move along y axis
             if date == '20191024' or date == '20191031' or date == '20191107' :
@@ -561,6 +566,7 @@ for ll in range(0,len(locs)):
         
         #save new grids
         ofn = inpath_grid+locs[ll]+'_'+date+'_'+stp+'m_'+method_gem2+ch_name+'_adjusted.npz'
+        print(ofn)
         
         with open(ofn, 'wb') as f:
             np.savez(f, x = x_grid, y = y_grid, snow = s_grid, ice = i_grid)
@@ -608,4 +614,4 @@ for ll in range(0,len(locs)):
     
 #plt.show()    
 fig1.savefig(outpath+outname,bbox_inches='tight')
-fig2.savefig(outpath+outname2,bbox_inches='tight')
+#fig2.savefig(outpath+outname2,bbox_inches='tight')

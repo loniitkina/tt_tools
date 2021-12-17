@@ -83,13 +83,12 @@ def ridge_thick(fname):
                     mm1 = m1/c
                     output_mit[ch].append(mm1)
                     fz = False
-                elif (fz == False) and (c1==1): 
+                elif c1==1: 
                     output_mit[ch].append(np.nan)
                 c=0
                 c1=0
                 m1=0
                 continue
-        
         
     return(mit1,mit2,mit3,mit4,mit5,mit6,mit7,mit8,mit9,mit10)
 
@@ -330,3 +329,51 @@ def proj_sat(tif,lon0,lat0,head0,spacing=1,band=1,alos=False,ps_pos=False):
     gc.collect()
    
     return(arr,rot_x,rot_y)
+
+def floenavi_coords(dt,lat,lon,refdt,reflat,reflon,refhead):
+
+    #lat,lon projection
+    outProj = Proj(init='epsg:4326')
+
+    rot_x_list=[]
+    rot_y_list=[]
+    for i in range(0,len(dt)):
+        
+        #find closest date
+        k = np.argmin(np.abs(np.array(refdt) - dt[i]))
+        print('reference: ',refdt[k])
+        print('snow pit: ',dt[i])
+        
+        lat0=reflat[k]
+        lon0=reflon[k]
+        head0=refhead[k]
+            
+        #transform to the FloeNavi local coordinates
+        FloeNaviProj = Proj('+proj=stere +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 +ellps=WGS84'%(lat0,lon0))
+        x,y = transform(outProj,FloeNaviProj,lon[i],lat[i])
+            
+        #if ps_pos:
+            #x=x+53
+            #y=y+3
+            
+        ##Rotate into reference system of base station
+        ##The heading offset is 90: to get from default positive x-axis to positive y-axis
+        heading_radian = np.deg2rad(-1.0 * (head0-90))
+
+        rot_x = np.cos(heading_radian) * x + np.sin(heading_radian) * y
+        rot_y = -1.0 * np.sin(heading_radian) * x + np.cos(heading_radian) * y
+        
+        rot_x_list.append(rot_x)
+        rot_y_list.append(rot_y)
+
+    return(rot_x_list,rot_y_list)
+
+def get_ice_mode(it,irbins):
+    
+    hist = np.histogram(it,bins=irbins)
+    srt = np.argsort(hist[0])                           #indexes that would sort the array
+    mm = srt[-1]                                        #same as: np.argmax(hist[0])
+    mm1 = np.argmax(hist[0])
+    mo = (hist[1][mm] + hist[1][mm+1])/2           #take mean of the bin for the mode value
+
+    return(mo)

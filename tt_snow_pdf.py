@@ -18,7 +18,6 @@ dates= ['20200112','20200123','20200130','20200130','20200207','20200617']
 locs = ['runway','Nloop','Sloop','runway','special']
 dates= ['20200112','20200130','20200130','20200207','20200617']
 
-
 dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
 datel = [ datetime.strftime(x, '%Y/%m/%d') for x in dt ]
 

@@ -46,8 +46,8 @@ outname='ts_comp.png'
 inpath_mosaic='../data/MCS/MP/'
 i=0
 for loc in locs:
-    fname=inpath_mosaic+'ts_'+loc+'_2m_gridded.csv'
-    try:
+    fname=inpath_mosaic+'ts_'+loc+'_2m_gridded.csv' #this is filename mistake - these data are all 1m gridded!
+    try:    #if exists
         dt1= getColumn(fname,0)
         m_snow= getColumn(fname,1)
         std_snow= getColumn(fname,2)
@@ -61,11 +61,11 @@ for loc in locs:
         std_ice = np.array(std_ice,dtype=np.float)
         mo_ice = np.array(mo_ice,dtype=np.float)
         
-        #flag bad ice thickness data
-        if loc=='Sloop' or loc=='Nloop':
-            for x in range(0,len(dt1)):
-                if dt1[x]=='20200206':
-                    m_ice[x]=np.nan
+        ##flag bad ice thickness data
+        #if loc=='Sloop' or loc=='Nloop':
+            #for x in range(0,len(dt1)):
+                #if dt1[x]=='20200206':
+                    #m_ice[x]=np.nan
         #if loc=='Nloop':
             #for x in range(0,len(dt1)):
                 #if dt1[x]=='20191031' or dt1[x]=='20191114':
@@ -104,7 +104,203 @@ for loc in locs:
             #dx.plot(dt_diff,mo_ice,'.',ms=10,c='r')
         else:
             dx.plot(dt_diff,mo_ice,'s',ms=5,c='.5')
+            
+            
+        #write out some growth/accumulation/melt rates
+        
+        ##fast snow accumulation
+        #if loc=='Nloop':
+            #for x in range(0,len(dt1)):
+                #if dt1[x]=='20191031':
+                    #start=m_snow[x]
+                
+                #if dt1[x]=='20200109':
+                    #end=m_snow[x]
+            #rate=(end-start)/(30+31+9) #days
+            #print(loc,'Nov-Jan')
+            #print(rate*30.5) #monthly rate
+        #if loc=='Sloop':
+            #for x in range(0,len(dt1)):
+                #if dt1[x]=='20191031':
+                    #start=m_snow[x]
+                
+                #if dt1[x]=='2020109':
+                    #end=m_snow[x]
+            #rate=(end-start)/(30+31+9) #days
+            #print(loc,'Nov-Jan')
+            #print(rate*30.5) #monthly rate   
+        #if loc=='snow1':
+            #start=start
+            #for x in range(0,len(dt1)):
+                
+                #if dt1[x]=='20200112':
+                    #end=m_snow[x]
+            #rate=(end-start)/(30+31+12) #days
+            #print(loc,'Nov-Jan')
+            #print(rate*30.5) #monthly rate   #rate in weeks
+            
+        #if loc=='runway':
+            ##'20191101':
+            #start=0
+            #for x in range(0,len(dt1)):
+                #if dt1[x]=='20200112':
+                    #end=m_snow[x]
+            #rate=(end-start)/(30+31+12) #days
+            #print(loc,'Nov-Jan')
+            #print(rate*30.5) #monthly rate
+            
+        ##February kick
+        #if loc=='Nloop':
+            #for x in range(0,len(dt1)):
+                #if dt1[x]=='20200130':
+                    #start=m_snow[x]
+                
+                #if dt1[x]=='20200220':
+                    #end=m_snow[x]
+            #rate=(end-start)/(21) #days
+            #print(loc,'Jan-Feb')
+            #print(rate*30.5) #monthly rate
+            #print(end)
+        #if loc=='Sloop':
+            #for x in range(0,len(dt1)):
+                #if dt1[x]=='20200130':
+                    #start=m_snow[x]
+                
+                #if dt1[x]=='20200220':
+                    #end=m_snow[x]
+            #rate=(end-start)/(21) #days
+            #print(loc,'Jan-Feb')
+            #print(rate*30.5) #monthly rate
+            #print(end)
+        #if loc=='snow1':
+            #for x in range(0,len(dt1)):
+                #if dt1[x]=='20200126':
+                    #start=m_snow[x]
+                #if dt1[x]=='20200223':
+                    #end=m_snow[x]
+            #rate=(end-start)/(5+23) #days
+            #print(loc,'Jan-Feb')
+            #print(rate*30.5) #monthly rate   #rate in weeks
+            #print(end)
+
+        ##June melt rates
+        #if loc=='transect':
+            #for x in range(0,len(dt1)):
+                #if dt1[x]=='20200617':
+                    #start=m_snow[x]
+                #if dt1[x]=='20200630':
+                    #end=m_snow[x]
+            #rate=(end-start)/(13) #days
+            #print(loc,'June melt')
+            #print(rate*30.5) #monthly rate   #rate in weeks
+        
+        #ice rates
+        #if loc=='Nloop':
+            #for x in range(0,len(dt1)):
+                #if dt1[x]=='20191031':
+                    #start=m_ice[x]
+                
+                #if dt1[x]=='20200424':
+                    #end=m_ice[x]
+            #rate=(end-start)/(30+31+31+29+31+24) #days
+            #print(loc,'Nov-Apr')
+            #print(rate*30.5) #monthly rate
+        #if loc=='Sloop':
+            #for x in range(0,len(dt1)):
+                #if dt1[x]=='20191031':
+                    #start=m_ice[x]
+                
+                #if dt1[x]=='2020426':
+                    #end=m_ice[x]
+            #rate=(end-start)/(30+31+31+29+31+26) #days
+            #print(loc,'Nov-Apr')
+            #print(rate*30.5) #monthly rate   
+        #if loc=='snow1':
+            #start=start
+            #for x in range(0,len(dt1)):
+                
+                #if dt1[x]=='20200406':
+                    #end=m_ice[x]
+            #rate=(end-start)/(30+31+31+29+31+6) #days
+            #print(loc,'Nov-Apr')
+            #print(rate*30.5) #monthly rate
+        #if loc=='runway':
+            ##'20191101':
+            #start=0
+            #for x in range(0,len(dt1)):
+                #if dt1[x]=='20200207':
+                    #end=m_ice[x]
+            #rate=(end-start)/(30+31+31+7) #days
+            #print(loc,'Nov-Feb')
+            #print(rate*30.5) #monthly rate
+            
+        ##modes
+        #if loc=='Nloop':
+            #for x in range(0,len(dt1)):
+                #if dt1[x]=='20191031':
+                    #start=mo_ice[x]
+                
+                #if dt1[x]=='20200424':
+                    #end=mo_ice[x]
+            #rate=(end-start)/(30+31+31+29+31+24) #days
+            #print(loc,'Nov-Apr')
+            #print(rate*30.5) #monthly rate
+        #if loc=='Sloop':
+            #for x in range(0,len(dt1)):
+                #if dt1[x]=='20191031':
+                    #start=mo_ice[x]
+                
+                #if dt1[x]=='2020426':
+                    #end=mo_ice[x]
+            #rate=(end-start)/(30+31+31+29+31+26) #days
+            #print(loc,'Nov-Apr')
+            #print(rate*30.5) #monthly rate   
+        #if loc=='snow1':
+            #start=start
+            #for x in range(0,len(dt1)):
+                
+                #if dt1[x]=='20200406':
+                    #end=mo_ice[x]
+            #rate=(end-start)/(30+31+31+29+31+6) #days
+            #print(loc,'Nov-Apr')
+            #print(rate*30.5) #monthly rate
+        #if loc=='runway':
+            ##'20191101':
+            #start=0
+            #for x in range(0,len(dt1)):
+                #if dt1[x]=='20200207':
+                    #end=mo_ice[x]
+            #rate=(end-start)/(30+31+31+7) #days
+            #print(loc,'Nov-Feb')
+            #print(rate*30.5) #monthly rate
+        
+        #June melt rates
+        if loc=='transect':
+            for x in range(0,len(dt1)):
+                if dt1[x]=='20200710':
+                    start=m_ice[x]
+                if dt1[x]=='20200726':
+                    end=m_ice[x]
+            rate=(end-start)/(16) #days
+            print(loc,'July melt')
+            print(rate*30.5) #monthly rate   #rate in weeks
+            
+        if loc=='transect':
+            for x in range(0,len(dt1)):
+                if dt1[x]=='20200710':
+                    start=mo_ice[x]
+                if dt1[x]=='20200726':
+                    end=mo_ice[x]
+            rate=(end-start)/(16) #days
+            print(loc,'July melt')
+            print(rate*30.5) #monthly rate   #rate in weeks   
+ 
+        
         i=i+1
+        
+        
+        
+        
     except:
         i=i+1
         continue
@@ -296,3 +492,55 @@ dx.set_xlim(20,366)
 
 fig1.savefig(outpath+outname,bbox_inches='tight')
 plt.close(fig1)
+
+
+###write out some snow rates
+#%fast monthly accumulation rates assuming there was no snow on runway on 31. October: fastest accumulation in transects with new ridges and bare ice
+#Nloop Nov-Jan
+#0.01011408467176947
+#Sloop Nov-Jan
+#0.05543897912545008
+#snow1 Nov-Jan
+#0.013579976479046197
+#runway Nov-Jan
+#0.040322770019242865
+#%February kick
+#Nloop Jan-Feb
+#0.05828317674757771
+#Sloop Jan-Feb
+#0.06618499610048259
+#snow1 Jan-Feb
+#0.10033854529386192
+#%melt rates
+#transect June melt
+#-0.29004274910695327
+
+##ice melt rates
+##ice growth from means
+#Nloop Nov-Apr
+#0.004543528507748818
+#Sloop Nov-Apr
+#0.3966544562385871
+#snow1 Nov-Apr
+#0.15403427187193255
+#runway Nov-Feb
+#0.4032994136299707
+
+##ice growth from modes
+#Nloop Nov-Apr
+#0.19755681818181822
+#Sloop Nov-Apr
+#0.23646067415730335
+#snow1 Nov-Apr
+#0.17373417721518988
+#runway Nov-Feb
+#0.4343939393939394
+
+##ice melt
+##mean
+#transect July melt
+#-1.7453381176988856
+##mode
+#transect July melt
+#-2.6306249999999998
+

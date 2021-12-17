@@ -20,14 +20,15 @@ window=5
 #polyorder=0
 #window=1
 
+
 #location and dates
 loc = 'Sloop'
 dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
 title='Southern transect loop '
 
-#loc = 'Nloop'
-#dates = ['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
-#title='Northern transect loop '
+loc = 'Nloop'
+dates = ['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
+title='Northern transect loop '
 
 #loc = 'Nloop_spine'
 #dates = ['20191205','20191219','20200220','20200227','20200305','20200424','20200507']
@@ -39,22 +40,27 @@ title='Southern transect loop '
 
 #loc = 'ridgeFR1'
 #dates = ['20200108']#,'20200119','20200221']#,'20200305']
-#datel = ['2020/01/08']#,'2020/01/19','2020/02/21']#,'2020/03/05']
+##dates = ['20200119']
+##dates = ['20200221']
 #title = 'Fort Ridge Installation Transect '
 
 #loc = 'ridgeFR2'    #coring
 #dates = ['20200110']#,'20200212','20200221']
-#datel = ['2020/01/10']#,'2020/02/12','2020/02/21']
+#dates = ['20200212']
+#dates = ['20200221']
 #title = 'Fort Ridge Coring Transect '
 
-#loc = 'ridgeFR3'
-#dates = ['20200131']
-#datel = ['2020/01/31'] 
-#title = 'Fort Ridge Optics Transect '
+##loc = 'ridgeFR3'
+##dates = ['20200131']
+##datel = ['2020/01/31'] 
+##title = 'Fort Ridge Optics Transect '
 
 #loc = 'ridgeA1'    #central
-#dates = ['20200117']#,'20200131','20200228']#,'20200410']
-#datel = ['2020/01/17']#,'2020/01/31','2020/02/28']#,'2020/04/10']
+##dates = ['20200117']#,'20200131','20200228']#,'20200410','20200628']
+##dates = ['20200131']
+##dates = ['20200228']
+##loc = 'ridgeA3'
+#dates = ['20200628']
 #title = "Allie's Ridge Central Transect "
 
 
@@ -84,6 +90,7 @@ title='Southern transect loop '
 #loc = 'Sloop'
 #dates = ['20200130']
 ##dates = ['20200109']
+#dates=['20200507']
 #title='Southeren transect loop '
 
 #loc = 'Nloop'
@@ -92,7 +99,8 @@ title='Southern transect loop '
 #title='Northeren transect loop '
 
 #loc= 'snow1'
-#dates = ['20200126']
+#dates = ['20200112']
+##dates = ['20200126']
 ##dates = ['20200207']
 #title='Snow1 transect '
 
@@ -100,10 +108,11 @@ title='Southern transect loop '
 #dates = ['20200126']
 #title='Event transect '
 
-#loc = 'runway'
+loc = 'runway'
 #dates = ['20200207']
-##dates = ['20200112']
-#title='Runway transect '
+#dates = ['20200112']
+dates = ['20200112','20200207']
+title='Runway transect '
 
 #loc= 'special'
 #dates = ['20200107']
@@ -117,16 +126,18 @@ title='Southern transect loop '
 #dates = ['20200123']
 #title='Long transect '
 
-#leg 4 transect
-loc= 'special'
-dates = ['20200617']
-title='Initial Survey Leg 4 '
+##leg 4 transect
+#loc= 'special'
+#dates = ['20200617']
+#title='Initial Survey Leg 4 '
 
-loc= 'transect'
-dates = ['20200630']
-title='First full transect of Leg 4 '
+#loc= 'transect'
+#dates = ['20200630']
+#title='First full transect of Leg 4 '
 
-
+#loc='recon'
+#dates=['20200228']
+#title='Recon '
 
 ##special (long) transects of leg 5
 #loc= 'special'
@@ -152,7 +163,14 @@ title='First full transect of Leg 4 '
 #dates = ['20210513']
 #title='Nansen Legacy Q2 - P7 '
 
-
+#roughness classes limits
+#rubble can vary depending on the transect
+rubble=0.06
+ridge=0.2
+#rubble=0.1
+if loc=='Nloop':
+    rubble=0.5
+    ridge=0.6
 
 dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
 datel = [ datetime.strftime(x, '%Y/%m/%d') for x in dt ]
@@ -168,6 +186,7 @@ if len(dates) == 1:
 #MOSAiC
 inpath_table = '../data/MCS/MP/'
 outpath = '../plots_AGU/'
+outpath_cls = '../data/'
 inpath_grid = '../data/grids_AGU/'
 
 ##Nansen Legacy
@@ -175,7 +194,7 @@ inpath_grid = '../data/grids_AGU/'
 #outpath = '../plots_NL/'
 
 station = True
-#station = False
+station = False
 
 plot_mode = False
 plot_mode = True
@@ -202,14 +221,14 @@ for dd in range(0,len(dates)):
         snod = getColumn(fname,5)  #snow depth
         mpd = getColumn(fname,6)   #melt pond depth
         
-        print(mxx)
+        #print(mxx)
         
         #ice thickness
         if 'ridge' in loc:
             #Date,Lon,Lat,X,Y,Snow,f1525Hz_hcp_i,f1525Hz_hcp_q,f5325Hz_hcp_i,f5325Hz_hcp_q,18325Hz_hcp_i,f18325Hz_hcp_q,f63025Hz_hcp_i,f63025Hz_hcp_q,f93075Hz_hcp_i,f93075Hz_hcp_q
-            it = getColumn(fname,6)
+            it = getColumn(fname,8)
             it2 = getColumn(fname,7)
-            it3 = getColumn(fname,8)
+            it3 = getColumn(fname,6)
             it4 = getColumn(fname,9)
             it5 = getColumn(fname,10)       #closer to real thickness, but still influenced by consolidation (has detection limit)
             it6 = getColumn(fname,11)       #consolidation can be seen in column 13 (63kHz q) and 15 (93kHz q)
@@ -228,8 +247,10 @@ for dd in range(0,len(dates)):
             it9 = np.array(it9,dtype=np.float)
             it10 = np.array(it10,dtype=np.float)
             
+            mpd=0
+            
         else:
-            it = getColumn(fname,8)
+            it = getColumn(fname,8)                 #8 in new product, 6 in the old
         mxx = np.array(mxx,dtype=np.float)
         myy = np.array(myy,dtype=np.float)
         si = np.array(snod,dtype=np.float)
@@ -242,6 +263,15 @@ for dd in range(0,len(dates)):
             ii = np.concatenate((ii[-215:],ii[:-215]))
             si = np.concatenate((si[-215:],si[:-215]))
             
+        
+        #mask=(mxx==0)
+        #mxx=np.ma.array(mxx,mask=mask).compressed()
+        #myy=np.ma.array(myy,mask=mask).compressed()
+        #si=np.ma.array(si,mask=mask).compressed()
+        #ii=np.ma.array(ii,mask=mask).compressed()
+        #mi=np.ma.array(mi,mask=mask).compressed()
+        
+        
         
         
     else:
@@ -259,6 +289,7 @@ for dd in range(0,len(dates)):
         outname = loc+'_profile_'+date+'_'+stp+'_gridded_full1.png'
         
         inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track1.npz'
+        inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track2.npz'
         
         data = np.load(inf)
 
@@ -388,12 +419,14 @@ for dd in range(0,len(dates)):
         itm,itv = running_stats(ii,nit)
         std = np.sqrt(itv)
         
-        rubble=0.15
-        ridge=0.4
-        level_cls=np.where(std<rubble,1,np.nan)
-        ridge_cls=np.where(std>ridge,1,np.nan)
-        mask = (std > rubble) & (std < ridge)
-        rubble_cls=np.where(mask,1,np.nan)
+        rubble=rubble
+        ridge=ridge
+        level_cls=np.where((std<rubble)&(itm<2),1,np.nan)
+        #start and end are not level, but have zeros in this running mean
+        level_cls[:int(nit/2)]=np.nan 
+        level_cls[-int(nit/2):]=np.nan
+        ridge_cls=np.where((std>ridge)&(itm>2),1,np.nan)    #ridges also need to be thicker than 2.5m!
+        rubble_cls=np.where(~((level_cls==1)|(ridge_cls==1)),1,np.nan)
         
         if loc== 'runway':
             mo=1.11
@@ -413,9 +446,29 @@ for dd in range(0,len(dates)):
             t = '$h_i$ level on 2020/01/09: '+str(mo)
             ax.text(400, mofb-mo+.1, t, ha='left', wrap=True, c='darkred',size=24)
             
-            ax.scatter(x,np.ones_like(x)*level_cls*1.15,c='y',ls='-',label='level ice')
-            ax.scatter(x,np.ones_like(x)*rubble_cls*1.15,c='royalblue',ls='-',label='rubble')
-            ax.scatter(x,np.ones_like(x)*ridge_cls*1.15,c='purple',ls='-',label='ridge/lead edge')
+        ax.scatter(x,np.ones_like(x)*level_cls*1.15,c='y',ls='-',label='level ice')
+        ax.scatter(x,np.ones_like(x)*rubble_cls*1.15,c='royalblue',ls='-',label='rubble')
+        ax.scatter(x,np.ones_like(x)*ridge_cls*1.15,c='purple',ls='-',label='ridge/lead edge')
+        
+        if station:
+            #save this classification
+            cls = level_cls.copy()
+            cls = np.where(rubble_cls==1,2,cls)
+            cls = np.where(ridge_cls==1,3,cls)
+            print(cls.shape)
+            print(mxx.shape)
+            print(si.shape)
+            print(ii.shape)
+            #time series text file exports
+            tt = [mxx,myy,cls,si,ii]
+            table = list(zip(*tt))
+
+            print(outpath_cls+'classes_'+loc+date+'.csv')
+            with open(outpath_cls+'classes_'+loc+date+'.csv', 'wb') as f:
+                #header
+                f.write(b'x,y,cls,snow depth, ice thickness\n')
+                np.savetxt(f, table, fmt="%s", delimiter=",")
+
 
     #plot with equilibrium
     ax.plot(x,fb,label='ice surface',c='k',ls=':')
@@ -427,6 +480,8 @@ for dd in range(0,len(dates)):
         ax.set_ylim(-8,1.8)
     elif loc == 'P4' or loc == 'P5':
         ax.set_ylim(-2,1)
+    elif 'FR' in loc:
+        ax.set_ylim(-8,1.8)
     else:
         ax.set_ylim(-4,1.3)
     
@@ -451,8 +506,8 @@ for dd in range(0,len(dates)):
     si_list.append(si_hat)
     #x_list.append(x)
 
-if station:
-    exit()
+#if station:
+    #exit()
     
 fig2 = plt.figure(figsize=(20,10))
 ax = fig2.add_subplot(111)
@@ -469,37 +524,37 @@ for i in range(0,len(fb_list)):
     
     #some bad ice data - dont plot:
     if loc=='snow1' or dates[i]=='20191205' or dates[i]=='20200102' or dates[i]=='20200220' or dates[i]=='20200305' or dates[i]=='20200426' or dates[i]=='20200507':
+        continue
+        
+    #use the same freeboard all the times
+    #for a static feature e.g. cosolidating ridge, last measurement is best
+    #for a deforming transect e.g. Nloop or Sloop each transect might be separate
+    if loc == 'Sloop' or loc == 'Nloop':
+        li = -5  #list index for the date
+        li = -1
+        fbli = fb_list[li]
+        
+    elif loc == 'snow1':
+        li=0
+        fbli = fb_list[li]   #last transect is not complete, use 1st transect
+        
+    else:
+        li=-1
+        fbli = fb_list[li]
+        
     
+    ##some (ridge) transects were getting longer (typically over level ice, so not much changes there...)
+    #if len(fb) < len(x):
+        #extra = len(x)-len(fb)
+        #fb = np.append(fb,fb_list[i][-extra:])
         
-        #use the same freeboard all the times
-        #for a static feature e.g. cosolidating ridge, last measurement is best
-        #for a deforming transect e.g. Nloop or Sloop each transect might be separate
-        if loc == 'Sloop' or loc == 'Nloop':
-            li = -5  #list index for the date
-            li = -1
-            fbli = fb_list[li]
+    ##while some are getting shorter...
+    #if len(fb) > len(x):
+        #extra = len(fb)-len(x)
+        #fb = fb[:-extra]
             
-        elif loc == 'snow1':
-            li=0
-            fbli = fb_list[li]   #last transect is not complete, use 1st transect
-            
-        else:
-            li=-1
-            fbli = fb_list[li]
-            
-        
-        ##some (ridge) transects were getting longer (typically over level ice, so not much changes there...)
-        #if len(fb) < len(x):
-            #extra = len(x)-len(fb)
-            #fb = np.append(fb,fb_list[i][-extra:])
-            
-        ##while some are getting shorter...
-        #if len(fb) > len(x):
-            #extra = len(fb)-len(x)
-            #fb = fb[:-extra]
-                
-        ax.plot(x, fbli-ii_list[i],c=colors[i],label=datel[i])
-        ax.plot(x, fbli+si_list[i],c=colors[i])
+    ax.plot(x, fbli-ii_list[i],c=colors[i],label=datel[i])
+    ax.plot(x, fbli+si_list[i],c=colors[i])
 
 ax.plot(x,fbli,label='ice surface',c=colors[-1],ls=':')    
 ax.fill_between(x, fbli, fbli+si_list[li],alpha=1, color=colors[1], label='snow')
@@ -858,7 +913,7 @@ if 'ridge' in loc:
     
 
 ax.legend(fontsize=20,loc='lower left',fancybox=True,facecolor=colors[-1],framealpha=.1)
-outname = loc+'_'+stp+'_profile_all_gridded.png'
+outname = loc+'_profile_all_gridded.png'
 fig2.savefig(outpath+outname,bbox_inches='tight')
 
 #just snow

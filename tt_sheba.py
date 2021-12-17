@@ -73,9 +73,10 @@ fnames=sorted(glob(inpath_g+'*bal_FYI/*BAL*.CSV'))
 dt=[]
 snow=[]
 ice=[]
+max_bal=[]
 
 for fname in fnames:
-    print(fname)
+    #print(fname)
     
     date = getColumn(fname,0,skipheader=2)
     snod = getColumn(fname,1,skipheader=2)
@@ -88,12 +89,23 @@ for fname in fnames:
     bot = np.array(bot,dtype=np.float)/100
     
     it=top-bot
-    print(it)
+    #print(it)
+    
+    #print(date)
+    #get mean for 13 May
+    for x in range(0,len(date)):
+        if date[x]==datetime(1998,5,13):
+            max_bal.append(it[x])
+
     
     #plotting
     plt.plot(date,snod,c='.75')
     
     plt.plot(date,it,c='y')
+
+m_max_bal=np.mean(np.ma.masked_invalid(max_bal))
+print(m_max_bal)
+plt.plot(datetime(1998,5,15),m_max_bal,'o',c='b')
     
 
 #Main Line
@@ -101,9 +113,10 @@ fnames=sorted(glob(inpath_g+'*GAUGE/*ML*.CSV'))
 dt=[]
 snow=[]
 ice=[]
+max_ml=[]
 
 for fname in fnames:
-    print(fname)
+    #print(fname)
     
     date = getColumn(fname,0,skipheader=2)
     snod = getColumn(fname,1,skipheader=2)
@@ -116,12 +129,24 @@ for fname in fnames:
     bot = np.array(bot,dtype=np.float)/100
     
     it=top-bot
-    print(it)
+    #print(date)
+    #print(it)
+    
+    #get mean for 15 May
+    for x in range(0,len(date)):
+        if date[x]==datetime(1998,5,15):
+            max_ml.append(it[x])
+            
+    
     
     #plotting
     plt.plot(date,snod,c='c')
     
     plt.plot(date,it,c='g')
+    
+m_max_ml=np.mean(np.ma.masked_invalid(max_ml))
+print(m_max_ml)
+plt.plot(datetime(1998,5,15),m_max_ml,'o',c='r')
 
 
 #plot gauges
@@ -140,3 +165,5 @@ with open(file_main, 'wb') as f:
     np.savetxt(f, table, fmt="%s", delimiter=",")
 
     
+#FYI level ice span between 1-1.5m
+#SYI/MYI level ice spans between 1.5-2.5m

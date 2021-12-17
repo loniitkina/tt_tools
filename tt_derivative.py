@@ -63,13 +63,13 @@ for i in range(0,len(locs)):
         #dsi_s = si[:,-6]-si[:,5]
         #it = it[:,5]
         
-        ##large dune formation and mean snow depth decrease end of February: snow moves on level ice
-        dsi_s = si[:,11]-si[:,10]
-        it = it[:,11]
+        ###large dune formation and mean snow depth decrease end of February: snow moves on level ice
+        #dsi_s = si[:,11]-si[:,10]
+        #it = it[:,11]
         
-        ###large dune formation and mean snow depth decrease end of February-March: snow eroded from the ridges
-        #dsi_s = si[:,12]-si[:,11]
-        #it = it[:,12]
+        ##large dune formation and mean snow depth decrease end of February-March: snow eroded from the ridges
+        dsi_s = si[:,12]-si[:,11]
+        it = it[:,12]
         
         
     if loc=='Nloop':
@@ -184,21 +184,28 @@ x = np.zeros_like(fb)
 x[1:] = np.cumsum(md)
 
 #plot with equilibrium
-ax.plot(x,fb,label='ice surface',c='k',ls=':')
+#ax.plot(x,fb,label='ice surface',c='k',ls=':')
 #ax.fill_between(x, fb, fb+si[:,0],alpha=.5, color='y', label='snow 2019/10/31')
 #ax.fill_between(x, fb, fb+si[:,-4],alpha=.3, color='b', label='snow 2020/03/30')
 #ax.fill_between(x, fb, fb-it,alpha=.6, color='0.5', label='ice 2020/03/30')
 
-ax.fill_between(x, fb, fb+si[:,11],alpha=.5, color='y', label='snow 2020/02/20')
-ax.fill_between(x, fb, fb+si[:,12],alpha=.3, color='b', label='snow 2020/02/27')
-ax.fill_between(x, fb, fb-it,alpha=.6, color='0.5', label='ice 2020/02/27')
+#ax.fill_between(x, fb, fb+si[:,10],alpha=.5, color='y', label='snow 2020/02/20')
+#ax.fill_between(x, fb, fb+si[:,11],alpha=.3, color='b', label='snow 2020/02/27')
+#ax.fill_between(x, fb, fb-it,alpha=.6, color='0.5', label='ice 2020/02/27')
+
+fb = (it - si[:,12] * (rho_s/(rho_w-rho_i))) * (rho_w-rho_i)/rho_w
+ax.plot(x,fb,label='ice surface',c='k',ls=':')
+ax.fill_between(x, fb, fb+si[:,11],alpha=.5, color='y', label='snow 2020/02/27')
+ax.fill_between(x, fb, fb+si[:,12],alpha=.3, color='b', label='snow 2020/03/05')
+ax.fill_between(x, fb, fb-it,alpha=.6, color='0.5', label='ice 2020/03/05')
 
 
+ax.set_xlim(0,x[-1])
 ax.legend(fontsize=25,loc='lower left',fancybox=True,facecolor=fig1.get_facecolor(),framealpha=.6)
 fig1.savefig(outpath+'profile_diff_change'+loc,bbox_inches='tight', facecolor=fig1.get_facecolor(), edgecolor='none')
 
 
 #volume fraction estimate
-vol_frac_diff=(np.sum(si[:,14])-np.sum(si[:,15]))/np.sum(si[:,14])
+vol_frac_diff=(np.sum(si[:,12])-np.sum(si[:,11]))/np.sum(si[:,11])
 print(vol_frac_diff)
 

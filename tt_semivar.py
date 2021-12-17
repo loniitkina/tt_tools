@@ -9,6 +9,8 @@ from scipy.fft import fft, fftfreq
 #this script always takes all dates in the '_track.npz' file (list of dates must be identical to the one in tt_grid_roll.py)!
 #if you dont want some dates, skip in the script!
 
+#optional outputfileme suffix
+suff=''
 
 #location and dates
 title='Southern transect loop '
@@ -17,20 +19,12 @@ loc = 'Sloop'
 dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
 
 selection = ['20191031','20191205','20200220','20200227','20200330','20200426']
-selection = ['20191031','20191114','20191205','20191226','20200102','20200109','20200130','20200220','20200227','20200305','20200330','20200426']  #best data
+selection = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200426']#,'20200507'] #paralel is missing data on 6 april and 7 may
 
-
-
+selection = ['20191031','20191107','20191114','20191205','20200102','20200109','20200130','20200220','20200227','20200305','20200330','20200426']  #best data
 
 #loc = 'Nloop'
 #dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
-
-##early
-#dates =['20191024','20191031','20191107','20191114','20191121','20191128']
-##mid
-#dates =['20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220']
-##late
-#dates =['20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
 
 #title='Snow1 transect '
 #loc= 'snow1'
@@ -64,7 +58,7 @@ if len(dates) == 1:
 inpath_table = '../data/MCS/MP/'
 inpath_weather = '../data/weather/'
 inpath_grid = '../data/grids_AGU/'
-outpath = '../plots_AGU/'
+outpath = '../plots_gridded/'
 
 step = 2
 step = 1
@@ -107,18 +101,28 @@ cx = fig2.add_subplot(111)
 fig3 = plt.figure(figsize=(10,10))
 fx = fig3.add_subplot(211)
 gx = fig3.add_subplot(212)
-fx.set_xlabel('Frequency (cycle/m)', fontsize=20)
-fx.set_ylabel('Power', fontsize=20)
-gx.set_xlabel('Frequency (cycle/m)', fontsize=20)
-gx.set_ylabel('Power', fontsize=20)
+fx.set_xlabel('Frequency ($m^{-1}$)', fontsize=20)
+fx.set_ylabel('Signal amplitude (m)', fontsize=20)
+gx.set_xlabel('Frequency ($m^{-1}$)', fontsize=20)
+gx.set_ylabel('Signal amplitude (m)', fontsize=20)
 
-fx.set_ylim(0,.2)
-gx.set_ylim(0,.3)
+fx.set_ylim(0,.1)
+fx.set_xlim(0.0066,.2)
+fx.set_xscale('log')
+fx.set_xticks([0.0066,0.01,.0142,.02,.0286,.04,.066,.1,.143,0.2])
+fx.set_xticklabels([r'$\frac{1}{150}$',r'$\frac{1}{100}$',r'$\frac{1}{70}$',r'$\frac{1}{50}$',r'$\frac{1}{35}$',r'$\frac{1}{25}$',r'$\frac{1}{15}$',r'$\frac{1}{10}$',r'$\frac{1}{7}$',r'$\frac{1}{5}$'])
 
-#fx.set_xlim(0,.2)
-#gx.set_xlim(0,.2)
+gx.set_ylim(0,.2)
+gx.set_xlim(0.013,.2)
+gx.set_xlim(0.0066,.2)  #from 150m to 5m!
+gx.set_xscale('log')
+gx.set_xticks([0.0066,0.01,.0142,.02,.0286,.04,.066,.1,.143,0.2])
+gx.set_xticklabels([r'$\frac{1}{150}$',r'$\frac{1}{100}$',r'$\frac{1}{70}$',r'$\frac{1}{50}$',r'$\frac{1}{35}$',r'$\frac{1}{25}$',r'$\frac{1}{15}$',r'$\frac{1}{10}$',r'$\frac{1}{7}$',r'$\frac{1}{5}$'])
 
-#fx.set_xscale('log')
+
+
+
+
 
 #fx.set_yscale('log')
 #gx.set_yscale('log')
@@ -131,6 +135,7 @@ for dd in range(0,len(dates)):
     
     inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track.npz'
     inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track1.npz'
+    inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track2.npz'
     data = np.load(inf)
 
     transect_snow = data['snow']
@@ -155,9 +160,23 @@ for dd in range(0,len(dates)):
     ax.set_title('All level ice - several lines', fontsize=25)
     
     if loc=='Sloop':
-        mask = (x<100) | (x>750)  | (it>2)  #level ice is never > 2m, some rubble and ridges are just between 2 and 3 m thick!)
+        #mask = (x<100) | (x>750)  #| (it>2)  #level ice is never > 2m, some rubble and ridges are just between 2 and 3 m thick!)
+        #suff='_all'
         
-        #mask = (x<100) | (x>750)  | (it>2) | (it<.3)
+        ##parallel to ship heading
+        #mask = (x<0) | (x>260)  #| (it>2)
+        #suff='_par'
+        ##fx.set_xlim(0.0038,.2)  #this side is a bit longer
+        ##gx.set_xlim(0.0038,.2)
+        
+        ##perpendicular to ship heading
+        #mask = (x<262) | (x>435)  #| (it>2)
+        #suff='_per'
+        
+        #diagonal to ship heading
+        mask = (x<440) | (x>600)  #| (it>2)
+        suff='_dia'
+
         
     if loc=='snow1':
         mask = it>2
@@ -274,12 +293,12 @@ for dd in range(0,len(dates)):
         yf = fft(y)         #should we use fftn (instead of fft) to compute the DFT, since it has more than one dimension (map)?
         
         #frequency
-        #unit: cycles/meter (5m=0.25,10m=.1,40m=0.025) - larger values are shorter lenghts!!!
+        #unit: cycles/meter (5m=0.25,10m=.1,20m=0.05,30m=0.033,40m=0.025,5m=0.02) - larger values are shorter lenghts!!!
         #[:N//2] takes only real/positive part of the spectrum
         xf = fftfreq(N, T)[:N//2]   
 
         #plotting
-        fx.plot(xf, 2.0/N * np.abs(yf[0:N//2]), color=colors[dd],label=date,alpha=.9)
+        fx.plot(xf, 2.0/N * np.abs(yf[0:N//2]), color=colors[dd],label=date,alpha=.9,lw=3)
     
         #==================================================
         #ice thickness
@@ -296,22 +315,22 @@ for dd in range(0,len(dates)):
         xf = fftfreq(N, T)[:N//2]
 
         #plotting
-        gx.plot(xf, 2.0/N * np.abs(yf[0:N//2]), color=colors[dd],label=date,alpha=.9)
+        gx.plot(xf, 2.0/N * np.abs(yf[0:N//2]), color=colors[dd],label=date,alpha=.9,lw=3)
 
 if mix:
     loc=loc+'_mix'
     
 bx.legend(ncol=3)    
 ax.legend(ncol=3)    
-fig1.savefig(outpath+'semivar_'+str(step)+'_'+loc)
+fig1.savefig(outpath+'semivar_'+str(step)+'_'+loc+suff)
 
 cx.legend(ncol=3)    
-fig2.savefig(outpath+'semivar_map_'+str(step)+'_'+loc)
+fig2.savefig(outpath+'semivar_map_'+str(step)+'_'+loc+suff)
 
 fx.grid()
 gx.grid()
 fx.legend(ncol=3)   
 gx.legend(ncol=3)
-fig3.savefig(outpath+'fft_'+str(step)+'_'+loc)
+fig3.savefig(outpath+'fft_'+str(step)+'_'+loc+suff)
 
     

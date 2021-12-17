@@ -29,7 +29,7 @@ polyorder = 3
 
 #show gridded data plot
 show=True
-#show=False
+show=False
 
 #make mp+gem2 table output
 table_output=True
@@ -47,7 +47,7 @@ inpath_ice = '../data/MCS/GEM2_thickness/01-ice-thickness/'
 loc1=None
 
 #location
-#loc = 'Nloop'
+loc = 'Nloop'
 #loc1 = 'Nloop_spine'    ##overlap with the leg 4 transect (comment if you want the whole loop!) - this will simply cut a small grid
 #date = '20191024'   #quite different track
 #date = '20191031'   #quite different track
@@ -62,7 +62,7 @@ loc1=None
 #date = '20200109'
 #date = '20200116'   #bad GPS data on GEM-2
 #date = '20200130'
-#date = '20200206'   #very bad GEM-2 data in both loops (unrealistic low values in all f.)
+#date = '20200206'   #very bad GEM-2 data in both loops (unrealistic low values in all f.), 18kHz q looks best and is used instead of ip
 #date = '20200220'   #suddenly quite thick
 #date = '20200227'
 #date = '20200305'
@@ -72,9 +72,9 @@ loc1=None
 ##date = '20200416'   #!!!no GPS coordinates from GEM-2/use old track
 #date = '20200424'
 #date = '20200430'   #
-#date = '20200507'
+#date = '20200507'  #
 
-#dates = ['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507'] 
+dates = ['20191024','20191031','20191107','20191114','20191121','20191128','20191205',]#  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507'] 
 
 loc = 'Sloop'
 #date = '20191031'   #2m spacing!
@@ -86,20 +86,20 @@ loc = 'Sloop'
 #date = '20200109'
 #date = '20200116'   #bad GPS data on GEM-2 - data from last week used, 1.1m MP spacing
 #date = '20200130'   #1.05m MP spacing
-#date = '20200206'   #very bad GEM-2 data in both loops (unrealistic low values), 1.06m MP spacing
+#date = '20200206'   #very bad GEM-2 data in both loops (unrealistic low values), 1.06m MP spacing, 63kHz q is used as best estimate
 #date = '20200220'   #too thick ice in 18KHz and 93KHz?
 #date = '20200227'  
 #date = '20200305'   #1.5m spacing!   
 #date = '20200330'
-#date = '20200406'   #floenavi problem, short cut/parallel track in the parts parallel to the main road due to active crack
+#date = '20200406'   #floenavi problem, short cut/parallel track in the parts parallel to the main road due to active crack, unrealistic GEM-2 values-63kHz q is best
 #date = '20200426'
 #date = '20200507'   #only a part of the loop: from cross-roads and almost to the start
 
-#dates = ['20191031','20191107','20191114','20191205',
+dates = ['20191031','20191107','20191114','20191205']#,
          #'20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227',
          #'20200305','20200330','20200406','20200426','20200507']
          
-dates = ['20191226']
+#dates = ['20200507']
 
 #location
 #loc = 'snow1'
@@ -108,18 +108,17 @@ dates = ['20191226']
 #date = '20200126'   #just a square (half of transect)
 #date = '20200207'
 #date = '20200223'   #MP GPS is really off the track and messy! Also only about half of the values (Ian did 2m MP spacing?)
-#date = '20200406'  #leg 4 - floenavi problem (measurements are not at the same time, 30min delay), do plots by counting the MP measurements, shape of the track is not recognisable...
+#date = '20200406'  #leg 4 - floenavi problem (measurements are not at the same time, 30min delay), do plots by counting the MP measurements, shape of the track is not recognisable... unrealistic GEM-2 values-63kHz q is best
 
 #dates = ['20191222','20200112','20200126','20200207','20200223','20200406']
-#dates = ['20200406']
 
 #location
-#loc = 'runway'
+loc = 'runway'
 #date = '20200112'
 #date = '20200119'    #GEM-2 was not used, use the earlier sea ice data
 #date = '20200207'
 
-#dates = ['20200112','20200119','20200207']
+dates = ['20200112','20200119','20200207']
 
 #location - ridges
 #only for ridges that were surveyed with a pulk: othrwise use script tt_grid_ridge.py
@@ -146,29 +145,23 @@ dates = ['20191226']
 #loc = 'ridge'  #ridge of leg 5
 #dates = ['20200828','20200918']    
 
-###location
-loc = 'special'
+#special transects of legs 1-3
 #date = '20200107'   #Dark site FYI
 #date = '20200115'   #Dark site SYI
-#date = '20200123'  #long transect
-#date = '20200126'  #lead event
+#date = '20200123'  #long transect (and lead event sampling without GEM-2)
+#date = '20200126'  #lead event (different track than on 23 Jan)
 #date = '20200226'   #lead scounting at the Dranitsyn lead (that did not work out...)
 #date = '20200326'  #leg 3 lead at the Nloop (chicken beak)
-#date = '20200403'   #RS site (floenavi problem)
+#date = '20200403'   #RS site (floenavi problem), no GEM-2 data
 #date = '20200430'   #RS site
 
-#dates = ['20200107','20200115','20200123','20200126','20200226','20200326','20200403','20200430']
-
 #special transects of leg 4
-#dates = ['20200617']   #'initialsurvey' nearly full MP transect, but GEM-2 coordinates are messed up (times correspond approximately)
+#loc='special'
+#dates = ['20200617']   # two 'initialsurveys'. One nearly full MP transect. GEM-2 coordinates are messed up (times correspond approximately full to transect part)
 #dates = ['20200719']   #'ARIEL'
-#dates = ['20200719']   #'drillholes'
-#dates = ['20200709']   #meltponds
-
-dates = ['20200617','20200719','20200719','20200709']
+#dates = ['20200719']   #'drillholes' MP file has missing data, see notes-column for details
 
 #special transects of leg 5
-#loc='special'
 #dates = ['20200827','20200903','20200910'] #'transectport' (August transect has negative values, last transect has a bit different track shape)
 #dates = ['20200902']   #'transectstbd'
 #dates = ['20200909']   #'transectbow'
@@ -176,11 +169,11 @@ dates = ['20200617','20200719','20200719','20200709']
 
 #all special transects
 #loc='special'
-#dates = ['20200107','20200115','20200123','20200226','20200326','20200403','20200430','20200617','20200719','20200719','20200709','20200827','20200903','20200910','20200902','20200909','20200919']
+#dates = ['20200107','20200115','20200123','20200226','20200326','20200430','20200617','20200719','20200719','20200827','20200903','20200910','20200902','20200909','20200919']
 
 #loc = 'recon'
-#date = '20200228'   #airport recon - has no MP data
-#table_output=False  #not useful
+#dates = ['20200228']   #airport recon - has no MP data
+##table_output=False  #not useful
 #step=5
 #limit = step*2            #no need to search far
 
@@ -258,8 +251,8 @@ dates = ['20200617','20200719','20200719','20200709']
 #dates = ['20210513']
 
 
-for dd in dates:
-    date=dd
+for dd in range(0,len(dates)):
+    date=dates[dd]
     print(date)
 
     #examples of dates when there is something wrong with the GEM-2 data
@@ -314,9 +307,14 @@ for dd in dates:
     for fn in fname:
         print(fn)
         #time, record_id, longitude, latitude, xc, yc, f1525Hz_hcp_i, f1525Hz_hcp_q, f5325Hz_hcp_i, f5325Hz_hcp_q, f18325Hz_hcp_i, f18325Hz_hcp_q, f63025Hz_hcp_i, f63025Hz_hcp_q, f93075Hz_hcp_i, f93075Hz_hcp_q
-        t18 = getColumn(fn,10)        #take 18KHz ip
-        t5 = getColumn(fn,8)        #take 5KHz ip
-        t93 = getColumn(fn,14)        #take 93KHz ip
+        if date=='20200206' or date=='20200406':    #problems with instruments take q of 18kHz, 63kHz and 93kHz
+            t18 = getColumn(fn,11)
+            t5 = getColumn(fn,13)
+            t93 = getColumn(fn,15)
+        else:
+            t18 = getColumn(fn,10)        #take 18KHz ip (10)
+            t5 = getColumn(fn,8)        #take 5KHz ip (8)
+            t93 = getColumn(fn,14)         #take 93KHz ip (14) 
 
         tt18.extend(t18[1:-1])     #floenavi scripts looses coordinates at the start and end of the file
         tt5.extend(t5[1:-1])
@@ -325,19 +323,39 @@ for dd in dates:
     tt18 = np.array(tt18,dtype=float)
     tt5 = np.array(tt5,dtype=float)
     tt93 = np.array(tt93,dtype=float)
-        
+    
+    #some nans in local coordinates
+    
     #run these through a running window smoothing filter - we can then easily use the nearest neighbor also for the GEM-2
     tt18 = savgol_filter(tt18, window, polyorder)
     tt5 = savgol_filter(tt5, window, polyorder)
     tt93 = savgol_filter(tt93, window, polyorder)
 
     #MP
+    #get magnaprobe track file
     if loc != 'recon':
         fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+'-track-icecs-xy_corr.csv')[0]
         
-        #on 16 June 2020 there were two initial surveys of floe, both with loc=special, only second one has GEM-2 measurements
-        if date=='20200617':
-            fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+'-track-icecs-xy_corr.csv')[1]
+        #on certain dates there can be more than one 'special' transect on same date
+        if loc == 'special':
+            flist=glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+'-track-icecs-xy_corr.csv')
+            if len(flist)>1:
+                print('special transect with options',len(flist))
+                #on 23 Jan 2020 there were two transects (lead event and long), only long transect has GEM-2 measurements
+                if date=='20200123':
+                    fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+'21-140'+'*'+loc+'-track-icecs-xy_corr.csv')[0]   #this should be 21-140
+        
+                #on 16 June 2020 there were two initial surveys of floe, both with loc=special, only second one has GEM-2 measurements
+                if date=='20200617':
+                    fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+'44-266'+'*'+loc+'-track-icecs-xy_corr.csv')[0]
+                #on 19 July 'drillholes' and 'ARIEL' are both special    
+                if date=='20200719':
+                    if dates[dd-1] =='20200617': #first transect
+                        fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+'47-224'+'*'+loc+'-track-icecs-xy_corr.csv')[0]
+                    if dates[dd-1] =='20200719': #second transect
+                        fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+'47-226'+'*'+loc+'-track-icecs-xy_corr.csv')[0]
+                        
+                print(fname)
         
         print(fname)
 
@@ -387,46 +405,55 @@ for dd in dates:
             lat = np.ones_like(mxx)*-999
             lon = np.ones_like(mxx)*-999
 
-        fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+ext_mp)[0]
-        #on 16 June 2020 there were two initial surveys of floe, both with loc=special, only second one has GEM-2 measurements
-        if date=='20200617':
-            fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+ext_mp)[1]
-
+        #read in magnaprobe data
+        fname = fname.split('-track')[0]+ext_mp
         print(fname)
+        
         snod = getColumn(fname,3, delimiter=',', skipheader=4)
         snod = np.array(snod,dtype=float)[:-2]/100             #convert from cm to m
         #change all negative data to zero
         snod = np.where(snod<0,0,snod)
-
+        
         if date == '20200223':
             print(snod.shape)
             snod = snod[:len(mxx)+1]
             
-            
+        #there is no floenavi data between 2 and 8 April - ship coordinates are used instead, but there is lots of deformation still...
+        #this data need some manual fixing
+        #first apply some shifts to get it to aprox same place in our grid
         if date == '20200406':
-            #there is no floenavi data between 2 and 8 April - ship coordinates are used instead, but there is lots of deformation still...
-            #this data need some manual fixing
-            #first apply some shifts to get it to aprox same place in our grid
             myy = myy-500
-            yy_full = yy_full-500     
+            yy_full = yy_full-500
+            
+        #lateral movement out of the grid at the end of CO2 - just shift in
+        if date == '20200507' and loc=='Sloop':
+            mxx = mxx+150
+            xx_full = xx_full+150
                       
-    #rcon data is GEM-2 only
+    #rcon data is GEM-2 only - get dummy values with reduced spacing comparing to GEM-2, usually ski-doo - fast motion and standing...
     else:
-        mxx = np.ma.masked_invalid(xx_full)
-        myy = np.ma.masked_invalid(yy_full)
-        snod = np.ones_like(mxx)*.2
+        mxx = np.ma.masked_invalid(xx_full[::5])
+        myy = np.ma.masked_invalid(yy_full[::5])
+        snod = np.ones_like(mxx)*0 #some mean value
+        
+        #also get other data that other transects get from MP
+        dt = []
+        lon = []
+        lat = []
+        tmp = glob(inpath_ice+date_gem2+'*/*-track-icecs-xy.csv')
+        for fn in tmp:
+            print(fn)
+            dt0 = getColumn(fn,0)[::5]
+            lon0 = getColumn(fn,1)[::5]
+            lat0 = getColumn(fn,2)[::5]
+        
+            dt.extend(dt0); lon.extend(lon0); lat.extend(lat0)
+            
         
     #####################################################################################################################################3
     #lets make a regular grid with 'step' m spacing, corresponding to the CO local coordinate boundaries
     grid_x, grid_y = np.mgrid[-950:820:step, -1200:650:step]
     extent=(-950,820,-1200,650)
-
-    #previously: extent=(-950,850,-600,620)
-
-    #bring the data closer to the source (but keep same grid dimensions, so that we can overlay!!!)
-    if date == '20200507' and loc=='Sloop':
-        grid_x, grid_y = np.mgrid[-1100:670:step, -1200:650:step]
-        extent=(-1100,670,-1200,650)
 
     #long transect, needs a different grid
     if date == '20200123':
@@ -461,8 +488,8 @@ for dd in dates:
 
     #whole CO
     if loc == 'recon':
-        grid_x, grid_y = np.mgrid[-1000:250:step, -800:1100:step]
-        extent=(-1000,250,-800,1100)
+        grid_x, grid_y = np.mgrid[-1100:250:step, -850:1100:step]
+        extent=(-1100,250,-850,1100)
     
     if loc1 == 'Nloop_spine':
         grid_x, grid_y = np.mgrid[460:850:step, -500:-180:step]
@@ -597,7 +624,10 @@ for dd in dates:
         #write out the ice mass balance transect collocated tables
         
         #create output name
-        outname = fname.split('probe')[0]+'+gem2'+fname.split('probe')[1].split('.dat')[0]+'.csv'
+        if loc=='recon':
+            outname = inpath_snow+'recon/magna+gem2'+date+'_'+loc+'.csv'
+        else:
+            outname = fname.split('probe')[0]+'+gem2'+fname.split('probe')[1].split('.dat')[0]+'.csv'
         
         #sampling subsets
         if loc1=='Nloop_spine':
@@ -647,17 +677,17 @@ for dd in dates:
                     
                     n = n+1
         
-        mask = tt_nn18 == -999
-        tt_nn18 = np.ma.array(tt_nn18, mask=mask);tt_nn18 = tt_nn18.compressed()
-        tt_nn5 = np.ma.array(tt_nn5, mask=mask);tt_nn5 = tt_nn5.compressed()
-        tt_nn93 = np.ma.array(tt_nn93, mask=mask);tt_nn93 = tt_nn93.compressed()
-        sd = np.ma.array(sd_values, mask=mask);sd = sd.compressed()
+        mask = (tt_nn18 == -999) | (lon==0)                         #recon and others based on GEM-2 has some zero coordinates
+        tt_nn18 = np.ma.array(tt_nn18, mask=mask).compressed()
+        tt_nn5 = np.ma.array(tt_nn5, mask=mask).compressed()
+        tt_nn93 = np.ma.array(tt_nn93, mask=mask).compressed()
+        sd = np.ma.array(sd_values.data, mask=mask).compressed()    #there can be some masked values in here already...
         
-        dt = np.ma.array(dt, mask=mask);dt = dt.compressed()
-        lon = np.ma.array(lon , mask=mask);lon = lon.compressed()
-        lat = np.ma.array(lat, mask=mask);lat = lat.compressed()
-        sd_points0 = np.ma.array(sd_points[:,0], mask=mask);sd_points0 = sd_points0.compressed()
-        sd_points1 = np.ma.array(sd_points[:,1], mask=mask);sd_points1 = sd_points1.compressed()
+        dt = np.ma.array(dt, mask=mask).compressed()
+        lon = np.ma.array(lon, mask=mask).compressed()
+        lat = np.ma.array(lat, mask=mask).compressed()
+        sd_points0 = np.ma.array(sd_points[:,0], mask=mask).compressed()
+        sd_points1 = np.ma.array(sd_points[:,1], mask=mask).compressed()
         
         it_nn18 = tt_nn18 - sd
         it_nn5 = tt_nn5 - sd
@@ -668,7 +698,7 @@ for dd in dates:
         #if tt_nn18 < 0: it_nn18 = 0
         #if tt_nn5 < 0: it_nn5 = 0
         #if tt_nn93 < 0: it_nn93 = 0
-        
+                
         #print(it_nn18)
         
         #mixed surface data (snow=1, SSL/mixed=2 and melt ponds=-1, frozen pond=3) for legs 4 and 5
@@ -704,6 +734,9 @@ for dd in dates:
         print(outname)
         with open(outname, 'wb') as f:
             #header
-            f.write(b'Date/Time, Lon, Lat, Local X, Local Y, Snow Depth (m), Melt Pond Depth (m), Surface Type, Ice Thickness 18kHz ip (m), Ice Thickness 5kHz ip (m), Ice Thickness 93kHz ip (m),\n')
+            if date=='20200206' or date=='20200406':
+                f.write(b'Date/Time, Lon, Lat, Local X, Local Y, Snow Depth (m), Melt Pond Depth (m), Surface Type, Ice Thickness 18kHz q (m), Ice Thickness 63kHz q (m), Ice Thickness 93kHz q (m)\n')
+            else:
+                f.write(b'Date/Time, Lon, Lat, Local X, Local Y, Snow Depth (m), Melt Pond Depth (m), Surface Type, Ice Thickness 18kHz ip (m), Ice Thickness 5kHz ip (m), Ice Thickness 93kHz ip (m)\n')
             np.savetxt(f, table, fmt="%s", delimiter=",")
 
