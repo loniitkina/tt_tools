@@ -28,8 +28,8 @@ dates = [['20191031','20191107','20191114','20191205',   '20191226','20200102','
 #dates = [['20191222','20200112','20200126','20200207','20200223','20200406']]
 
 #selected reference date:20200207
-locs = ['runway']
-dates = [['20200112','20200207']]
+#locs = ['runway']
+#dates = [['20200112','20200207']]
 
 ###all leg1-4 transects on selected dates
 #locs = ['Sloop','Nloop','snow1','runway','special','transect']
@@ -44,7 +44,7 @@ dates = [['20200112','20200207']]
 
 inpath_grid = '../data/grids_AGU/'
 outpath = '../plots_AGU/'
-outname='grid_test.png'
+outname='grid_method.png'
 #outname = 'grid_maps3.png'
 #outname = 'grid_maps_legs1-4.png'
 #outname2 = 'map_legs1-4.png'
@@ -54,13 +54,23 @@ print(outpath+outname)
 #set up plot
 #extent=(-950,850,-600,620) #old
 extent=(-950,820,-1200,650) #extended
-fig1 = plt.figure(figsize=(40,50))
+fig1 = plt.figure(figsize=(20,40))  #for paper figure
+#fig1 = plt.figure(figsize=(40,50)) #for checking alignment
 ax = fig1.add_subplot(131)
-ax.set_title('Original')
+#ax.set_title('a) Original', fontsize=20)
+ax.text(-880, 550, "a", ha="center", va="center", size=25)  #make simple figure annotation
+ax.tick_params(axis="x", labelsize=15)
+ax.tick_params(axis="y", labelsize=15)
 bx = fig1.add_subplot(132)
-bx.set_title('Shifted and Rotated')
+#bx.set_title('b) Shifted and Rotated', fontsize=20)
+bx.text(-880, 550, "b", ha="center", va="center", size=25)
+bx.tick_params(axis="x", labelsize=15)
+bx.tick_params(axis="y", labelsize=15)
 cx = fig1.add_subplot(133)
-cx.set_title('De-deformed')
+#cx.set_title('c) De-deformed', fontsize=20)
+cx.text(-880, 550, "c", ha="center", va="center", size=25)
+cx.tick_params(axis="x", labelsize=15)
+cx.tick_params(axis="y", labelsize=15)
 
 fig2 = plt.figure(figsize=(20,10))
 dx = fig2.add_subplot(111)
@@ -89,13 +99,13 @@ for ll in range(0,len(locs)):
         
         #lets check how this looks like before the shifting and rotation
         if dd == 0:
-            i_grid1 = np.ma.masked_invalid(s_grid).filled(0)
+            i_grid1 = np.ma.masked_invalid(i_grid).filled(0)
             
             i_grid2=i_grid1.copy()
             i_grid3=i_grid1.copy()
             
         else:
-             i_grid1 = i_grid1+np.ma.masked_invalid(s_grid).filled(0)
+             i_grid1 = i_grid1+np.ma.masked_invalid(i_grid).filled(0)
         
         #get rid of nans for the operations
         i_grid=np.ma.masked_invalid(i_grid).filled(-999)
@@ -576,16 +586,20 @@ for ll in range(0,len(locs)):
         print(np.ma.masked_invalid(i_grid).compressed().shape)
         print(np.ma.masked_invalid(s_grid).compressed().shape)
         
-        
-
     #get the transparency for the plots
     i_grid1 = np.ma.array(i_grid1,mask=i_grid1==0).filled(np.nan)
     i_grid2 = np.ma.array(i_grid2,mask=i_grid2==0).filled(np.nan)
     i_grid3 = np.ma.array(i_grid3,mask=i_grid3==0).filled(np.nan)
-
-    ax.imshow(i_grid1.T, extent=extent, origin='lower',vmin=0,vmax=3)
-    bx.imshow(i_grid2.T, extent=extent, origin='lower',vmin=0,vmax=3)
-    cx.imshow(i_grid3.T, extent=extent, origin='lower',vmin=0,vmax=3)
+    
+    #uniform values
+    i_grid1 = np.where(i_grid1>0,1,i_grid1)
+    i_grid2 = np.where(i_grid2>0,1,i_grid2)
+    i_grid3 = np.where(i_grid3>0,1,i_grid3)
+    
+    #plot
+    ax.imshow(i_grid1.T, extent=extent, origin='lower',vmin=0,vmax=6,cmap=plt.cm.rainbow)   #make it purple
+    bx.imshow(i_grid2.T, extent=extent, origin='lower',vmin=0,vmax=6,cmap=plt.cm.rainbow)
+    cx.imshow(i_grid3.T, extent=extent, origin='lower',vmin=0,vmax=6,cmap=plt.cm.rainbow)
     
     #get plots with coordinates
     if locs[ll]=='transect':

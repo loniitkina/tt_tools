@@ -51,10 +51,10 @@ date = '20200131'   #only one GEM2 transect, but 9 holes drilled!!!
 #leg 4 Allie's Ridge
 loc = 'ridge'
 date = '20200628'
-#date = '20200709' #MP and GEM-2 data quite shifted, bad coordinate match
-#date = '20200713'   #GPS failure on two out of three GEM-lines
-#date = '20200721'   #no MP data found
-#date = '20200728'   #just one line, strange GEM-2 coordinates.
+date = '20200709' #MP and GEM-2 data quite shifted, bad coordinate match
+date = '20200713'   #GPS failure on two out of three GEM-lines
+date = '20200721'   #no MP data found
+date = '20200728'   #just one line, strange GEM-2 coordinates.
 
 
 

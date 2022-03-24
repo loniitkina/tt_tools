@@ -98,11 +98,12 @@ bx.tick_params(axis="y", labelsize=14)
 fig2 = plt.figure(figsize=(10,10))
 cx = fig2.add_subplot(111)
 
-fig3 = plt.figure(figsize=(10,10))
-fx = fig3.add_subplot(211)
-gx = fig3.add_subplot(212)
+fig3 = plt.figure(figsize=(18,5))
+fx = fig3.add_subplot(122)
 fx.set_xlabel('Frequency ($m^{-1}$)', fontsize=20)
 fx.set_ylabel('Signal amplitude (m)', fontsize=20)
+
+gx = fig3.add_subplot(121)
 gx.set_xlabel('Frequency ($m^{-1}$)', fontsize=20)
 gx.set_ylabel('Signal amplitude (m)', fontsize=20)
 
@@ -113,7 +114,7 @@ fx.set_xticks([0.0066,0.01,.0142,.02,.0286,.04,.066,.1,.143,0.2])
 fx.set_xticklabels([r'$\frac{1}{150}$',r'$\frac{1}{100}$',r'$\frac{1}{70}$',r'$\frac{1}{50}$',r'$\frac{1}{35}$',r'$\frac{1}{25}$',r'$\frac{1}{15}$',r'$\frac{1}{10}$',r'$\frac{1}{7}$',r'$\frac{1}{5}$'])
 
 gx.set_ylim(0,.2)
-gx.set_xlim(0.013,.2)
+#gx.set_xlim(0.013,.2)
 gx.set_xlim(0.0066,.2)  #from 150m to 5m!
 gx.set_xscale('log')
 gx.set_xticks([0.0066,0.01,.0142,.02,.0286,.04,.066,.1,.143,0.2])
@@ -157,10 +158,10 @@ for dd in range(0,len(dates)):
     x[1:] = np.cumsum(md)
     
     #all level ice between 200 and 700m distance - level ice always thinner than 1m
-    ax.set_title('All level ice - several lines', fontsize=25)
+    #ax.set_title('All level ice - several lines', fontsize=25)
     
     if loc=='Sloop':
-        #mask = (x<100) | (x>750)  #| (it>2)  #level ice is never > 2m, some rubble and ridges are just between 2 and 3 m thick!)
+        #mask = (x<0) | (x>600)  #| (it>2)  #level ice is never > 2m, some rubble and ridges are just between 2 and 3 m thick!)
         #suff='_all'
         
         ##parallel to ship heading
@@ -170,7 +171,8 @@ for dd in range(0,len(dates)):
         ##gx.set_xlim(0.0038,.2)
         
         ##perpendicular to ship heading
-        #mask = (x<262) | (x>435)  #| (it>2)
+        ##mask = (x<262) | (x>435)  #| (it>2)
+        #mask = (x<260) | (x>440)
         #suff='_per'
         
         #diagonal to ship heading
@@ -325,12 +327,30 @@ ax.legend(ncol=3)
 fig1.savefig(outpath+'semivar_'+str(step)+'_'+loc+suff)
 
 cx.legend(ncol=3)    
-fig2.savefig(outpath+'semivar_map_'+str(step)+'_'+loc+suff)
+fig2.savefig(outpath+'semivar_map_'+str(step)+'_'+loc+suff,bbox_inches='tight')
+
+#make simple figure annotation
+if suff=='_dia':
+    fx.text(.004, .1, "h", ha="center", va="center", size=45)
+    gx.text(.004, .2, "g", ha="center", va="center", size=45)
+    
+elif suff=='_per':
+    fx.text(.004, .1, "f", ha="center", va="center", size=45)
+    gx.text(.004, .2, "e", ha="center", va="center", size=45)
+    
+elif suff=='_par':
+    fx.text(.004, .1, "d", ha="center", va="center", size=45)
+    gx.text(.004, .2, "c", ha="center", va="center", size=45)
+    
+elif suff=='_all':
+    fx.text(.004, .1, "b", ha="center", va="center", size=45)
+    gx.text(.004, .2, "a", ha="center", va="center", size=45)
+
 
 fx.grid()
 gx.grid()
-fx.legend(ncol=3)   
-gx.legend(ncol=3)
-fig3.savefig(outpath+'fft_'+str(step)+'_'+loc+suff)
+fx.legend(ncol=4)   
+gx.legend(ncol=4)
+fig3.savefig(outpath+'fft_'+str(step)+'_'+loc+suff,bbox_inches='tight')
 
     

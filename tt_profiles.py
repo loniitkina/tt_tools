@@ -21,14 +21,14 @@ window=5
 #window=1
 
 
-#location and dates
-loc = 'Sloop'
-dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
-title='Southern transect loop '
+##location and dates
+#loc = 'Sloop'
+#dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
+#title='Southern transect loop '
 
-loc = 'Nloop'
-dates = ['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
-title='Northern transect loop '
+#loc = 'Nloop'
+#dates = ['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
+#title='Northern transect loop '
 
 #loc = 'Nloop_spine'
 #dates = ['20191205','20191219','20200220','20200227','20200305','20200424','20200507']
@@ -87,44 +87,51 @@ title='Northern transect loop '
 #title = "ECO Ridge Transect "
 
 ##comparable loop transects
-#loc = 'Sloop'
-#dates = ['20200130']
-##dates = ['20200109']
-#dates=['20200507']
-#title='Southeren transect loop '
+loc = 'Sloop'
+dates = ['20191114']
+dates = ['20191205']
+dates = ['20200116']
+##dates = ['20200130']
+dates = ['20200220']
+dates = ['20200305']
+dates = ['20200330']
+##dates=['20200507']
+title='g) Southern transect loop '
 
 #loc = 'Nloop'
 #dates = ['20200130']
 ##dates = ['20200109']
-#title='Northeren transect loop '
+##dates = ['20200220']
+#title='f) Northern transect loop '
 
 #loc= 'snow1'
-#dates = ['20200112']
+##dates = ['20200112']
 ##dates = ['20200126']
-##dates = ['20200207']
-#title='Snow1 transect '
-
-#loc= 'special'
-#dates = ['20200126']
-#title='Event transect '
-
-loc = 'runway'
 #dates = ['20200207']
-#dates = ['20200112']
-dates = ['20200112','20200207']
-title='Runway transect '
+#title='e) Snow1 transect '
 
-#loc= 'special'
-#dates = ['20200107']
-#title='Dark Side FYI '
+loc= 'special'
+dates = ['20200126']
+title='d) Event transect '
 
-#loc= 'special'
-#dates = ['20200115']
-#title='Dark Side SYI '
+##this transect has a dis-continuity at ~350m
+loc = 'runway'
+dates = ['20200207']
+dates = ['20200112']
+##dates = ['20200112','20200207']
+title='h) Runway transect '
 
-#loc= 'special'
-#dates = ['20200123']
-#title='Long transect '
+loc= 'special'
+dates = ['20200107']
+title='a) Dark Side FYI '
+
+loc= 'special'
+dates = ['20200115']
+title='b) Dark Side SYI '
+
+loc= 'special'
+dates = ['20200123']
+title='c) Long transect '
 
 ##leg 4 transect
 #loc= 'special'
@@ -135,9 +142,9 @@ title='Runway transect '
 #dates = ['20200630']
 #title='First full transect of Leg 4 '
 
-#loc='recon'
-#dates=['20200228']
-#title='Recon '
+loc='recon'
+dates=['20200228']
+title='Recon '
 
 ##special (long) transects of leg 5
 #loc= 'special'
@@ -165,9 +172,11 @@ title='Runway transect '
 
 #roughness classes limits
 #rubble can vary depending on the transect
+roughness_cls=True
 rubble=0.06
-ridge=0.2
-#rubble=0.1
+rubble=0.1      #transect paper
+rubble=0.2      #TSX comparison
+ridge=0.3
 if loc=='Nloop':
     rubble=0.5
     ridge=0.6
@@ -194,7 +203,7 @@ inpath_grid = '../data/grids_AGU/'
 #outpath = '../plots_NL/'
 
 station = True
-station = False
+#station = False
 
 plot_mode = False
 plot_mode = True
@@ -351,7 +360,7 @@ for dd in range(0,len(dates)):
     
     ax = fig1.add_subplot(111)
     ax.set_xlabel('Length (m)', fontsize=25)
-    ax.set_title(title+datel[dd], fontsize=30)
+    ax.set_title(title+datel[dd], fontsize=30, loc='left')
     ax.set_ylabel('Distance from water surface (m)', fontsize=25)
     ax.tick_params(axis="x", labelsize=24)
     ax.tick_params(axis="y", labelsize=24)
@@ -372,7 +381,9 @@ for dd in range(0,len(dates)):
     rho_s = 313
 
     #following Forsstrom et al, 2011, Annals of Glaciology
-    fb = (ii - si * (rho_s/(rho_w-rho_i))) * (rho_w-rho_i)/rho_w
+    #fb = (ii - si * (rho_s/(rho_w-rho_i))) * (rho_w-rho_i)/rho_w
+    
+    fb = (ii * (rho_w-rho_i)/rho_w ) - (si * rho_s/rho_w)
        
     #cumulative distance allong the fixed date MP transect
     x = np.zeros_like(fb)
@@ -413,77 +424,96 @@ for dd in range(0,len(dates)):
         ax.plot(x,fbm-mo,c='purple',ls=':')
         t = '$h_i$ level '+str(np.round(mo,2))
         ax.text(10, mofb-mo+.1, t, ha='left', wrap=True, c='purple',size=24)
-        
-        #roughness
-        nit=30
-        itm,itv = running_stats(ii,nit)
-        std = np.sqrt(itv)
-        
-        rubble=rubble
-        ridge=ridge
-        level_cls=np.where((std<rubble)&(itm<2),1,np.nan)
-        #start and end are not level, but have zeros in this running mean
-        level_cls[:int(nit/2)]=np.nan 
-        level_cls[-int(nit/2):]=np.nan
-        ridge_cls=np.where((std>ridge)&(itm>2),1,np.nan)    #ridges also need to be thicker than 2.5m!
-        rubble_cls=np.where(~((level_cls==1)|(ridge_cls==1)),1,np.nan)
-        
+                
         if loc== 'runway':
             mo=1.11
             ax.plot(x,fbm-mo,c='darkred',ls=':')
-            t = 'level ice thickness on 2020/01/12: '+str(mo)
+            t = '$h_i$ level on 2020/01/12: '+str(mo)
             ax.text(10, mofb-mo+.1, t, ha='left', wrap=True, c='darkred',size=24)
             
         if loc== 'Nloop':
             mo=1.17
             ax.plot(x,fbm-mo,c='darkred',ls=':')
-            t = 'level ice thickness on 2020/01/09: '+str(mo)
-            ax.text(400, mofb-mo+.1, t, ha='left', wrap=True, c='darkred',size=24)
+            t = '$h_i$ level on 2020/01/09: '+str(mo)
+            ax.text(300, mofb-mo+.1, t, ha='left', wrap=True, c='darkred',size=24)
+            
+            mo=1.35
+            ax.plot(x,fbm-mo,c='g',ls=':')
+            t = '$h_i$ level on 2020/02/20: '+str(mo)
+            ax.text(800, mofb-mo+.1, t, ha='left', wrap=True, c='g',size=24)            
             
         if loc== 'Sloop':
             mo=1.11
             ax.plot(x,fbm-mo,c='darkred',ls=':')
             t = '$h_i$ level on 2020/01/09: '+str(mo)
-            ax.text(400, mofb-mo+.1, t, ha='left', wrap=True, c='darkred',size=24)
+            ax.text(300, mofb-mo+.1, t, ha='left', wrap=True, c='darkred',size=24)
             
-        ax.scatter(x,np.ones_like(x)*level_cls*1.15,c='y',ls='-',label='level ice')
-        ax.scatter(x,np.ones_like(x)*rubble_cls*1.15,c='royalblue',ls='-',label='rubble')
-        ax.scatter(x,np.ones_like(x)*ridge_cls*1.15,c='purple',ls='-',label='ridge/lead edge')
+            mo=1.35
+            ax.plot(x,fbm-mo,c='g',ls=':')
+            t = '$h_i$ level on 2020/02/20: '+str(mo)
+            ax.text(800, mofb-mo+.1, t, ha='left', wrap=True, c='g',size=24)
+            
+        if loc== 'snow1':
+            mo=0.99
+            ax.plot(x,fbm-mo,c='darkred',ls=':')
+            t = 'level ice thickness on 2020/01/12: '+str(mo)
+            ax.text(150, mofb-mo+.1, t, ha='left', wrap=True, c='darkred',size=24)
         
-        if station:
-            #save this classification
-            cls = level_cls.copy()
-            cls = np.where(rubble_cls==1,2,cls)
-            cls = np.where(ridge_cls==1,3,cls)
-            print(cls.shape)
-            print(mxx.shape)
-            print(si.shape)
-            print(ii.shape)
-            #time series text file exports
-            tt = [mxx,myy,cls,si,ii]
-            table = list(zip(*tt))
+        #roughness
+        if roughness_cls:
+            nit=30
+            itm,itv = running_stats(ii,nit)
+            std = np.sqrt(itv)
+            
+            rubble=rubble
+            ridge=ridge
+            level_cls=np.where((std<rubble)&(itm<2),1,np.nan)
+            #start and end are not level, but have zeros in this running mean
+            level_cls[:int(nit/2)]=np.nan 
+            level_cls[-int(nit/2):]=np.nan
+            ridge_cls=np.where((std>ridge)&(itm>2),1,np.nan)    #ridges also need to be thicker than 2.5m!
+            rubble_cls=np.where(~((level_cls==1)|(ridge_cls==1)),1,np.nan)
 
-            print(outpath_cls+'classes_'+loc+date+'.csv')
-            with open(outpath_cls+'classes_'+loc+date+'.csv', 'wb') as f:
-                #header
-                f.write(b'x,y,cls,snow depth, ice thickness\n')
-                np.savetxt(f, table, fmt="%s", delimiter=",")
+            ax.scatter(x,np.ones_like(x)*level_cls*1.15,c='y',ls='-',label='level ice')
+            ax.scatter(x,np.ones_like(x)*rubble_cls*1.15,c='royalblue',ls='-',label='rubble')
+            ax.scatter(x,np.ones_like(x)*ridge_cls*1.15,c='purple',ls='-',label='ridge/lead edge')
+        
+            if station:
+                #save this classification
+                cls = level_cls.copy()
+                cls = np.where(rubble_cls==1,2,cls)
+                cls = np.where(ridge_cls==1,3,cls)
+                print(cls.shape)
+                print(mxx.shape)
+                print(si.shape)
+                print(ii.shape)
+                #time series text file exports
+                tt = [mxx,myy,cls,si,ii]
+                table = list(zip(*tt))
+
+                cfile=outpath_cls+'classes_'+loc+date+'.csv'
+                print(cfile)
+                with open(cfile, 'wb') as f:
+                    #header
+                    f.write(b'x,y,cls,snow depth, ice thickness\n')
+                    np.savetxt(f, table, fmt="%s", delimiter=",")
 
 
     #plot with equilibrium
     ax.plot(x,fb,label='ice surface',c='k',ls=':')
     ax.fill_between(x, fb, fb+si,alpha=.6, color=colors[1], label='snow')
-    ax.fill_between(x, fb, fb-mi,alpha=.6, color='royalblue', label='melt pond')
+    if np.any(mi>0):    #check if there are any melt ponds
+        ax.fill_between(x, fb, fb-mi,alpha=.6, color='royalblue', label='melt pond')
     ax.fill_between(x, fb, fb-mi-ii,alpha=.6, color=colors[0], label='ice')
     
     if loc == 'Nloop':
-        ax.set_ylim(-8,1.8)
+        ax.set_ylim(-6,1.8)
     elif loc == 'P4' or loc == 'P5':
         ax.set_ylim(-2,1)
     elif 'FR' in loc:
         ax.set_ylim(-8,1.8)
     else:
-        ax.set_ylim(-4,1.3)
+        ax.set_ylim(-6,1.3)
     
     ax.set_xlim(0,x[-2])        #beacause last MP value/coordinate is typically same as first (at large distance)
     ax.legend(fontsize=25,loc='lower left',fancybox=True,facecolor=fig1.get_facecolor(),framealpha=.6)
@@ -523,7 +553,7 @@ for i in range(0,len(fb_list)):
     print(dates[i])
     
     #some bad ice data - dont plot:
-    if loc=='snow1' or dates[i]=='20191205' or dates[i]=='20200102' or dates[i]=='20200220' or dates[i]=='20200305' or dates[i]=='20200426' or dates[i]=='20200507':
+    if dates[i]=='20200102' or dates[i]=='20200206' or dates[i]=='20200426' or dates[i]=='20200507':
         continue
         
     #use the same freeboard all the times
@@ -536,7 +566,7 @@ for i in range(0,len(fb_list)):
         
     elif loc == 'snow1':
         li=0
-        fbli = fb_list[li]   #last transect is not complete, use 1st transect
+        fbli = fb_list[li]   #last transect is not complete, use 1st transect   
         
     else:
         li=-1

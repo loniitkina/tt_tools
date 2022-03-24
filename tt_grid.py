@@ -29,7 +29,7 @@ polyorder = 3
 
 #show gridded data plot
 show=True
-show=False
+#show=False
 
 #make mp+gem2 table output
 table_output=True
@@ -47,7 +47,7 @@ inpath_ice = '../data/MCS/GEM2_thickness/01-ice-thickness/'
 loc1=None
 
 #location
-loc = 'Nloop'
+#loc = 'Nloop'
 #loc1 = 'Nloop_spine'    ##overlap with the leg 4 transect (comment if you want the whole loop!) - this will simply cut a small grid
 #date = '20191024'   #quite different track
 #date = '20191031'   #quite different track
@@ -74,9 +74,9 @@ loc = 'Nloop'
 #date = '20200430'   #
 #date = '20200507'  #
 
-dates = ['20191024','20191031','20191107','20191114','20191121','20191128','20191205',]#  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507'] 
+#dates = ['20191024','20191031','20191107','20191114','20191121','20191128','20191205',]#  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507'] 
 
-loc = 'Sloop'
+#loc = 'Sloop'
 #date = '20191031'   #2m spacing!
 #date = '20191107'   #3.1m spacing!!!
 #date = '20191114'   #2.9m spacing!!!    - no visible snowdunes yet...
@@ -95,7 +95,7 @@ loc = 'Sloop'
 #date = '20200426'
 #date = '20200507'   #only a part of the loop: from cross-roads and almost to the start
 
-dates = ['20191031','20191107','20191114','20191205']#,
+#dates = ['20191031','20191107','20191114','20191205']#,
          #'20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227',
          #'20200305','20200330','20200406','20200426','20200507']
          
@@ -113,12 +113,12 @@ dates = ['20191031','20191107','20191114','20191205']#,
 #dates = ['20191222','20200112','20200126','20200207','20200223','20200406']
 
 #location
-loc = 'runway'
+#loc = 'runway'
 #date = '20200112'
 #date = '20200119'    #GEM-2 was not used, use the earlier sea ice data
 #date = '20200207'
 
-dates = ['20200112','20200119','20200207']
+#dates = ['20200112','20200119','20200207']
 
 #location - ridges
 #only for ridges that were surveyed with a pulk: othrwise use script tt_grid_ridge.py
@@ -147,7 +147,7 @@ dates = ['20200112','20200119','20200207']
 
 #special transects of legs 1-3
 #date = '20200107'   #Dark site FYI
-#date = '20200115'   #Dark site SYI
+#date = '20200115'   #Dark site SYI (pulk tipped once in the ridges)
 #date = '20200123'  #long transect (and lead event sampling without GEM-2)
 #date = '20200126'  #lead event (different track than on 23 Jan)
 #date = '20200226'   #lead scounting at the Dranitsyn lead (that did not work out...)
@@ -158,6 +158,8 @@ dates = ['20200112','20200119','20200207']
 #special transects of leg 4
 #loc='special'
 #dates = ['20200617']   # two 'initialsurveys'. One nearly full MP transect. GEM-2 coordinates are messed up (times correspond approximately full to transect part)
+#dates = ['20200709']    #meltponds, has no GEM-2 measurements
+#dates = ['20200718']    #meltponds, has no GEM-2 measurements
 #dates = ['20200719']   #'ARIEL'
 #dates = ['20200719']   #'drillholes' MP file has missing data, see notes-column for details
 
@@ -192,8 +194,10 @@ dates = ['20200112','20200119','20200207']
 #date = '20200707'
 #date = '20200708'
 #date = '20200710'  #1.8m spacing!
+#date = '20200713'
 #date = '20200714'
 #date = '20200716'  #done with Kathrin, still not processed!, strange GEM-2 data - looks like strong drift
+#date = '20200717'
 #date = '20200719'  #little GEM-2 data
 #date = '20200720'  #part of GEM-2 missing (little bit), but best spacing so far! 1.5m
 #date = '20200721'  #1.3 m spacing! most of GEM-2 track is missing
@@ -201,31 +205,33 @@ dates = ['20200112','20200119','20200207']
 #date = '20200725'  #first good after a while...
 #date = '20200726'  #
 #date = '20200727'  #partial (and likely wrong direction)
-#dates = ['20200627','20200628','20200629','20200630','20200702','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200716','20200719','20200720','20200721','20200723','20200725','20200726','20200727']
+#dates = ['20200627','20200628','20200629','20200630','20200702','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200713','20200714','20200716','20200719','20200720','20200721','20200723','20200725','20200726','20200727']
 #most useful selection
-#dates = ['20200627','20200629','20200630','20200702','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200719','20200720','20200721','20200723','20200725','20200726','20200727']
-
-
-#leg5
-#loc = 'transect'    #Kinder grid
-#date = '20200830'  #l:685m, 1.6m
-#date = '20200903'  #l:495m, 2.1m (just 230 measurements...)
-#date = '20200907'  #l:485m, 2.1m (just 229 measurements...)
-#date = '20200910'
-#date = '20200918'  #l:493m, 1.7m
-#dates = ['20200830','20200903','20200907','20200910','20200918']
+#dates = ['20200717','20200627','20200629','20200630','20200702','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200713','20200714','20200719','20200720','20200721','20200723','20200725','20200726','20200727']
 
 ##short transects of leg 4 and 5
 #loc = 'albedoLD'
 #dates = ['20200630','20200706','20200707','20200719','20200721','20200724','20200727']
 
 #loc = 'albedoRBB'
-#dates = ['20200630','20200706','20200707','20200719','20200727']
+#dates = ['20200714','20200717','20200630','20200706','20200707','20200719','20200727']
+
+#loc = 'transect'    #Kinder grid
+#loc='albedoK'
+#date = '20200824'  #includes an extra loop over the ponded area and ridge on the SB side of the ship (i.e. first survey/initial floe survey including MP)
+#date = '20200830'  #l:685m, 1.6m
+#date = '20200903'  #l:495m, 2.1m (just 230 measurements...)
+#date = '20200907'  #l:485m, 2.1m (just 229 measurements...)
+#date = '20200910'
+#date = '20200918'  #l:493m, 1.7m
+#dates = ['20200824','20200830','20200903','20200907','20200910','20200918']
 
 #loc = 'ARIEL'
+#dates = '20200914' # no GEM-2 measurements
 #dates = ['20200830','20200903','20200907','20200910','20200917']
 
 #loc = 'kuka'
+#dates = '20200914' # no GEM-2 measurements
 #dates = ['20200907','20200910','20200917']
 
 ##Nansen Legacy
@@ -270,6 +276,8 @@ for dd in range(0,len(dates)):
         date_gem2 = '20200108'    
     elif date == '20200221' and loc=='ridgeFR2':  #GEM-2 was not used 
         date_gem2 = '20200212' 
+    elif date == '20200718' and loc=='special':  #GEM-2 was not used 
+        date_gem2 = '20200709'
     else:
         date_gem2 = date
 
@@ -359,14 +367,14 @@ for dd in range(0,len(dates)):
         
         print(fname)
 
-        dt = getColumn(fname,0)
-        lon = getColumn(fname,1)
-        lat = getColumn(fname,2)
+        dt = getColumn(fname,0,skipheader=1)
+        lon = getColumn(fname,1,skipheader=1)
+        lat = getColumn(fname,2,skipheader=1)
 
-        mxx = getColumn(fname,3)
+        mxx = getColumn(fname,3,skipheader=1)
         mxx = np.array(mxx,dtype=float)
 
-        myy = getColumn(fname,4)
+        myy = getColumn(fname,4,skipheader=1)
         myy = np.array(myy,dtype=float)
             
         #get some meta data for the MP transect:
@@ -557,7 +565,7 @@ for dd in range(0,len(dates)):
     for ch in range(0,len(channels)):
         #get all original coordinates for each channel
         xx = xx_full.copy()
-        yy = yy_full.copy()
+        yy = yy_full.copy()        
         
         #there can be nans in the thickness data, fix this before we proceed
         tt = np.ma.masked_invalid(channels[ch])        

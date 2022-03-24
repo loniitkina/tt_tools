@@ -4,6 +4,7 @@ from tt_func import getColumn, running_stats, get_ice_mode
 from scipy.signal import savgol_filter
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
+import matplotlib.dates as mdates
 
 ##grid parameters
 #stp = '5m'
@@ -18,17 +19,17 @@ window=231
 
 
 #location and dates - if gridded data is used these dates have to correspond to the dates in tt_grid_roll.py
-#loc = 'Sloop'
-#dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
-#title='Southern transect loop '
+loc = 'Sloop'
+dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
+title='Southern transect loop '
 
-#selection = ['20191031','20191107','20191114','20191205','20200102','20200109','20200130','20200220','20200227','20200305','20200330','20200406','20200426','20200507']  #best data
+selection = ['20191031','20191107','20191114','20191205','20200102','20200109','20200130','20200220','20200227','20200305','20200330','20200406','20200426','20200507']  #best data
 
 
-loc = 'Nloop'
-dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
+#loc = 'Nloop'
+#dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
 
-selection=['20191024','20191128','20191205',  '20191219','20200102','20200109','20200130','20200220','20200227', '20200305','20200320','20200326','20200403','20200424','20200430','20200507']
+#selection=['20191024','20191128','20191205',  '20191219','20200102','20200109','20200130','20200220','20200227', '20200305','20200320','20200326','20200403','20200424','20200430','20200507']
 
 #loc= 'snow1'
 #dates = ['20191222','20200112','20200126','20200207']    #20200126 is reduced track (square!)
@@ -96,12 +97,13 @@ dune_range=np.ones_like(dt)*50    #empirically estimated from FTT (mean for ice 
 fig4 = plt.figure(figsize=(10,10))
 ax = fig4.add_subplot(111)
 #ax.set_title(title, fontsize=25)
+ax.text(-.08, .8, "a", ha="center", va="center", size=35)  #make simple figure annotation
 ax.set_xlabel('Roughness (m)', fontsize=20)
 ax.set_ylabel('Snow (m)', fontsize=20)
 ax.tick_params(axis="x", labelsize=14)
 ax.tick_params(axis="y", labelsize=14)
 ax.set_xlim(0,1)
-ax.set_ylim(0,1)
+ax.set_ylim(0,.8)
 
 #Thermodynamics scatter plot
 fig1 = plt.figure(figsize=(10,10))
@@ -109,11 +111,12 @@ fig1.patch.set_facecolor('0.5')
 bx = fig1.add_subplot(111)
 bx.set_xlabel('Snow (m)', fontsize=20)
 #bx.set_title(title, fontsize=25)
+bx.text(-.05, 2, "b", ha="center", va="center", size=35)  #make simple figure annotation
 bx.set_ylabel('Ice (m)', fontsize=20)
 bx.tick_params(axis="x", labelsize=14)
 bx.tick_params(axis="y", labelsize=14)
 #ax.set_facecolor('0.3')
-bx.set_xlim(0,1)
+bx.set_xlim(0,.5)
 bx.set_ylim(0,2)
 
 #The time series plot
@@ -130,6 +133,7 @@ cx[0].tick_params(axis="y", labelsize=14)
 cx[0].set_ylim(0,1)
 
 #surface type fractions
+cx[1].text(mdates.date2num(start)-23, 1, "b", ha="center", va="center", size=35)  #make simple figure annotation
 cx[1].set_ylabel('Fraction', fontsize=20)
 cx[1].tick_params(axis="x", labelsize=14)
 cx[1].tick_params(axis="y", labelsize=14)
@@ -137,6 +141,7 @@ cx[1].set_xlim(start,end)
 cx[1].set_ylim(0,1)
 
 #correlations
+cx[2].text(mdates.date2num(start)-23, .8, "c", ha="center", va="center", size=35)  #make simple figure annotation
 cx[2].set_ylabel('$R^2$', fontsize=20)
 cx[2].tick_params(axis="x", labelsize=14)
 cx[2].tick_params(axis="y", labelsize=14)
@@ -237,7 +242,7 @@ for dd in range(0,len(dates)):
     #decide this based on the MP spacing, so that it is the same total distance for all legs/sampling personel
     
     if gridded==True:
-        nit=50                  #very similar results in range 20-40 measurements (m)
+        nit=50                  #very similar results in range 40-50 measurements (m)
                                 #important for roughness correlation
                                 #and 
         
@@ -320,60 +325,61 @@ for dd in range(0,len(dates)):
             dt_list_s.append(dt)
         
         
-        #estimate some mean values
+        #estimate the threshold values
         level=0
-        rubble=0.06
-        ridge=0.2
+        rubble=0.1
+        ridge=0.3
         
         ###leg 4 transect is very deformed, decrease criteria, to get at least some useful level ice data
         if loc=='transect':
             rubble=0.1
-            ridge=0.2
+            ridge=0.3
         
         if loc=='Nloop':
             rubble=0.2
             ridge=0.3
 
-            
-            
+        mask_level = std>rubble
+        mask_ridge = (std<ridge) #| (itm<2.)
+        mask_rubble = ~(mask_level & mask_ridge)
         
         #give snow volume for these classes
         #level ice
         y_pred = predict(level)
-        print('level rough. value and predicted snow depth: ',level,y_pred)
+        level_mid = (level+rubble)/2
+        print('level rough. value and predicted snow depth: ',level_mid,y_pred)
         #estimate the volume
-        mask = std>rubble
-        level_si = np.ma.array(sitrunc,mask=mask).compressed()
+        level_si = np.ma.array(sitrunc,mask=mask_level).compressed()
         ##also get level ice thickness for thermodyn. driver and SnowModel assimilation
-        level_it = np.ma.array(ittrunc,mask=mask).compressed()
+        level_it = np.ma.array(ittrunc,mask=mask_level).compressed()
         vol = np.sum(level_si)/np.sum(sitrunc)
         print('volume fraction of level ice snow: ',vol)
         level_n = level_si.shape[0]/sitrunc.shape[0]
-        print('volume fraction of level ice: ',level_n)
+        print('fraction of level ice: ',level_n)
         
         #rubble
-        y_pred = predict(rubble)
-        print('rubble rough. value and predicted snow depth: ',rubble,y_pred)
+        rubble_mid = (rubble+ridge)/2
+        y_pred = predict(rubble_mid)
+        print('rubble rough. value and predicted snow depth: ',rubble_mid,y_pred)
         #estimate the volume
-        mask = (std<rubble) | ((std>ridge)|(itm>2.))
-        rubble_si = np.ma.array(sitrunc,mask=mask).compressed()
+        rubble_si = np.ma.array(sitrunc,mask=mask_rubble).compressed()
         ##also get rubble ice thickness for SnowModel assimilation
-        rubble_it = np.ma.array(ittrunc,mask=mask).compressed()
+        rubble_it = np.ma.array(ittrunc,mask=mask_rubble).compressed()
         vol = np.sum(rubble_si)/np.sum(sitrunc)
         print('volume fraction of rubble ice snow: ',vol)
         rubble_n = rubble_si.shape[0]/sitrunc.shape[0]
-        print('volume fraction of rubble ice: ',rubble_n)
+        print('fraction of rubble ice: ',rubble_n)
 
         #ridges
-        y_pred = predict(ridge)
-        print('ridge rough. value and predicted snow depth: ',ridge,y_pred)
+        ridge_mid = ridge*2
+        y_pred = predict(ridge_mid)
+        print('ridge rough. value and predicted snow depth: ',ridge_mid,y_pred)
         #estimate the volume
-        mask = (std<ridge) | (itm<2.)
-        ridge_si = np.ma.array(sitrunc,mask=mask).compressed()
+        ridge_si = np.ma.array(sitrunc,mask=mask_ridge).compressed()
         vol = np.sum(ridge_si)/np.sum(sitrunc)
         print('volume fraction of ridge ice snow: ',vol)
         ridge_n = ridge_si.shape[0]/sitrunc.shape[0]
-        print('volume fraction of ridge ice: ',ridge_n)
+        print('fraction of ridge ice: ',ridge_n)
         
         
         #store these for time series!
@@ -586,11 +592,17 @@ temp = np.array(temp,dtype=np.float)
 temp = savgol_filter(temp, window, polyorder)
 
 #precipitation
-fname=inpath_ARM+'precipitation_events.csv'
+inpath='../data/weather_Matrosov/mosaic-snowfall/'
+fname=inpath+'precipitation_ARM_Matrosov_3h.csv'
 print(fname)
-date_p = getColumn(fname,0, delimiter=',')
-date_p = [ datetime.strptime(x, '%Y-%m-%dT%H:%M:%S') for x in date_p ]
-precip = getColumn(fname,1, delimiter=',')
+date_y = getColumn(fname,0, delimiter=',')
+date_m = getColumn(fname,1, delimiter=',')
+date_d = getColumn(fname,2, delimiter=',')
+date_h = getColumn(fname,3, delimiter=',')
+date_p = [ date_y[x]+date_m[x]+date_d[x]+date_h[x] for x in range(0,len(date_y)) ]
+
+date_p = [ datetime.strptime(x, '%Y%m%d%H') for x in date_p ]
+precip = getColumn(fname,6, delimiter=',')      #KAZR Matrosov, mm/3h
 precip = np.array(precip,dtype=np.float)
 
 #plotting the time series
@@ -623,6 +635,7 @@ cx[0].set_xticklabels(['2019-11','2019-12','2020-01','2020-02','2020-03','2020-4
 
 cx[0].legend([bp1["boxes"][0], bp2["boxes"][0], bp3["boxes"][0]], ['level', 'rubble', 'ridges'], loc='upper left', fontsize=15,ncol=3)
 
+cx[0].text(dt_diff[0]-25, 1, "a", ha="center", va="center", size=35)  #make simple figure annotation
 
 #surface type fractions
 cx[1].plot(dt_list,ts_level_frac,color='purple',ls='-',label='level')
@@ -638,6 +651,7 @@ cx[2].legend(fontsize=15,ncol=2)
 
 
 #air temperature
+cx[3].text(mdates.date2num(start)-23, 5, "d", ha="center", va="center", size=35)  #make simple figure annotation
 cx[3].set_ylabel('Temperature (C)', fontsize=20)
 cx[3].tick_params(axis="x", labelsize=14)
 cx[3].tick_params(axis="y", labelsize=14)
@@ -646,6 +660,7 @@ cx[3].set_xlim(start,end)
 cx[3].plot(date,temp,c='darkred')
 
 #wind speed and direction
+cx[4].text(mdates.date2num(start)-23, 15, "e", ha="center", va="center", size=35)  #make simple figure annotation
 cx[4].set_ylabel('Wind Speed (m/s)', fontsize=20)
 cx[4].tick_params(axis="x", labelsize=14)
 cx[4].tick_params(axis="y", labelsize=14)
@@ -655,8 +670,8 @@ cs = cx[4].scatter(date,wind,c=windd,cmap=plt.cm.twilight)
 cb = plt.colorbar(cs,orientation='horizontal',aspect=80, fraction=.05, pad=.1)  # draw colorbar
 cb.set_label(label='Wind direction (deg.)',fontsize=15)
 
-#horizontal line for drifting snow limit
-driftsnow=np.ones_like(wind)*7
+#horizontal line for drifting snow limit (7.7m/s based on dry snow estimate of Li and Pomeroy, 1997)
+driftsnow=np.ones_like(wind)*7.7
 cx[4].plot(date,driftsnow,c='k')
 
 #precipitation
@@ -775,3 +790,108 @@ with open(file_name, 'wb') as f:
     #header
     f.write(b'date,snow depth (m),snow depth std (m),ice thickness (m),ice thickness std (m),ice mode (m)\n')
     np.savetxt(f, table, fmt="%s", delimiter=",")
+
+
+#Sloop
+#20191031
+#R2 dyn:  0.16536650132568764
+
+#20191107
+#R2 dyn:  0.14197341164211152
+
+#20191114
+#R2 dyn:  0.44358734589656945
+
+#20191205
+#R2 dyn:  0.46842656596873933
+
+#20191226
+#R2 dyn:  0.3757705167959082
+
+#20200102
+#R2 dyn:  0.4525611817594487
+
+#20200109
+#R2 dyn:  0.5033748133427467
+
+#20200116
+#R2 dyn:  0.5869684725072333
+
+#20200130
+#R2 dyn:  0.626991548590344
+
+#20200206
+#R2 dyn:  0.6511211060574689
+
+#20200220
+#R2 dyn:  0.5883030088764416
+
+#20200227
+#R2 dyn:  0.6367143641630351
+
+#20200305
+#R2 dyn:  0.6794766194074568
+
+#20200330
+#R2 dyn:  0.6083497335046335
+
+#20200406
+#R2 dyn:  0.845961216611923
+
+#20200426
+#R2 dyn:  0.292592726344462
+
+#20200507
+#R2 dyn:  0.37179857047396847
+
+##############################################
+#Sloop
+#20191031
+#R2 thermo:  0.48794388012415013
+
+#20191107
+#R2 thermo:  0.6602568496640939
+
+#20191114
+#R2 thermo:  0.30041748975811877
+
+#20191205
+#R2 thermo:  0.05609623109951922
+
+#20191226
+
+#20200102
+
+#R2 thermo:  0.15506950129275998
+
+#20200109
+#R2 thermo:  0.1777693763351863
+
+#20200116
+
+#20200130
+#R2 thermo:  0.020021985900272377
+
+#20200206
+
+#20200220
+#R2 thermo:  0.25553871407752027
+
+#20200227
+#R2 thermo:  0.2610402589478861
+
+#20200305
+#R2 thermo:  0.5017598265954706
+
+#20200330
+
+#R2 thermo:  0.48578808416836494
+
+#20200406
+#R2 thermo:  0.775335890626002
+
+#20200426
+#R2 thermo:  0.6181196431554159
+
+#20200507
+#R2 thermo:  0.7331446427832615

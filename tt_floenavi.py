@@ -4,23 +4,23 @@ from icedrift import GeoReferenceStation, IceCoordinateSystem, GeoPositionData
 import matplotlib.pyplot as plt 
 from tt_func import *
 
-leg=4
+leg=5
 
-instrument='magnaprobe'
-path = '../data/MCS/MP/'
-#valid locations are:
-#leg 1: Nloop, Sloop
-#leg 2: Nloop, Sloop, snow1, runway, special (long, dark side FYI/SYI,recon), ridgeFR1 (installation), ridgeFR2 (coring), ridgeFR3 (optics), ridgeA1 (center), ridgeA2 (N), ridgeA3 (S)
-#leg 3: Nloop, Sloop, snow1, ridgeFR1 (installation), ridgeA1 (center), ridgeA2 (N), ridgeA3 (S), ridgeD (davids), ridgeE (eco), special
-#leg 4: icestation, transect, ridge, albedoLD, albedoRBB, special (meltponds, drillholes, initialsurvey), ARIEL
-#leg 5: transect(Kinder), ridge, ARIEL, kuka, special (transectstbd,transectbow,transectport,transectgrid), icestation1, icestation2, icestation3
-#location = 'ridge*'
-#location = 'Nloop'
-location = 'transect*'
-#location = 'albedo*'
-#location = 'ARIEL'
-#location='initialsurvey'
-latlon=False
+#instrument='magnaprobe'
+#path = '../data/MCS/MP/'
+##valid locations are:
+##leg 1: Nloop, Sloop
+##leg 2: Nloop, Sloop, snow1, runway, special (long, dark side FYI/SYI,recon), ridgeFR1 (installation), ridgeFR2 (coring), ridgeFR3 (optics), ridgeA1 (center), ridgeA2 (N), ridgeA3 (S)
+##leg 3: Nloop, Sloop, snow1, ridgeFR1 (installation), ridgeA1 (center), ridgeA2 (N), ridgeA3 (S), ridgeD (davids), ridgeE (eco), special
+##leg 4: icestation, transect, ridge, albedoLD, albedoRBB, special (meltponds, drillholes, initialsurvey), ARIEL
+##leg 5: transect(Kinder), ridge, ARIEL, kuka, special (transectstbd,transectbow,transectport,transectgrid), icestation1, icestation2, icestation3
+##location = 'ridge*'
+##location = 'Nloop'
+#location = 'transect*'
+##location = 'albedo*'
+##location = 'ARIEL'
+##location='initialsurvey'
+#latlon=False
 
 instrument='mosaic*'     #this is GEM-2 for some reason
 path = '../data/MCS/GEM2_thickness/01-ice-thickness/'
@@ -33,20 +33,23 @@ latlon=True #GEM-2 data is written as latlon and not lonlat
 #refstat_csv_file = glob('../data/floenavi/data_master-solution_mosaic-leg'+str(leg)+'*-floenavi-refstat-v1p0.csv')[0]
 #floenavi alternatives bellow (PS GPS data with ship heading)
 #refstat_csv_file = '../../coord_trans/dshipextracts/transect_legs/position_leg3_nh-track.csv'
-refstat_csv_file = '../../coord_trans/dshipextracts/transect_legs/position_leg4_nh-track.csv'
-#refstat_csv_file = '../../coord_trans/dshipextracts/transect_legs/position_leg5_nh-track.csv'
+#refstat_csv_file = '../../coord_trans/dshipextracts/transect_legs/position_leg4_nh-track.csv'
+refstat_csv_file = '../../coord_trans/dshipextracts/transect_legs/position_leg5_nh-track.csv'
 
 refstat = GeoReferenceStation.from_csv(refstat_csv_file)
 icecs = IceCoordinateSystem(refstat)
 
 #get data for which you need coordinate transformation
-all_transect_files = sorted(glob(path+'*PS122-'+str(leg)+'*/'+instrument+'-*-20200716*'+location+'-track.csv'))
-
+all_transect_files = sorted(glob(path+'*PS122-'+str(leg)+'*/'+instrument+'-*'+location+'-track.csv'))
 ##for Nloop on 20200403 and 06 the conversion from floenavi is bad
 #all_transect_files = sorted(glob(path+'*PS122-'+str(leg)+'*/'+instrument+'-transect-20200403*'+location+'-track.csv'))
 #all_transect_files = sorted(glob(path+'*PS122-'+str(leg)+'*/'+instrument+'-transect-20200406*'+location+'-track.csv'))
 ##for Sloop on 20200406 the conversion from floenavi is bad
 #all_transect_files = sorted(glob(path+'*PS122-'+str(leg)+'*/'+instrument+'-transect-20200406*'+location+'-track.csv'))
+#leg 4/5 late processing
+#all_transect_files = sorted(glob(path+'*PS122-'+str(leg)+'*/'+instrument+'-*-20200824*'+location+'-track.csv'))
+#all_transect_files = sorted(glob(path+'*PS122-'+str(leg)+'*/'+instrument+'-*-20200716*'+location+'-track.csv'))
+
 
 plt.figure(figsize=(10, 10))
 plt.gca().set_aspect('equal')

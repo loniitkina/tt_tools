@@ -8,9 +8,9 @@ ts=True
 pdf=False
 rates=True
 
-#grid spacing
-stp = '5m'
-stp = '2m_linear'
+##grid spacing
+#stp = '5m'
+#stp = '2m_linear'
 #stp = '2m_nearest'
 
 inpath_grid = '../data/grids/'
@@ -23,14 +23,14 @@ outpath = '../plots_AGU/'
 #dates = ['20191219','20200220']
 #dates = ['20191226','20200220']
 #dates = ['20200102','20200220'] #platelet ice paper
-dates = ['20200112','20200207'] #gnss paper
+#dates = ['20200112','20200207'] #gnss paper
 #dates = ['20191107','20200426'] #start and end of winter, S loop
 #dates = ['20191205','20200305'] #start and end of winter, N loop
 
 #datel = ['2020/01/02','2020/02/20'] 
-datel = ['2020/01/12','2020/02/07']
+#datel = ['2020/01/12','2020/02/07']
 
-colors = ['blue','green']
+#colors = ['blue','green']
 
 #outname = 'pdf_'+loc+'_early26.png'
 #outname = 'pdf_'+loc+'_platelet.png'
@@ -55,39 +55,40 @@ dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191
 #title='Runway Transect'
 #dates = ['20200112','20200119','20200207']
 
-
 ##leg4
 #loc = 'transect'
 #title = 'Leg 4 Transect '
 ###all data
-#dates = ['20200617','20200627','20200629','20200630','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200719','20200720','20200725','20200726']
-
-#leg5
-#loc = 'transect'
-#title = 'Leg 5 Transect '
-#dates = ['20200830','20200903','20200907','20200918']
+#dates = ['20200627','20200628','20200629','20200630','20200702','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200713','20200714','20200716','20200719','20200720','20200721','20200723','20200725','20200726','20200727']
 
 #loc = 'albedoLD'
-#title = 'Leg 4 Transect '
+#title = 'Lemon Drop albedo line '
 #dates = ['20200630','20200706','20200707','20200719','20200721','20200724','20200727']
 
 #loc = 'albedoRBB'
-#dates = ['20200630','20200706','20200707','20200719','20200727']
+#title = 'Root Beer Barrel albedo line '
+#dates = ['20200714','20200717','20200630','20200706','20200707','20200719','20200727']
 
+##leg5
 #loc = 'albedoK'
-#dates = ['20200830','20200903','20200907','20200910','20200918']
+#title = 'Kinder albedo line '
+#dates = ['20200824','20200830','20200903','20200907','20200910','20200918']
 
 #loc = 'ARIEL'
+#title = 'Ariel transect'
 #dates = ['20200830','20200903','20200907','20200910','20200917']
 
 #loc = 'kuka'
+#title = 'KuKa transect'
 #dates = ['20200907','20200910','20200917']
 
 
 
-#loc='special'
-#title = 'Special Transects '
+loc='special'
+title = 'Special Transects '
 #dates = ['20200107','20200115','20200123','20200226','20200326','20200403','20200430','20200617','20200719','20200719','20200709','20200827','20200903','20200910','20200902','20200909','20200919']
+dates = ['20200107','20200115','20200123','20200226','20200326','20200430','20200617','20200719','20200719','20200827','20200903','20200910','20200902','20200909','20200919']
+
 
 combo=False
 
@@ -110,9 +111,9 @@ outname = 'pdf_'+loc+'_ice.png'
 #outname_ts = 'ts_'+loc+'_'+stp+'.png'
 #outname_ts_type = 'ts_'+loc+'_'+stp+'_type.png'
 
-outname_ts = 'ts_'+loc+'_'+'2m_gridded_it1.png'
-file_ts = inpath_table+'ts_'+loc+'_'+'2m_gridded.csv'
-outname_ts_type = 'ts_'+loc+'_'+'2m_gridded_it_type.png'
+outname_ts = 'ts_'+loc+'_'+'1m_gridded_it1.png'
+file_ts = inpath_table+'ts_'+loc+'_'+'1m_gridded.csv'
+outname_ts_type = 'ts_'+loc+'_'+'1m_gridded_it_type.png'
 
 ##events (selected dates from leg 1-3)
 #dates = ['20191107','20191205','20200227','20200426'] #Sloop
@@ -178,7 +179,7 @@ m_cs2sd = np.ma.array(m_cs2sd,mask=m_cs2sd==0)
 
 #m_cs2 = m_cs2-m_cs2sd
 
-irbins = np.arange(0,2,.06)
+irbins = np.arange(0,5,.05)
 if pdf==True:
     #PDFs
     fig1 = plt.figure(figsize=(10,10))

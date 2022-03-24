@@ -129,7 +129,7 @@ ax.tick_params(axis="y", labelsize=18)
 #del arr, rot_x, rot_y
 gc.collect()
 
-
+#data produced by tt_profiles.py
 fnames=['../data/classes_special20200107.csv',
         '../data/classes_special20200115.csv',
         '../data/classes_runway20200112.csv',

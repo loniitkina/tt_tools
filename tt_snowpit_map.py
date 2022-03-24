@@ -33,24 +33,45 @@ lon0=117.704953
 lat0=86.578373
 head0=302.2
 
-arr2,rot_x2,rot_y2=proj_sat(tif,lon0,lat0,head0,alos=alos,spacing=1,band=1,ps_pos=True)
 
+##ALS tif from 27 Feb
+#tif='../data/ALS/20200227_als_merged_grid-stere.tiff'
+#outname='ALS_20200227_map_snowpits.png'
+##plt.imshow(arr)
+##plt.show()
+
+##refstation for ALS (timestamp: 20200227), time: 11:43 to 13:20 (from leg 3 cruise report)
+##2020-02-27 11:50:00,36.71483953107539,88.4101433020009,229.24061813074064,3.539174552604931,0.8996169107113513
+#lon0=36.71483953107539
+#lat0=88.4101433020009
+#head0=229.24061813074064
+
+arr,rot_x,rot_y=proj_sat(tif,lon0,lat0,head0,spacing=1,band=1,ps_pos=True)
 
 #Wenkai masks no values as 999
-arr2 = np.where(arr2==999,0,arr2)
+arr = np.where(arr==999,0,arr)
 
 #setup figure
 fig1 = plt.figure(figsize=(20,12))
 ax = fig1.add_subplot(111)
 
-###for TSX and RS-2
-CS1=ax.contourf(rot_x2, rot_y2, arr2.T, 50,cmap=plt.cm.binary_r)
+##for TSX and RS-2
+CS1=ax.contourf(rot_x, rot_y, arr.T, 50,cmap=plt.cm.binary_r)
 cb = plt.colorbar(CS1)  # draw colorbar
 cb.set_label(label='Intensity (dB)',fontsize=20)
 
+##ALS
+##do something about the PS (too high!)
+#arr = np.where(arr>1.,1.,arr)
+##and some low points
+#arr = np.where(arr<0,0,arr)
+#CS2 = plt.contourf(rot_x, rot_y, arr.T, 30, vmax=1., vmin=0,cmap=plt.cm.binary_r,alpha=1)
+#cb = plt.colorbar(CS2)  # draw colorbar
+#cb.set_label(label='Elevation (m)',fontsize=20)
+
 #limit the region
-ax.set_xlim(-2000,2000)
-ax.set_ylim(-1500,1500)
+ax.set_xlim(-1500,1500)
+ax.set_ylim(-1000,1000)
 
 #larger ticks
 ax.tick_params(axis="x", labelsize=18)
@@ -100,57 +121,16 @@ for i in range(0,len(flist)):
             ax.plot(xx,yy,'o',ms=5,c='purple')
         if loc=='Nloop':
             ax.plot(xx,yy,'o',ms=5,c='salmon')
-    ##Nloop start
-    #if date=='20191031' and loc=='Nloop':
-        #ax.plot(xx,yy,'o',ms=2,c='salmon')
-    #snow1, runway
+    #runway
     if date=='20200112':
-        if loc=='snow1':
-            ax.plot(xx,yy,'o',ms=5,c='gold')
         if loc=='runway':
             ax.plot(xx,yy,'o',ms=5,c='pink')
-    #long
-    if date=='20200123':
-        ax.plot(xx,yy,'o',ms=5,c='c')
-    #event
-    if date=='20200126' and loc=='special':
-        ax.plot(xx,yy,'o',ms=5,c='darkred')
-    #dark side FYI
-    if date=='20200107' and loc=='special':
-        ax.plot(xx,yy,'o',ms=5,c='darkkhaki')
-    #dark side SYI
-    if date=='20200115' and loc=='special':
-        ax.plot(xx,yy,'o',ms=5,c='b')
-    ##dranitsyn lead
-    #if date=='20200226':
-        #ax.plot(xx,yy,'o',ms=5,label='dranitsyn',c='y')
-    ##RS site, leg 3
-    #if date=='20200430':
-        #if loc=='special':
-            #ax.plot(xx,yy,'o',ms=5,label='RS site',c='darkkhaki')
-        
-    #Allies Ridge
-    if date=='20200228':
-        if loc=='ridgeA1':
-            ax.plot(xx,yy,'o',ms=5,c='limegreen')
-        else:
-            ax.plot(xx,yy,'o',ms=5,c='limegreen')
-    #Fort Ridge
-    if date=='20200221':
-        ax.plot(xx,yy,'o',ms=5,c='limegreen')
-    if date=='20200131' and loc=='ridgeFR3':
-        ax.plot(xx,yy,'o',ms=5,c='limegreen')
-    #Davids Ridge
-    if date=='20200424' and loc=='ridgeD':
-        ax.plot(xx,yy,'o',ms=5,c='limegreen')
-    if date=='20200424' and loc=='ridgeE':
-        ax.plot(xx,yy,'o',ms=5,c='limegreen')
         
     del xx,yy
             
 #snow pit locations
-fnames = glob('../data/snowpits_wagner/swe_smpdensity_leg1_leg3_archive/metdata_and_plot_qc/swe_smp_k2020_*.csv')
-selection = ['snow1-A1','snow1-A3','snow1-A5','snow1-A5*','runway1','RS-transect-north']
+fnames = glob('../data/snowpits_wagner/swe_smpdensity_leg1_leg3_archive/plotting/swe_smp_k2020_*.csv')
+selection = ['snow1-A1','snow1-A3','snow1-A5','runway1','RS-transect-north','snow1-transect']
 
 colors = plt.cm.jet(np.linspace(0, 1, len(fnames)))
 

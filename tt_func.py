@@ -341,8 +341,8 @@ def floenavi_coords(dt,lat,lon,refdt,reflat,reflon,refhead):
         
         #find closest date
         k = np.argmin(np.abs(np.array(refdt) - dt[i]))
-        print('reference: ',refdt[k])
-        print('snow pit: ',dt[i])
+        #print('reference: ',refdt[k])
+        #print('snow pit: ',dt[i])
         
         lat0=reflat[k]
         lon0=reflon[k]
@@ -368,6 +368,33 @@ def floenavi_coords(dt,lat,lon,refdt,reflat,reflon,refhead):
 
     return(rot_x_list,rot_y_list)
 
+def floenavi_coords_buoy(dt,lon,lat,refdt,reflon,reflat,refhead):
+
+    #lat,lon projection
+    outProj = Proj(init='epsg:4326')
+
+    #find closest date
+    k = np.argmin(np.abs(np.array(refdt) - dt))
+    #print('reference: ',refdt)
+    #print('buoy: ',dt[k])
+    
+    lat0=reflat
+    lon0=reflon
+    head0=refhead
+        
+    #transform to the FloeNavi local coordinates
+    FloeNaviProj = Proj('+proj=stere +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 +ellps=WGS84'%(lat0,lon0))
+    x,y = transform(outProj,FloeNaviProj,lon[k],lat[k])
+    
+    ##Rotate into reference system of base station
+    ##The heading offset is 90: to get from default positive x-axis to positive y-axis
+    heading_radian = np.deg2rad(-1.0 * (head0-90))
+
+    rot_x = np.cos(heading_radian) * x + np.sin(heading_radian) * y
+    rot_y = -1.0 * np.sin(heading_radian) * x + np.cos(heading_radian) * y
+    
+    return(rot_x,rot_y)
+
 def get_ice_mode(it,irbins):
     
     hist = np.histogram(it,bins=irbins)
@@ -377,3 +404,57 @@ def get_ice_mode(it,irbins):
     mo = (hist[1][mm] + hist[1][mm+1])/2           #take mean of the bin for the mode value
 
     return(mo)
+
+def minang_tri(vert):
+  #find smallest angle to filter out too acute triangles
+  
+  #sides of triangle
+  ta = np.sqrt((vert[1,0]-vert[0,0])**2+(vert[1,1]-vert[0,1])**2)
+  tb = np.sqrt((vert[2,0]-vert[1,0])**2+(vert[2,1]-vert[1,1])**2)
+  tc = np.sqrt((vert[2,0]-vert[0,0])**2+(vert[2,1]-vert[0,1])**2)
+  sides = [ta,tb,tc]
+  srt = min(sides)
+  srtid = np.argmin(sides)
+  lng = np.delete(sides,srtid)
+  
+  #law of cosine
+  #minang(ii) = acosd((sides(1)^2+sides(2)^2-shortest^2)/2/sides(1)/sides(2))
+  minang = np.degrees(np.arccos((lng[0]**2+lng[1]**2-srt**2)/2/lng[0]/lng[1]))
+
+  return(minang)
+
+def deformation(vert,uvert,vvert):
+
+  #smallest angle of triangle
+  minang = minang_tri(vert)
+  
+  ##area of triangle
+  #Hutchings etal, 2012 (ISPOL)
+  area = .5* (vert[0,0]*vert[1,1] - vert[0,1]*vert[1,0] + vert[1,0]*vert[2,1] - vert[1,1]*vert[2,0] + vert[2,0]*vert[0,1] - vert[2,1]*vert[0,0])
+  if area < 0: print('not counter-clockwise oriented triangle!'); exit()
+  
+  #some filtering to throw out the erroneous GPS positioning. If the accuracy is 2m.
+  if area < 1: print(area); return 0,0,0,0,0,0	#Hutchings etal, 2011 (SEDNA)
+    
+  #calculate line integrals
+  dux = (.5 / area) * (
+    (uvert[1]+uvert[0])*(vert[1,1]-vert[0,1])+
+    (uvert[2]+uvert[1])*(vert[2,1]-vert[1,1])+
+    (uvert[0]+uvert[2])*(vert[0,1]-vert[2,1]) )
+  
+  duy = -(.5 / area) * (
+    (uvert[1]+uvert[0])*(vert[1,0]-vert[0,0])+
+    (uvert[2]+uvert[1])*(vert[2,0]-vert[1,0])+
+    (uvert[0]+uvert[2])*(vert[0,0]-vert[2,0]) )
+  
+  dvx = (.5 / area) * (
+    (vvert[1]+vvert[0])*(vert[1,1]-vert[0,1])+
+    (vvert[2]+vvert[1])*(vert[2,1]-vert[1,1])+
+    (vvert[0]+vvert[2])*(vert[0,1]-vert[2,1]) )
+    
+  dvy = -(.5 / area) * (
+    (vvert[1]+vvert[0])*(vert[1,0]-vert[0,0])+
+    (vvert[2]+vvert[1])*(vert[2,0]-vert[1,0])+
+    (vvert[0]+vvert[2])*(vert[0,0]-vert[2,0]) )
+  
+  return dux,duy,dvx,dvy,minang,area

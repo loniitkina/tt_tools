@@ -13,7 +13,7 @@ locs = ['Nloop','Sloop','transect','ridge*','snow1','runway','albedoRBB','albedo
 cols = ['salmon','purple','orange','limegreen','gold','deeppink','hotpink','cornflowerblue','m','k','r','c']
 
 outpath='../plots_AGU/'
-outname='stats.png'
+outname='stats_updt.png'
 
 #Timeseries scatter plot
 fig1 = plt.figure(figsize=(20,6))
@@ -85,7 +85,7 @@ print(total_l/1000)
 print('Total number of all MOSAiC MP measurements')
 print(total_n)
 
-bx.legend(fontsize=13,fancybox=True,framealpha=.9,ncol=4,loc='upper left')
+bx.legend(fontsize=13,fancybox=True,framealpha=.9,ncol=4,loc='upper right')
 fig1.autofmt_xdate()
 #plt.show()
 

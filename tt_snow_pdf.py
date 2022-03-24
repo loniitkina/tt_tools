@@ -25,29 +25,26 @@ datel = [ datetime.strftime(x, '%Y/%m/%d') for x in dt ]
 cols = plt.cm.rainbow(np.linspace(0, 1, len(dates)))
 
 
-srbins = np.arange(0,1,.01)
+srbins = np.arange(0,1,.02)
 
 #PDFs
 fig1 = plt.figure(figsize=(20,10))
 #fig1.suptitle(title, fontsize=30)
 ax = fig1.add_subplot(121)
-#ax.set_title('S transect loop')
-#ymax=.15
-#ax.set_ylim(0,ymax)
-ax.set_xlabel('Snow depth (m)', fontsize=20)
-ax.set_ylabel('Probability', fontsize=20)
-ax.tick_params(axis="x", labelsize=14)
-ax.tick_params(axis="y", labelsize=14)
+ax.text(-.13, .355, "a", ha="center", va="center", size=45)  #make simple figure annotation
+ax.set_xlabel('Snow depth (m)', fontsize=25)
+ax.set_ylabel('Probability', fontsize=25)
+ax.tick_params(axis="x", labelsize=20)
+ax.tick_params(axis="y", labelsize=20)
 ax.set_xlim(0,1)
+#ax.set_ylim(0,0.35)
 
 bx = fig1.add_subplot(122)
-#bx.set_title('S transect loop')
-#ymax=.15
-#bx.set_ylim(0,ymax)
-bx.set_xlabel('Snow depth (m)', fontsize=20)
-bx.set_ylabel('Probability', fontsize=20)
-bx.tick_params(axis="x", labelsize=14)
-bx.tick_params(axis="y", labelsize=14)
+bx.text(-.13, .11, "b", ha="center", va="center", size=45)  #make simple figure annotation
+bx.set_xlabel('Snow depth (m)', fontsize=25)
+bx.set_ylabel('Probability', fontsize=25)
+bx.tick_params(axis="x", labelsize=20)
+bx.tick_params(axis="y", labelsize=20)
 bx.set_xlim(0,1)
 
 

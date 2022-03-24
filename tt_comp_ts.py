@@ -26,7 +26,9 @@ dx.tick_params(axis="x", labelsize=14)
 dx.tick_params(axis="y", labelsize=14)
 dx.set_ylim(0,6)
 
-
+#make simple figure annotation
+cx.text(0, .85, "a", ha="center", va="center", size=35)
+dx.text(0, 6, "b", ha="center", va="center", size=35)
 
 dt_start= datetime(2019,8,1)
 
@@ -39,14 +41,13 @@ locs = ['Nloop','Sloop','transect','ridge*','snow1','runway','albedoRBB','albedo
 #colors matching the map
 cols = ['salmon','purple','orange','limegreen','gold','deeppink','hotpink','cornflowerblue','m','k','r','c']
 
-
 outpath='../plots_AGU/'
-outname='ts_comp.png'
+outname='ts_comp_updt.png'
 
 inpath_mosaic='../data/MCS/MP/'
 i=0
 for loc in locs:
-    fname=inpath_mosaic+'ts_'+loc+'_2m_gridded.csv' #this is filename mistake - these data are all 1m gridded!
+    fname=inpath_mosaic+'ts_'+loc+'_1m_gridded.csv' #this is filename mistake - these data are all 1m gridded!
     try:    #if exists
         dt1= getColumn(fname,0)
         m_snow= getColumn(fname,1)
@@ -105,8 +106,11 @@ for loc in locs:
         else:
             dx.plot(dt_diff,mo_ice,'s',ms=5,c='.5')
             
+        #print(loc,mo_ice)
+        #print(loc,dt)
             
-        #write out some growth/accumulation/melt rates
+            
+        ##write out some growth/accumulation/melt rates
         
         ##fast snow accumulation
         #if loc=='Nloop':
@@ -140,13 +144,13 @@ for loc in locs:
             #print(rate*30.5) #monthly rate   #rate in weeks
             
         #if loc=='runway':
-            ##'20191101':
+            ##'20191001':
             #start=0
             #for x in range(0,len(dt1)):
                 #if dt1[x]=='20200112':
                     #end=m_snow[x]
-            #rate=(end-start)/(30+31+12) #days
-            #print(loc,'Nov-Jan')
+            #rate=(end-start)/(31+30+31+12) #days
+            #print(loc,'Oct-Jan')
             #print(rate*30.5) #monthly rate
             
         ##February kick
@@ -194,7 +198,7 @@ for loc in locs:
             #print(loc,'June melt')
             #print(rate*30.5) #monthly rate   #rate in weeks
         
-        #ice rates
+        ##ice rates
         #if loc=='Nloop':
             #for x in range(0,len(dt1)):
                 #if dt1[x]=='20191031':
@@ -225,13 +229,13 @@ for loc in locs:
             #print(loc,'Nov-Apr')
             #print(rate*30.5) #monthly rate
         #if loc=='runway':
-            ##'20191101':
+            ##'20191001':
             #start=0
             #for x in range(0,len(dt1)):
                 #if dt1[x]=='20200207':
                     #end=m_ice[x]
-            #rate=(end-start)/(30+31+31+7) #days
-            #print(loc,'Nov-Feb')
+            #rate=(end-start)/(31+30+31+31+7) #days
+            #print(loc,'Oct-Feb')
             #print(rate*30.5) #monthly rate
             
         ##modes
@@ -265,35 +269,35 @@ for loc in locs:
             #print(loc,'Nov-Apr')
             #print(rate*30.5) #monthly rate
         #if loc=='runway':
-            ##'20191101':
+            ##'20191001':
             #start=0
             #for x in range(0,len(dt1)):
                 #if dt1[x]=='20200207':
                     #end=mo_ice[x]
-            #rate=(end-start)/(30+31+31+7) #days
-            #print(loc,'Nov-Feb')
+            #rate=(end-start)/(31+30+31+31+7) #days
+            #print(loc,'Oct-Feb')
             #print(rate*30.5) #monthly rate
         
-        #June melt rates
-        if loc=='transect':
-            for x in range(0,len(dt1)):
-                if dt1[x]=='20200710':
-                    start=m_ice[x]
-                if dt1[x]=='20200726':
-                    end=m_ice[x]
-            rate=(end-start)/(16) #days
-            print(loc,'July melt')
-            print(rate*30.5) #monthly rate   #rate in weeks
+        ##June melt rates
+        #if loc=='transect':
+            #for x in range(0,len(dt1)):
+                #if dt1[x]=='20200710':
+                    #start=m_ice[x]
+                #if dt1[x]=='20200726':
+                    #end=m_ice[x]
+            #rate=(end-start)/(16) #days
+            #print(loc,'July melt')
+            #print(rate*30.5) #monthly rate
             
-        if loc=='transect':
-            for x in range(0,len(dt1)):
-                if dt1[x]=='20200710':
-                    start=mo_ice[x]
-                if dt1[x]=='20200726':
-                    end=mo_ice[x]
-            rate=(end-start)/(16) #days
-            print(loc,'July melt')
-            print(rate*30.5) #monthly rate   #rate in weeks   
+        #if loc=='transect':
+            #for x in range(0,len(dt1)):
+                #if dt1[x]=='20200710':
+                    #start=mo_ice[x]
+                #if dt1[x]=='20200726':
+                    #end=mo_ice[x]
+            #rate=(end-start)/(16) #days
+            #print(loc,'July melt')
+            #print(rate*30.5) #monthly rate
  
         
         i=i+1
@@ -495,15 +499,15 @@ plt.close(fig1)
 
 
 ###write out some snow rates
-#%fast monthly accumulation rates assuming there was no snow on runway on 31. October: fastest accumulation in transects with new ridges and bare ice
+#%fast monthly accumulation rates assuming there was no snow on runway on 1. October: fastest accumulation in transects with new ridges and bare ice
 #Nloop Nov-Jan
 #0.01011408467176947
 #Sloop Nov-Jan
 #0.05543897912545008
 #snow1 Nov-Jan
 #0.013579976479046197
-#runway Nov-Jan
-#0.040322770019242865
+#runway Oct-Jan
+#0.02830348280196855
 #%February kick
 #Nloop Jan-Feb
 #0.05828317674757771
@@ -515,7 +519,7 @@ plt.close(fig1)
 #transect June melt
 #-0.29004274910695327
 
-##ice melt rates
+
 ##ice growth from means
 #Nloop Nov-Apr
 #0.004543528507748818
@@ -523,8 +527,8 @@ plt.close(fig1)
 #0.3966544562385871
 #snow1 Nov-Apr
 #0.15403427187193255
-#runway Nov-Feb
-#0.4032994136299707
+#runway Oct-Feb
+#0.3071280149951315
 
 ##ice growth from modes
 #Nloop Nov-Apr
@@ -533,8 +537,8 @@ plt.close(fig1)
 #0.23646067415730335
 #snow1 Nov-Apr
 #0.17373417721518988
-#runway Nov-Feb
-#0.4343939393939394
+#runway Oct-Feb
+#0.3308076923076923
 
 ##ice melt
 ##mean

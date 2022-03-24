@@ -17,8 +17,10 @@ fnames = sorted(glob('../data/snowpits_wagner/swe_smpdensity_leg1_leg3_archive/m
 selection = ['snow1-A1','snow1-A3','snow1-A5','runway1','RS-transect-north']
 selection = ['runway1','snow1-','snow1-A1-dune','snow1-A1','snow1-A3','snow1-A4-RS','snow1-A5*','snow1-A5','snow1-A9','snow1-lead','snow1-transect','snow2-A10','snow2-A11','snow2-A12-transect','snow2-A2','snow2-A8','snow2-lead','snow3-A6-side','snow3-A6']
 
-#level ice close to trasects
-selection = ['runway1','snow1-','snow1-A1-dune','snow1-A1','snow1-A3','snow1-A4-RS','snow1-A5','snow1-A9','snow1-lead','snow1-transect','RS-transect-north']
+##level ice close to trasects
+#selection = ['runway1','snow1-','snow1-A1-dune','snow1-A1','snow1-A3','snow1-A4-RS','snow1-A5','snow1-A9','snow1-lead','snow1-transect','RS-transect-north']
+
+
 
 ##level (and close to ridges) and deformed ice: snow2 and snow3
 ##large horizontal variability, and seemingly preferential sampling in thin snow in spring
@@ -188,7 +190,7 @@ ax.set_ylim(min(all_rho),max(all_rho))
 #fit the curve
 x = mdates.date2num(date_list) #convert time tuples to numbers
 y = bulk_list
-model = np.polyfit(x, y, 2)
+model = np.polyfit(x, y, 1) #decide here the curve-order
 predict = np.poly1d(model)
 
 xmodel = np.arange(min(x),max(x),1) #convert numbers to dates for plotting

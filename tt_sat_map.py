@@ -12,6 +12,7 @@ import gc
 
 #do you want just subset map (Sloop)?
 subset=False
+#subset=True
 
 outpath='../plots_gridded/'
 
@@ -188,6 +189,7 @@ if subset==False:
     #time: 20200121T103544-20200121T103614 to 20200121T121616-20200121T121646
     tif='../data/ALS/20200121_als_merged_grid-stere.tiff'
     outname='ALS_20200121_map.png'
+    outname='ALS_20200121_map_colors.png'
     alos=False
 
     #refstation
@@ -229,7 +231,7 @@ if subset==False:
         arr = np.where(arr2>1.,1.,arr2)
         #and some low points
         arr = np.where(arr<0,0,arr)
-        CS2 = plt.contourf(rot_x2, rot_y2, arr.T, 30, vmax=1., vmin=0,cmap=plt.cm.binary_r,alpha=1)
+        CS2 = plt.contourf(rot_x2, rot_y2, arr.T, 30, vmax=1., vmin=0)#,cmap=plt.cm.binary_r,alpha=1)
         cb = plt.colorbar(CS2)  # draw colorbar
         cb.set_label(label='Elevation (m)',fontsize=20)
         

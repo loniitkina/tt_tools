@@ -34,17 +34,18 @@ locs = ['snow1']
 locs = ['special']
 #locs = ['Nloop','Sloop','snow1','runway','ridgeFR1','ridgeFR2','ridgeFR3','ridgeA1','ridgeA2','ridgeA3','ridgeD','ridgeE']
 #locs = ['transect']#,'albedoRBB','albedoLD']
-#locs = ['albedoK']#,'kuka','ARIEL','ridge']
+locs = ['albedoK','kuka','ARIEL','ridge','special']
 #locs= ['ridge']
 #locs = ['ARIEL']
 #locs = ['transect']
+locs = ['albedoK']
 
 #plot
 fig1 = plt.figure(figsize=(12,10))
 
 #all the files
 flist = glob(inpath+'*PS122-[1-5]?*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
-flist = glob(inpath+'*PS122-[3]?*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
+flist = glob(inpath+'*PS122-[5]?*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
 flist.sort()
 
 dtot = 0
@@ -53,7 +54,7 @@ n_mp = 0
 mp_spacing=[]
 
 for i in range(0,len(flist)):
-    #if flist[i] !=flist[0]: continue
+    if flist[i] !=flist[0]: continue
     fname = flist[i]
     #print(fname)
     
@@ -510,6 +511,10 @@ for i in range(0,len(flist)):
                     myy = myy-5
                 
             #leg5 (just small snake) - Kinder line
+            if date == '20200824':  #l:1319m, 2.6m (initial survey also with the MP)
+                mxx = mxx-8
+                myy = myy-4
+            
             if date == '20200830':  #l:685m, 1.6m
                 mxx = mxx+13
                 myy = myy+7
@@ -615,13 +620,14 @@ for i in range(0,len(flist)):
             
     plt.plot(xx,yy,'o',ms=1,label='GEM-2 '+date+' '+loc)
     
-plt.legend()
+#plt.legend()
 plt.gca().set_aspect('equal')
 plt.grid()
 #outname = 'gem2_tracks_'+date+'.png'
 #print(outname)
 #fig1.savefig(outpath+outname)
-fig1.savefig(outpath+'track_test.png',bbox_inches='tight')
+#fig1.savefig(outpath+'track_test.png',bbox_inches='tight')
+fig1.savefig(outpath+'track_leg5.png',bbox_inches='tight')
 #fig1.savefig(outpath+'deformation_both_loops.png')
 #fig1.savefig(outpath+'track_gem2+mp_CO.png')
 
