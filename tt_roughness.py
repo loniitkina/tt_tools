@@ -70,8 +70,7 @@ inpath_table = '../data/MCS/MP/'
 inpath_grid = '../data/grids_AGU/'
 inpath_weather = '../data/weather/'
 inpath_ARM='../data/weather_ARM/'
-outpath = '../plots_AGU/'
-outpath = '../plots_gridded/'
+outpath = '../plots_revision/'
 
 step = 2
 step = 1
@@ -87,7 +86,10 @@ else:
 
 
 dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
-datel = [ datetime.strftime(x, '%Y/%m/%d') for x in dt ]
+import locale
+locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+datel = [ datetime.strftime(x, '%B %d %Y') for x in dt ]
+print(datel)
 
 #what about working with some 'dune footprint' - similar to range in semi-variogram, typically 5-10
 dune_range=np.ones_like(dt)*50    #empirically estimated from FTT (mean for ice and snow) and observations about ridge influence in nature
@@ -312,13 +314,13 @@ for dd in range(0,len(dates)):
             
             cx[2].scatter(dt,r2,facecolors=colors[dd],s=70)
             
-            ##get siginificance
-            #from scipy.stats import linregress
-            #print(linregress(x,y))
-            #slope,intercept,rvalue,pvalue,stderr=linregress(x,y)
-            ##p-value : two-sided p-value for a hypothesis test whose null hypothesis is that the slope is zero
-            #if pvalue < 0.0001:
-                #cx[2].scatter(dt,r2,marker='x',s=70)
+            #get siginificance
+            from scipy.stats import linregress
+            print(linregress(x,y))
+            slope,intercept,rvalue,pvalue,stderr=linregress(x,y)
+            #p-value : two-sided p-value for a hypothesis test whose null hypothesis is that the slope is zero
+            if pvalue < 0.0001:
+                cx[2].scatter(dt,r2,marker='x',c='k',s=70)
 
         
             r2_ts_roughness.append(r2)
@@ -488,13 +490,13 @@ for dd in range(0,len(dates)):
         #plot the R2 time series
         cx[2].scatter(dt,r2,facecolors=colors[dd],s=70)
         
-        ##get siginificance
-        #from scipy.stats import linregress
-        #print(linregress(x,y))
-        #slope,intercept,rvalue,pvalue,stderr=linregress(x,y)
-        ##p-value : two-sided p-value for a hypothesis test whose null hypothesis is that the slope is zero
-        #if pvalue < 0.0001:
-            #cx[2].scatter(dt,r2,marker='x',s=70)
+        #get siginificance
+        from scipy.stats import linregress
+        print(linregress(x,y))
+        slope,intercept,rvalue,pvalue,stderr=linregress(x,y)
+        #p-value : two-sided p-value for a hypothesis test whose null hypothesis is that the slope is zero
+        if pvalue < 0.0001:
+            cx[2].scatter(dt,r2,marker='x',c='k',s=70)
         
         
         
@@ -631,7 +633,7 @@ dates_m = ['20191101','20191201','20200101','20200201','20200301','20200401','20
 dt_m = [ datetime.strptime(x, '%Y%m%d') for x in dates_m ]
 dt_diff = [ (x-dt[0]).days for x in dt_m ]
 cx[0].set_xticks(dt_diff)
-cx[0].set_xticklabels(['2019-11','2019-12','2020-01','2020-02','2020-03','2020-4','2020-5'])
+cx[0].set_xticklabels(['Nov 2019','Dec 2019','Jan 2020','Feb 2020','Mar 2020','Apr 2020','May 2020'])
 
 cx[0].legend([bp1["boxes"][0], bp2["boxes"][0], bp3["boxes"][0]], ['level', 'rubble', 'ridges'], loc='upper left', fontsize=15,ncol=3)
 
@@ -677,6 +679,25 @@ cx[4].plot(date,driftsnow,c='k')
 #precipitation
 cx[4].plot(date_p,precip,'*',c='b')
 cx[4].set_ylim(0,15)
+
+
+
+#dates for the publisher
+from matplotlib.dates import MonthLocator, DateFormatter
+import locale
+locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+
+cx[1].xaxis.set_minor_locator(MonthLocator())
+cx[1].xaxis.set_major_formatter(DateFormatter('%b %Y'))
+
+cx[2].xaxis.set_minor_locator(MonthLocator())
+cx[2].xaxis.set_major_formatter(DateFormatter('%b %Y'))
+
+cx[3].xaxis.set_minor_locator(MonthLocator())
+cx[3].xaxis.set_major_formatter(DateFormatter('%b %Y'))
+
+cx[4].xaxis.set_minor_locator(MonthLocator())
+cx[4].xaxis.set_major_formatter(DateFormatter('%b %Y'))
 
 #fig2.autofmt_xdate()
 

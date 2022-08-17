@@ -5,14 +5,17 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 inpath = '../data/MCS/MP/'
-locs = ['Nloop','Sloop','transect','ridge*','snow1','runway','albedoRBB','albedoLD','albedoK','kuka','ARIEL','special']
+locs = ['Nloop','Sloop','snow1','runway','transect','albedoRBB','albedoLD','albedoK','kuka','ARIEL','special','ridge*']
 
 #cols = plt.cm.Paired(np.linspace(0, 1, len(locs)))
 
 #colors matching the map
-cols = ['salmon','purple','orange','limegreen','gold','deeppink','hotpink','cornflowerblue','m','k','r','c']
+cols = ['salmon','purple','gold','deeppink','orange','cornflowerblue','indigo','m','k','r','c','limegreen']
 
-outpath='../plots_AGU/'
+#markers
+mrk = ['v','v','v','v','s','s','D','*','*','*','o','X']
+
+outpath='../plots_revision/'
 outname='stats_updt.png'
 
 #Timeseries scatter plot
@@ -23,7 +26,7 @@ bx = fig1.add_subplot(122)
 ax.set_ylabel('Transect Lenght (m)', fontsize=20)
 ax.tick_params(axis="x", labelsize=14)
 ax.tick_params(axis="y", labelsize=14)
-ax.set_ylim(0,5400)
+ax.set_ylim(0,4000)
 
 #bx.set_xlabel('Time', fontsize=20)
 #bx.set_title(title, fontsize=25)
@@ -32,7 +35,7 @@ bx.tick_params(axis="x", labelsize=14)
 bx.tick_params(axis="y", labelsize=14)
 ##bx.set_facecolor('0.3')
 #bx.set_xlim(0,1)
-bx.set_ylim(0,6)
+bx.set_ylim(0,5)
 
 total_l=0
 total_n=0
@@ -42,7 +45,7 @@ for loc in range(0,len(locs)):
     flist = sorted(glob(inpath+'*/*_PS122*'+locs[loc]+'-meta.txt'))
 
     for fn in flist:
-        print(fn)
+        #print(fn)
         
         #get dates from file names
         datem = fn.split('-')[-4].split('_')[0]
@@ -61,15 +64,22 @@ for loc in range(0,len(locs)):
         if locs[loc] == 'snow1' and datem=='20200223':
             ll = 400.
             ss = 400./276   #Ian only took 276 valid MP measurements (compared to normal ~450)
+            
+        #off the scale
+        if locs[loc] == 'special' and datem=='20200123':
+            print('long transect is %i m long' %(ll))
                                 
         #plot dates vs total lenght
-        ax.scatter(date,ll,c=cols[loc],alpha=.8)
+        if fn != flist[0]:
+            ax.scatter(date,ll,marker=mrk[loc],s=70,c=cols[loc],alpha=.8)
+        else:    
+            ax.scatter(date,ll,marker=mrk[loc],s=70,c=cols[loc],alpha=.8,label=locs[loc])
         
         #plot dates vs spacings
         if fn != flist[0]:
-            bx.scatter(date,ss,c=cols[loc],alpha=.8)
+            bx.scatter(date,ss,marker=mrk[loc],s=70,c=cols[loc],alpha=.8)
         else:
-            bx.scatter(date,ss,c=cols[loc],alpha=.8,label=locs[loc])
+            bx.scatter(date,ss,marker=mrk[loc],s=70,c=cols[loc],alpha=.8,label=locs[loc])
 
         
         total_l = total_l+ll
@@ -85,7 +95,18 @@ print(total_l/1000)
 print('Total number of all MOSAiC MP measurements')
 print(total_n)
 
-bx.legend(fontsize=13,fancybox=True,framealpha=.9,ncol=4,loc='upper right')
+ax.legend(fontsize=15,fancybox=True,framealpha=.9,ncol=2,loc='upper left')
+
+#dates for the publisher
+from matplotlib.dates import MonthLocator, DateFormatter
+import locale
+locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+ax.xaxis.set_minor_locator(MonthLocator())
+ax.xaxis.set_major_formatter(DateFormatter('%b %Y'))
+
+bx.xaxis.set_minor_locator(MonthLocator())
+bx.xaxis.set_major_formatter(DateFormatter('%b %Y'))
+
 fig1.autofmt_xdate()
 #plt.show()
 

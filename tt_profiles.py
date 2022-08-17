@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 #window size for savgol smoothing savgol_filter (must be odd and m.e. polyorder=3)
 polyorder=3
-widow=21
+#window=21
 window=5
 ##for point measurements (like ridges)
 #polyorder=0
@@ -40,27 +40,26 @@ window=5
 
 #loc = 'ridgeFR1'
 #dates = ['20200108']#,'20200119','20200221']#,'20200305']
-##dates = ['20200119']
-##dates = ['20200221']
+#dates = ['20200119']
+#dates = ['20200221']
 #title = 'Fort Ridge Installation Transect '
 
 #loc = 'ridgeFR2'    #coring
 #dates = ['20200110']#,'20200212','20200221']
-#dates = ['20200212']
-#dates = ['20200221']
+##dates = ['20200212']
+##dates = ['20200221']
 #title = 'Fort Ridge Coring Transect '
 
-##loc = 'ridgeFR3'
-##dates = ['20200131']
-##datel = ['2020/01/31'] 
-##title = 'Fort Ridge Optics Transect '
+#loc = 'ridgeFR3'
+#dates = ['20200131']
+#title = 'Fort Ridge Optics Transect '
 
 #loc = 'ridgeA1'    #central
-##dates = ['20200117']#,'20200131','20200228']#,'20200410','20200628']
+#dates = ['20200117']#,'20200131','20200228']#,'20200410','20200628']
 ##dates = ['20200131']
 ##dates = ['20200228']
 ##loc = 'ridgeA3'
-#dates = ['20200628']
+##dates = ['20200628']
 #title = "Allie's Ridge Central Transect "
 
 
@@ -88,50 +87,60 @@ window=5
 
 ##comparable loop transects
 loc = 'Sloop'
-dates = ['20191114']
-dates = ['20191205']
-dates = ['20200116']
-##dates = ['20200130']
-dates = ['20200220']
-dates = ['20200305']
-dates = ['20200330']
-##dates=['20200507']
-title='g) Southern transect loop '
+#dates = ['20191031']
+#dates = ['20191114']
+#dates = ['20191205']
+#dates = ['20200116']
+dates = ['20200130']
+#dates = ['20200220']
+#dates = ['20200305']
+#dates = ['20200330']
+###dates=['20200507']
+#dates = ['20191031','20191114','20191205','20200116','20200130','20200220','20200305','20200330']   #use for gridded data!!!
+title='g) Southern transect loop - '
 
 #loc = 'Nloop'
+##dates = ['20191024']
+##dates = ['20191114']
+##dates = ['20191205']
+##dates = ['20200116']
 #dates = ['20200130']
 ##dates = ['20200109']
 ##dates = ['20200220']
-#title='f) Northern transect loop '
+##dates = ['20200305']
+##dates = ['20200326']
+##dates = ['20191024','20191114','20191205','20200116','20200130','20200109','20200220','20200305','20200326']
+#title='f) Northern transect loop - '
 
 #loc= 'snow1'
 ##dates = ['20200112']
 ##dates = ['20200126']
 #dates = ['20200207']
-#title='e) Snow1 transect '
+##dates = ['20200112','20200126','20200207']
+#title='e) Snow1 transect - '
 
-loc= 'special'
-dates = ['20200126']
-title='d) Event transect '
+#loc= 'special'
+#dates = ['20200126']
+#title='d) Event transect - '
 
-##this transect has a dis-continuity at ~350m
-loc = 'runway'
-dates = ['20200207']
-dates = ['20200112']
+####this transect has a dis-continuity at ~350m
+#loc = 'runway'
+#dates = ['20200207']
+##dates = ['20200112']
 ##dates = ['20200112','20200207']
-title='h) Runway transect '
+#title='h) Runway transect - '
 
-loc= 'special'
-dates = ['20200107']
-title='a) Dark Side FYI '
+#loc= 'special'
+#dates = ['20200107']
+#title='a) Dark Side FYI - '
 
-loc= 'special'
-dates = ['20200115']
-title='b) Dark Side SYI '
+#loc= 'special'
+#dates = ['20200115']
+#title='b) Dark Side SYI - '
 
 loc= 'special'
 dates = ['20200123']
-title='c) Long transect '
+title='c) Long transect - '
 
 ##leg 4 transect
 #loc= 'special'
@@ -142,9 +151,9 @@ title='c) Long transect '
 #dates = ['20200630']
 #title='First full transect of Leg 4 '
 
-loc='recon'
-dates=['20200228']
-title='Recon '
+#loc='recon'
+#dates=['20200228']
+#title='Recon '
 
 ##special (long) transects of leg 5
 #loc= 'special'
@@ -170,20 +179,26 @@ title='Recon '
 #dates = ['20210513']
 #title='Nansen Legacy Q2 - P7 '
 
+#elevation from ALS 
+als_elev=True
+als_elev=False
+
 #roughness classes limits
 #rubble can vary depending on the transect
-roughness_cls=True
+roughness_cls=False
 rubble=0.06
 rubble=0.1      #transect paper
-rubble=0.2      #TSX comparison
 ridge=0.3
 if loc=='Nloop':
     rubble=0.5
     ridge=0.6
 
 dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
-datel = [ datetime.strftime(x, '%Y/%m/%d') for x in dt ]
 
+import locale
+locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+datel = [ datetime.strftime(x, '%B %d %Y') for x in dt ]
+print(datel)
 
 print(loc)
 #colors = plt.cm.rainbow(np.linspace(0, 1, len(dates)))
@@ -194,8 +209,10 @@ if len(dates) == 1:
     
 #MOSAiC
 inpath_table = '../data/MCS/MP/'
-outpath = '../plots_AGU/'
-outpath_cls = '../data/'
+inpath_ridges = '../data/ridges/'
+outpath = '../plots_revision/'
+#outpath = '../plots_ridges/'
+outpath_cls = '../data/classes_tsx/'
 inpath_grid = '../data/grids_AGU/'
 
 ##Nansen Legacy
@@ -257,7 +274,7 @@ for dd in range(0,len(dates)):
             it10 = np.array(it10,dtype=np.float)
             
             mpd=0
-            
+                        
         else:
             it = getColumn(fname,8)                 #8 in new product, 6 in the old
         mxx = np.array(mxx,dtype=np.float)
@@ -285,10 +302,8 @@ for dd in range(0,len(dates)):
         
     else:
         #not a single data collection station, but a camp with several repeats over same transect
-        print('repeated transect')
-    
-        #alternativelly, completely gridded data (snow too!)
-        #step = 2
+        print('repeated transect/gridded data')
+
         step = 1
         stp = str(step)
         method_gem2 = 'nearest'
@@ -297,7 +312,7 @@ for dd in range(0,len(dates)):
 
         outname = loc+'_profile_'+date+'_'+stp+'_gridded_full1.png'
         
-        inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track1.npz'
+        #inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track1.npz'
         inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track2.npz'
         
         data = np.load(inf)
@@ -374,7 +389,7 @@ for dd in range(0,len(dates)):
         #bad[700:] = 1
         #ii = np.ma.array(ii,mask=bad)
 
-    #what is the surface elevation? ALS geotiff???
+    #surface elevation
     #hydrostatic equilibrium with mean snow density and sea ice density
     rho_i = 882
     rho_w = 1025
@@ -384,7 +399,31 @@ for dd in range(0,len(dates)):
     #fb = (ii - si * (rho_s/(rho_w-rho_i))) * (rho_w-rho_i)/rho_w
     
     fb = (ii * (rho_w-rho_i)/rho_w ) - (si * rho_s/rho_w)
-       
+    #print(fb)
+    
+    #ALS elevation
+    if als_elev:
+            ef = glob(inpath_ridges+'magna+gem2-transect-'+date+'*'+loc+'_ALS2.csv')[0]
+            print(ef)
+            elev = getColumn(ef,2)
+            elev = np.array(elev,dtype=np.float)
+            #print(elev)
+            
+            #estimate offset for the negative values
+            offset_elev = np.min(elev-si)
+            #print(offset_elev)
+            
+            if offset_elev < 0:
+                elev = elev + offset_elev*-1
+                #print(elev)
+            
+            fb = elev - si
+            
+            #print(fb)
+            
+            #exit()
+
+    
     #cumulative distance allong the fixed date MP transect
     x = np.zeros_like(fb)
     x[1:] = np.cumsum(md)
@@ -478,25 +517,25 @@ for dd in range(0,len(dates)):
             ax.scatter(x,np.ones_like(x)*rubble_cls*1.15,c='royalblue',ls='-',label='rubble')
             ax.scatter(x,np.ones_like(x)*ridge_cls*1.15,c='purple',ls='-',label='ridge/lead edge')
         
-            if station:
-                #save this classification
-                cls = level_cls.copy()
-                cls = np.where(rubble_cls==1,2,cls)
-                cls = np.where(ridge_cls==1,3,cls)
-                print(cls.shape)
-                print(mxx.shape)
-                print(si.shape)
-                print(ii.shape)
-                #time series text file exports
-                tt = [mxx,myy,cls,si,ii]
-                table = list(zip(*tt))
+            #if station:
+            #save this classification
+            cls = level_cls.copy()
+            cls = np.where(rubble_cls==1,2,cls)
+            cls = np.where(ridge_cls==1,3,cls)
+            print(cls.shape)
+            print(mxx.shape)
+            print(si.shape)
+            print(ii.shape)
+            #time series text file exports
+            tt = [mxx,myy,cls,si,ii,std]
+            table = list(zip(*tt))
 
-                cfile=outpath_cls+'classes_'+loc+date+'.csv'
-                print(cfile)
-                with open(cfile, 'wb') as f:
-                    #header
-                    f.write(b'x,y,cls,snow depth, ice thickness\n')
-                    np.savetxt(f, table, fmt="%s", delimiter=",")
+            cfile=outpath_cls+'classes_'+loc+date+'.csv'
+            print(cfile)
+            with open(cfile, 'wb') as f:
+                #header
+                f.write(b'x,y,cls,snow depth, ice thickness, roughness\n')
+                np.savetxt(f, table, fmt="%s", delimiter=",")
 
 
     #plot with equilibrium
@@ -595,7 +634,7 @@ ax.fill_between(x, fbli, fbli-ii_list[li],alpha=.3, color=colors[-1], label='ice
 #ax.plot(x,fb_list[0],label='ice surface',c='k')    
 
 ax.set_ylim(-8,1.8)
-if loc == 'ridgeA1':
+if 'ridge' in loc:
     ax.set_ylim(-10.5,3)
 
 if loc=='Sloop':
@@ -939,8 +978,7 @@ if 'ridge' in loc:
         ax.plot([x[d],x[d]], [fb[d]-3.7,fb[d]-dh1], 'x', c= 'b', ls=':',lw=7)
         #soft
         ax.plot([x[d],x[d]], [fb[d]-2.5,fb[d]-5.45], c= 'c', ls='-',lw=3)
-
-    
+          
 
 ax.legend(fontsize=20,loc='lower left',fancybox=True,facecolor=colors[-1],framealpha=.1)
 outname = loc+'_profile_all_gridded.png'

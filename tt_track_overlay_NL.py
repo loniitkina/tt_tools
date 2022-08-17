@@ -12,10 +12,9 @@ import matplotlib.pyplot as plt
 
 #save file with shifted x,y coordinates
 
+#Nansen Legacy
 inpath = '../data/NansenLegacy/gem2/'
-
 inpath_mp = '../data/NansenLegacy/magnaprobe/'
-
 outpath = '../plots_NL/'
 
 #limit location-wise
@@ -37,7 +36,7 @@ n_mp = 0
 mp_spacing=[]
 
 for i in range(0,len(flist)):
-    if flist[i] !=flist[3]: continue
+    #if flist[i] !=flist[3]: continue
     fname = flist[i]
     print(fname)
     

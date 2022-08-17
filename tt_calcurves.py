@@ -3,8 +3,10 @@ from glob import glob
 import yaml
 import matplotlib.pyplot as plt
 from sitem1d.transform import EMPEX
+from datetime import datetime
+import locale
 
-outpath = '../plots/'
+outpath = '../plots_revision/'
 
 #set up plot
 plt.figure(figsize=(12, 5))
@@ -39,6 +41,9 @@ for i in range(0,len(fnames)):
     fn=fnames[i]
     
     date = fn.split('_')[3]
+    date = datetime.strptime(date, '%Y%m%d')
+    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    date = datetime.strftime(date, '%B %d %Y')
     print(date)
     
     # Read the yaml calibration file
@@ -52,5 +57,5 @@ for i in range(0,len(fnames)):
     plt.plot(distance, ppm, lw=3, label=date, color=colors[i])
 
 
-plt.legend(ncol=5)
+plt.legend(ncol=4)
 plt.savefig(outpath+"gem2-18kHz-cheatsheet.png",bbox_inches='tight')

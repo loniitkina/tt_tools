@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 #PDFs for winter heat budget
 inpath_grid = '../data/grids_AGU/'
 inpath_table = '../data/MCS/MP/'
-outpath = '../plots_AGU/'
+outpath = '../plots_revision/'
 
 outname = 'pdf_snow_comp.png'
 
@@ -19,8 +19,7 @@ locs = ['runway','Nloop','Sloop','runway','special']
 dates= ['20200112','20200130','20200130','20200207','20200617']
 
 dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
-datel = [ datetime.strftime(x, '%Y/%m/%d') for x in dt ]
-
+datel = [ datetime.strftime(x, '%B %d %Y') for x in dt ]
 
 cols = plt.cm.rainbow(np.linspace(0, 1, len(dates)))
 
@@ -80,22 +79,27 @@ for loc in locs:
     if date=='20200617':
         
         weights = np.ones_like(snod) / (len(snod))
-        n, bins, patches = bx.hist(snod, srbins, histtype='step', color=cols[i], linewidth=4, alpha=.5, weights=weights,label='initial '+datel[i])
+        n, bins, patches = bx.hist(snod, srbins, histtype='step', color=cols[i], linewidth=4, alpha=.5, weights=weights,label='Initial - '+datel[i])
         #ax.plot([mn,mn],[0,ymax],c='b',ls='--', label='mean = '+str(round(mn,2))+' m')
+        print(len(snod))
         
         snod_fyi=np.ma.array(snod,mask=~fyi_mask).compressed()
         weights = np.ones_like(snod_fyi) / (len(snod_fyi))
-        n, bins, patches = bx.hist(snod_fyi, srbins, histtype='step', color='b', linewidth=4, alpha=.5, weights=weights,label='initial FYI '+datel[i])
-        
+        n, bins, patches = bx.hist(snod_fyi, srbins, histtype='step', color='b', linewidth=4, alpha=.5, weights=weights,label='Initial FYI - '+datel[i])
+        print(len(snod_fyi))
         
         snod_syi=np.ma.array(snod,mask=fyi_mask).compressed()
         weights = np.ones_like(snod_syi) / (len(snod_syi))
-        n, bins, patches = bx.hist(snod_syi, srbins, histtype='step', color='m', linewidth=4, alpha=.5, weights=weights,label='initial SYI '+datel[i])
+        n, bins, patches = bx.hist(snod_syi, srbins, histtype='step', color='m', linewidth=4, alpha=.5, weights=weights,label='Initial SYI - '+datel[i])
+        print(len(snod_syi))
+        exit()
     
     else:
         #plot PDFs
         weights = np.ones_like(snod) / (len(snod))
-        label = locs[i]+' '+datel[i]
+        label = locs[i]+' - '+datel[i]
+        if locs[i]=='runway':
+            label = 'Runway - '+datel[i]
         if date=='20200123': label='long '+datel[i]
         n, bins, patches = ax.hist(snod, srbins, histtype='step', color=cols[i], linewidth=4, alpha=.5, weights=weights,label=label)
         #ax.plot([mn,mn],[0,ymax],c='b',ls='--', label='mean = '+str(round(mn,2))+' m')

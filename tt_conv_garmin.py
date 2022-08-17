@@ -11,11 +11,11 @@ from tt_func import *
 #from gpx_converter import Converter
 #Converter(input_file='2021-05-05 07.23.38 Auto.gpx').gpx_to_csv(output_file='your_output.csv')
 
-station='P4'
-date='2021-05-05'
+#station='P4'
+#date='2021-05-05'
 
-station='P5'
-date='2021-05-08'
+#station='P5'
+#date='2021-05-08'
 
 #station='P6'
 #date='2021-05-10'
@@ -23,8 +23,17 @@ date='2021-05-08'
 #station='P7'
 #date='2021-05-14'
 
+station='Drift1'
+date='20220505'
+
+station='Drift2'
+date='20220507'
+
 path = '../data/NansenLegacy/position/'
-flist = glob(path+'garmin_transect_'+station+'*'+date+'.csv')
+
+path='../data/CIRFA22/'
+
+flist = glob(path+station+'/'+'garmin_transect_'+station+'*'+date+'.csv')
 
 print(flist)
 

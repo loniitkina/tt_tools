@@ -4,6 +4,14 @@ from pyproj import Proj, transform
 from osgeo import gdal, osr
 import matplotlib.pyplot as plt
 import gc
+from scipy.optimize import curve_fit
+import warnings
+
+from mpl_toolkits.basemap import Basemap
+import rasterio
+from pyproj import Transformer
+
+
 
 def getColumn(filename, column, delimiter=',', skipinitialspace=False, skipheader=1):
     results = csv.reader(open(filename),delimiter=delimiter,skipinitialspace=skipinitialspace)
@@ -300,7 +308,7 @@ def proj_sat(tif,lon0,lat0,head0,spacing=1,band=1,alos=False,ps_pos=False):
     print(xref,yref)
     
     if ps_pos:
-        #id position is not from FloeNavi but from PS, apply an offest between ship and the ref station on ice
+        #if position is not from FloeNavi but from PS, apply an offest between ship and the ref station on ice
         ##2019/12/31 11:18:00	117.877961	86.588972	207.9
         #lon0=117.877961
         #lat0=86.588972
@@ -458,3 +466,69 @@ def deformation(vert,uvert,vvert):
     (vvert[0]+vvert[2])*(vert[0,0]-vert[2,0]) )
   
   return dux,duy,dvx,dvy,minang,area
+
+def logfit(x_data,y_data):
+    #fit a logarithmic function to this data
+    warnings.filterwarnings("ignore")
+
+    def func(x, a, b, c): # x-shifted log
+        return a*np.log(x + b)+c
+
+    # these are the same as the scipy defaults
+    initialParameters = np.array([1.0, 1.0, 1.0])
+
+    fittedParameters, pcov = curve_fit(func, x_data, y_data, initialParameters)
+
+    modelPredictions = func(x_data, *fittedParameters) 
+
+    absError = modelPredictions - y_data
+
+    SE = np.square(absError) # squared errors
+    MSE = np.mean(SE) # mean squared errors
+    RMSE = np.sqrt(MSE) # Root Mean Squared Error, RMSE
+    Rsquared = 1.0 - (np.var(absError) / np.var(y_data))
+
+    print('Parameters:', fittedParameters)
+    print('RMSE:', RMSE)
+    print('R-squared:', Rsquared)
+
+
+    # create data for the fitted equation plot
+    x_model = np.linspace(min(x_data), max(x_data))
+    y_model = func(x_model, *fittedParameters)
+
+    return(x_model,y_model, RMSE, Rsquared)
+
+def plot_gtiff(fpath):
+    """
+    Args
+        fpath :string: path to geotiff file
+    """
+    with rasterio.open(fpath) as src:
+        band1 = src.read(1)
+        trs = src.transform
+        height = band1.shape[0]
+        width = band1.shape[1]
+        cols, rows = np.meshgrid(np.arange(width), np.arange(height))
+        xs, ys = rasterio.transform.xy(src.transform, rows, cols)
+        transformer = Transformer.from_crs(src.crs, "EPSG:4326", src.crs)
+
+        lons= np.array(xs)
+        lats = np.array(ys)
+        lon, lat = transformer.transform(lons,lats)
+
+        fig, ax = plt.subplots(1,1,figsize=(25,15))
+
+        # setup mercator map projection.
+        map = Basemap(llcrnrlon=-2.,llcrnrlat=-70.51,urcrnrlon=10,urcrnrlat=-69,\
+                    rsphere=(6378137.00,6356752.3142),\
+                    resolution='i',projection='merc',\
+                    lat_0=-68.,lon_0=5.,lat_ts=-70.)
+
+        map.pcolormesh(lat,lon, band1,latlon=True,vmin=50,vmax=100)
+
+        map.drawcoastlines()
+        map.fillcontinents()
+        map.drawparallels(np.arange(-90,90,1),labels=[1,1,0,1])
+
+        map.drawmeridians(np.arange(-180,180,1),labels=[1,1,0,1])

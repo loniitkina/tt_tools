@@ -32,22 +32,33 @@ dx.text(0, 6, "b", ha="center", va="center", size=35)
 
 dt_start= datetime(2019,8,1)
 
-
-
 #MOSAiC
-locs=['Sloop','Nloop','runway','snow1']
-locs = ['Nloop','Sloop','transect','ridge*','snow1','runway','albedoRBB','albedoLD','albedoK','kuka','ARIEL','special']
+#locs=['Sloop','Nloop','runway','snow1']
+#locs = ['Nloop','Sloop','transect','ridge*','snow1','runway','albedoRBB','albedoLD','albedoK','kuka','ARIEL','special']
+locs = ['Nloop','Sloop','snow1','runway','transect','albedoRBB','albedoLD','albedoK','kuka','ARIEL','special','ridge*']
 
 #colors matching the map
-cols = ['salmon','purple','orange','limegreen','gold','deeppink','hotpink','cornflowerblue','m','k','r','c']
+#cols = ['salmon','purple','orange','limegreen','gold','deeppink','hotpink','cornflowerblue','m','k','r','c']
+cols = ['salmon','purple','gold','deeppink','orange','cornflowerblue','indigo','m','k','r','c','limegreen']
 
-outpath='../plots_AGU/'
+#markers
+mrk = ['v','v','v','v','s','s','D','*','*','*','o','X']
+
+#transparency
+alp = np.ones(len(mrk))*.5
+alp[2]=1    #snow1 is yellow, make it solid color
+
+
+outpath='../plots_revision/'
 outname='ts_comp_updt.png'
 
 inpath_mosaic='../data/MCS/MP/'
 i=0
 for loc in locs:
+    print(loc)
     fname=inpath_mosaic+'ts_'+loc+'_1m_gridded.csv' #this is filename mistake - these data are all 1m gridded!
+    print(fname)
+    
     try:    #if exists
         dt1= getColumn(fname,0)
         m_snow= getColumn(fname,1)
@@ -86,15 +97,15 @@ for loc in locs:
         #shift Sloop by 1 day so it not overlayed completly by Nloop
         if loc=='Sloop':
             dt_diff = [ x+1 for x in dt_diff ]
-            cx.errorbar(dt_diff,m_snow, std_snow, linestyle='None', marker='o',c=cols[i],label=loc,alpha=.5)
+            cx.errorbar(dt_diff,m_snow, std_snow, linestyle='None', marker=mrk[i],c=cols[i],label=loc,alpha=alp[i],ms=15)
         else:
-            cx.errorbar(dt_diff,m_snow, std_snow, linestyle='None', marker='o',c=cols[i],label=loc,alpha=.5)
+            cx.errorbar(dt_diff,m_snow, std_snow, linestyle='None', marker=mrk[i],c=cols[i],label=loc,alpha=alp[i],ms=15)
         
         
         #ice
-        dx.errorbar(dt_diff,m_ice, std_ice, linestyle='None', marker='o',c=cols[i],alpha=.5)
+        dx.errorbar(dt_diff,m_ice, std_ice, linestyle='None', marker=mrk[i],c=cols[i],alpha=alp[i],ms=15)
         if loc=='Sloop':
-            dx.plot(dt_diff,mo_ice,'s',ms=5,c='.5',label='mode')
+            dx.plot(dt_diff,mo_ice,'X',ms=8,c='.5',label='mode')
             #dx.plot(dt_diff,mo_ice,'.',ms=10,c='b',label='Sloop-type mode')
         #elif loc=='Nloop':
             #dx.plot(dt_diff,mo_ice,'s',ms=10,c='.5')
@@ -104,13 +115,20 @@ for loc in locs:
             #dx.plot(dt_diff,mo_ice,'s',ms=10,c='.5')
             #dx.plot(dt_diff,mo_ice,'.',ms=10,c='r')
         else:
-            dx.plot(dt_diff,mo_ice,'s',ms=5,c='.5')
+            dx.plot(dt_diff,mo_ice,'X',ms=8,c='.5')
             
         #print(loc,mo_ice)
         #print(loc,dt)
+        
+        ##write out some means
+        #print('mean snow depth ', m_snow)
+        #print('mean ice thickness ', m_ice)
+        
+        ##and standard deviations
+        #print('std snow depth ', std_snow)
+        #print('std ice thickness ', std_ice)
             
-            
-        ##write out some growth/accumulation/melt rates
+        #write out some growth/accumulation/melt rates
         
         ##fast snow accumulation
         #if loc=='Nloop':
@@ -384,6 +402,10 @@ std_snow_sheba = np.array(std_snow_sheba,dtype=np.float)
 
 
 
+
+#SHEBA June snow melt rates:
+
+
 #CLIMATOLOGY/CS-2
 inpath_cs2 = '../data/CS2/'
 fname = inpath_cs2+'l2p-extract-sit-0050km-20191001-20200430.csv'
@@ -414,13 +436,13 @@ lons = f.variables['longitude'][:]
 window = (lats>75)*(lats<89)*(lons<150)*(lons>0)
 
 m_w99=[]
-dates_w99= ['20200115','20200215','20200315','20200415','20200515','20200615','20200715','20200815','20190915','20191015','20191115','20191215']
+dates_w99= ['20200115','20200215','20200315','20200415','20200515','20200615','20200715','20200815','20190815','20190915','20191015','20191115','20191215']
 dt_w99 = [ datetime.strptime(x, '%Y%m%d') for x in dates_w99 ]
 
 #IAV: interannual variablity - one value per month - copied straight from the paper
 #IAV: standard deviation of the annomalies of individual month from multiyear average for that month.
-
-iav_w99=np.array([4.6,5.5,6.2,6.1,6.3,8.1,6.7,3.3,3.8,4.0,4.3,4.8])/100 #convert from cm to m.
+#extra august value!
+iav_w99=np.array([4.6,5.5,6.2,6.1,6.3,8.1,6.7,3.3,3.3,3.8,4.0,4.3,4.8])/100 #convert from cm to m.
 
 for fname in fnames:
     #print(fname)
@@ -433,13 +455,16 @@ for fname in fnames:
     #print(snod_m)
     
     m_w99.append(snod_m)
+    
+
+
 
 #plot sheba
 dt_sheba = [ x+timedelta(days=365*22) for x in dt_sheba  ]
 dt_diff_sheba = [ (x-dt_start).days for x in dt_sheba ]
 
 cx.plot(dt_diff_sheba,m_snow_sheba,c='.75')
-sigma_sM = cx.fill_between(dt_diff_sheba,m_snow_sheba-std_snow_sheba,m_snow_sheba+std_snow_sheba,color='.9',label='SHEBA')
+sigma_sM = cx.fill_between(dt_diff_sheba,m_snow_sheba-std_snow_sheba,m_snow_sheba+std_snow_sheba,color='.85',label='SHEBA 1997/98')
 
 
 #plot N-ICE2015
@@ -447,29 +472,45 @@ dt_niceM = [ x+timedelta(days=366*5) for x in dt_niceM  ]
 dt_diff_niceM = [ (x-dt_start).days for x in dt_niceM ]
 #cx.errorbar(dt_diff_niceM,m_snow_niceM,std_snow_niceM,linestyle='None',marker='.',ms=10,label='N-ICE2015 M',c='.75')
 #dx.errorbar(dt_diff_niceM,m_ice_niceM,std_ice_niceM,linestyle='None',marker='.',ms=10,c='.75')
-dx.plot(dt_diff_niceM,mo_ice_niceM,'s',c='.85')
+dx.plot(dt_diff_niceM,mo_ice_niceM,'X',c='.75',ms=8)
 
 dt_niceF = [ x+timedelta(days=366*5) for x in dt_niceF  ]
 dt_diff_niceF = [ (x-dt_start).days for x in dt_niceF ]
 #cx.errorbar(dt_diff_niceF,m_snow_niceF,std_snow_niceF,linestyle='None',marker='.',ms=10,label='N-ICE2015 F',c='.85')
 #dx.errorbar(dt_diff_niceF,m_ice_niceF,std_ice_niceF,linestyle='None',marker='.',ms=10,c='.85')
-dx.plot(dt_diff_niceF,mo_ice_niceF,'s',c='.85')
+dx.plot(dt_diff_niceF,mo_ice_niceF,'X',c='.75',ms=8)
 
 
-cx.plot(dt_diff_niceM,m_snow_niceM,c='.85')
-sigma_sM = cx.fill_between(dt_diff_niceM,m_snow_niceM-std_snow_niceM,m_snow_niceM+std_snow_niceM,color='.95',label='N-ICE2015')
-cx.plot(dt_diff_niceF,m_snow_niceF,c='.85')
+cx.plot(dt_diff_niceM,m_snow_niceM,c='.75')
+sigma_sM = cx.fill_between(dt_diff_niceM,m_snow_niceM-std_snow_niceM,m_snow_niceM+std_snow_niceM,color='.95',label='N-ICE 2015')
+cx.plot(dt_diff_niceF,m_snow_niceF,c='.75')
 sigma_sF = cx.fill_between(dt_diff_niceF,m_snow_niceF-std_snow_niceF,m_snow_niceF+std_snow_niceF,color='.95')
 
-dx.plot(dt_diff_niceM,m_ice_niceM,c='.85')
+dx.plot(dt_diff_niceM,m_ice_niceM,c='.75')
 sigma_sM = dx.fill_between(dt_diff_niceM,m_ice_niceM-std_ice_niceM,m_ice_niceM+std_ice_niceM,color='.95')
-dx.plot(dt_diff_niceF,m_ice_niceF,c='.85')
+dx.plot(dt_diff_niceF,m_ice_niceF,c='.75')
 sigma_sF = dx.fill_between(dt_diff_niceF,m_ice_niceF-std_ice_niceF,m_ice_niceF+std_ice_niceF,color='.95')
 
 #plot climatology
 dt_diff_w99 = [ (x-dt_start).days for x in dt_w99 ]
 #cx.plot(dt_diff_w99,m_w99,'*',ms=10,label='W99 climatology',c='darkred')
-cx.errorbar(dt_diff_w99,m_w99,iav_w99,linestyle='None',marker='*',ms=10,label='W99 climatology',c='darkred')
+#cx.errorbar(dt_diff_w99,m_w99,iav_w99,linestyle='None',marker='P',ms=15,label='W99 climatology',c='darkred')
+
+#seasonal cycle 'cut' in summer
+dt_diff_w99_t = dt_diff_w99[8:]+dt_diff_w99[:8]
+m_w99_t = m_w99[7:]+m_w99[:7]+[m_w99[8]]    #add one more August
+iav_w99_t = np.array(iav_w99[8:].tolist()+iav_w99[:8].tolist())
+
+#print(dt_diff_w99_t)
+#exit()
+
+cx.plot(dt_diff_w99_t,m_w99_t,'x',c='darkred')
+sigma_W = cx.fill_between(dt_diff_w99_t,m_w99_t-iav_w99_t,m_w99_t+iav_w99_t,color='darkred',label='W99 climatology',alpha=.1)
+
+#print(dt_diff_w99)
+##print(iav_w99)
+#print(dt_diff_niceM)
+#exit()
 
 ##plot CS-2
 #dt_diff_cs2 = [ (x-dt_start).days for x in dt_cs2 ]
@@ -481,7 +522,7 @@ cx.errorbar(dt_diff_w99,m_w99,iav_w99,linestyle='None',marker='*',ms=10,label='W
 dates_m = ['20190901','20191001','20191101','20191201','20200101','20200201','20200301','20200401','20200501','20200601','20200701','20200801']
 dt_m = [ datetime.strptime(x, '%Y%m%d') for x in dates_m ]
 dt_diff_m = [ (x-dt_start).days for x in dt_m ]
-plt.xticks(dt_diff_m, ['1 Sep','1 Oct','1 Nov','1 Dec','1 Jan','1 Feb','1 Mar','1 Apr','1 May','1 Jun','1 Jul','1 Aug'])
+plt.xticks(dt_diff_m, ['Sep 2020','Oct 2019','Nov 2019','Dec 2019','Jan 2020','Feb 2020','Mar 2020','Apr 2020','May 2020','Jun 2020','Jul 2020','Aug 2020'])
 
 
 cx.legend(fontsize=14,fancybox=True,framealpha=.9,ncol=3,loc='upper left')

@@ -7,8 +7,9 @@ from tt_func import *
 #remove old data by:
 #rm ../data/MCS/MP/*-PS122-4_*/magnaprobe-transect-*_PS122-4_*_*-track.csv
 
+#time shift for NL was 9hours!
 
-leg = 4 #use zero for Nansen Legacy
+leg = 0 #use zero for non-MOSAiC expeditions
 ext = '.dat'
 
 #MOSAiC
@@ -19,20 +20,23 @@ path = '../data/MCS/MP/'
 flist = sorted(glob(path+'/*PS122-'+str(leg)+'*/magnaprobe-*'+ext))
 print(flist)
 
-
+#CIRFA2022
+path = '../data/CIRFA22/'
+flist = sorted(glob(path+'/**/magnaprobe-*'+ext))
+print(flist)
 
 for i in flist:
     #open data file
     fname = i
     print(fname)
 
-    lat1 = getColumn(fname,5, delimiter=',', magnaprobe=True)
-    lat2 = getColumn(fname,14, delimiter=',', magnaprobe=True)
+    lat1 = getColumn(fname,5, delimiter=',', skipheader=4)
+    lat2 = getColumn(fname,14, delimiter=',', skipheader=4)
 
-    lon1 = getColumn(fname,7, delimiter=',', magnaprobe=True)
-    lon2 = getColumn(fname,15, delimiter=',', magnaprobe=True)
+    lon1 = getColumn(fname,7, delimiter=',', skipheader=4)
+    lon2 = getColumn(fname,15, delimiter=',', skipheader=4)
 
-    date = getColumn(fname,0, delimiter=',', magnaprobe=True)
+    date = getColumn(fname,0, delimiter=',', skipheader=4)
         
     dc = [ date[x].split('.')[0] for x in range(len(date)) ]                        #get rid of the annoyting milliseconds
     
@@ -88,11 +92,11 @@ for i in flist:
         dt[0] = dt[0] + timedelta(seconds=diff) #to get the name right
         print(dt[0])
         
-        lat2 = getColumn(fname,13, delimiter=',', magnaprobe=True)
-        lon2 = getColumn(fname,14, delimiter=',', magnaprobe=True)
-    #Glen's Magnaprobe is in Alaska Standard time (UTC-9)
-    if leg==0:
-        dt64 = dt64 + np.timedelta64(9, 'h')
+        lat2 = getColumn(fname,13, delimiter=',', skipheader=4)
+        lon2 = getColumn(fname,14, delimiter=',', skipheader=4)
+    ##Glen's Magnaprobe is in Alaska Standard time (UTC-9)
+    #if leg==0:
+        #dt64 = dt64 + np.timedelta64(9, 'h')
     
     lat1 = np.array(lat1,dtype=np.float)
     lat2 = np.array(lat2,dtype=np.float)

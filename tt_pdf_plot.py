@@ -89,7 +89,6 @@ title = 'Special Transects '
 #dates = ['20200107','20200115','20200123','20200226','20200326','20200403','20200430','20200617','20200719','20200719','20200709','20200827','20200903','20200910','20200902','20200909','20200919']
 dates = ['20200107','20200115','20200123','20200226','20200326','20200430','20200617','20200719','20200719','20200827','20200903','20200910','20200902','20200909','20200919']
 
-
 combo=False
 
 
@@ -268,6 +267,11 @@ for date in dates:
     
     #load the csv data created in tt_grid.py
     fname = glob(inpath_table+'*/magna+gem2-transect-'+date+'*'+loc+'*.csv')[0]
+    
+    #two special transect that day - only one has data
+    if date=='20200617':
+        fname = glob(inpath_table+'*/magna+gem2-transect-'+date+'*'+loc+'*.csv')[1]
+    
     snod = getColumn(fname,5)
     it = getColumn(fname,8)
     if date=='20200206' or date=='20200406':

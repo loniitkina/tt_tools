@@ -5,7 +5,7 @@ import pyresample as pr
 import matplotlib.pyplot as plt
 from tt_func import getColumn
 
-outpath = '../plots/'
+outpath = '../plots_revision/'
 outname='map_drift'
 
 #Set up a map plot
@@ -27,7 +27,7 @@ m.drawmeridians(np.arange(-180.,180.,20.),latmax=85.)
 inpath = '../data/mosaic_buoy_data/selection/'
 cofilelist = ['_co1.csv','_co2.csv','_co3.csv']
 labels = ['MOSAiC CO1','MOSAiC CO2','MOSAiC CO3']
-colors = ['purple','royalblue','darkred']
+colors = ['blueviolet','tomato','fuchsia']
 
 for i in range(0,len(cofilelist)):
     buoy = glob(inpath+'*'+cofilelist[i])[0]
@@ -45,6 +45,7 @@ for i in range(0,len(cofilelist)):
     x,y = m(lon,lat)
    
     ax.plot(x,y,lw=8,c=colors[i],alpha=0.8,label=labels[i])
+    ax.plot(x,y,lw=1,c='k')
 
 #N-ICE
 #all 4 N-ICE floes
@@ -62,8 +63,10 @@ for fname in fnames:
     x,y = m(lon,lat)
     if buoy==fnames[0]:
         ax.plot(x,y,lw=8,c='0.5',alpha=0.8,label='N-ICE')
+        ax.plot(x,y,lw=1,c='k')
     else:
         ax.plot(x,y,lw=8,c='0.5',alpha=0.8)
+        ax.plot(x,y,lw=1,c='k')
 
 #SHEBA
 inpath = '../data/SHEBA/polon*/'
@@ -77,6 +80,7 @@ lon = np.ma.array(lon,mask=lon==-999.99).compressed()
 
 x,y = m(lon,lat)
 ax.plot(x,y,lw=8,c='0.25',alpha=0.8,label='SHEBA')
+ax.plot(x,y,lw=1,c='k')
 
 #W99 January as background color
 from netCDF4 import Dataset
@@ -88,7 +92,7 @@ lons = f.variables['longitude'][:]
 sd = f.variables['snow_depth'][:]
 
 x,y = m(lons,lats)
-cs = ax.pcolor(x,y,sd,cmap=plt.cm.rainbow,alpha=1,vmin=0,vmax=.5)
+cs = ax.pcolor(x,y,sd,cmap=plt.cm.Blues,alpha=1,vmin=0,vmax=.5)
 cb=plt.colorbar(cs,orientation='horizontal',pad=.01)
 cb.set_label(label='January Climatological Snow Depth (m)',fontsize=30)
 
