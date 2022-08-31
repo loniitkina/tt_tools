@@ -14,8 +14,8 @@ from scipy.signal import savgol_filter
 #reference heading in Floenavi: 301.63560882616076
 
 inpath='../data/TSX_Wenkai/classified_geotiffs/'
-inpath_cls='../data/'
-outpath='../plots_tsx/'
+inpath_cls='../data/classes_tsx/'
+outpath='../plots_tsx/3x3km_revision/'
 
 dates=['20191031','20191115','20191215','20200108','20200112','20200213','20200317','20200328']
 dates=['20191115','20191215','20200112','20200213','20200317','20200328'] #for paper
@@ -105,7 +105,7 @@ for dt in dates:
         lat0=87.11089584512887
         head0=301.2193853959709
         
-        rug_fn = [inpath_cls+'classes_Sloop20200116.csv',inpath_cls+'classes_Nloop20200116.csv',inpath_cls+'classes_runway20200112.csv',inpath_cls+'classes_snow120200112.csv',inpath_cls+'classes_special20200107.csv',inpath_cls+'classes_special20200115.csv',inpath_cls+'classes_ridgeFR120200119.csv',inpath_cls+'classes_ridgeA120200117.csv']
+        rug_fn = [inpath_cls+'classes_Sloop20200116.csv',inpath_cls+'classes_Nloop20200116.csv',inpath_cls+'classes_runway20200112.csv',inpath_cls+'classes_snow120200112.csv',inpath_cls+'classes_recon20200107.csv',inpath_cls+'classes_special20200107.csv',inpath_cls+'classes_special20200115.csv',inpath_cls+'classes_ridgeFR120200119.csv',inpath_cls+'classes_ridgeA120200117.csv']
     
     if dt=='20200112':
         #20200112T034138_20200116T034200
@@ -115,7 +115,7 @@ for dt in dates:
         lat0=87.26208996286708
         head0=298.75119555621717
         
-        rug_fn = [inpath_cls+'classes_Sloop20200116.csv',inpath_cls+'classes_Nloop20200116.csv',inpath_cls+'classes_runway20200112.csv',inpath_cls+'classes_snow120200112.csv',inpath_cls+'classes_special20200107.csv',inpath_cls+'classes_special20200115.csv',inpath_cls+'classes_special20200123.csv',inpath_cls+'classes_special20200126.csv',inpath_cls+'classes_ridgeFR120200119.csv',inpath_cls+'classes_ridgeA120200117.csv']
+        rug_fn = [inpath_cls+'classes_Sloop20200116.csv',inpath_cls+'classes_Nloop20200116.csv',inpath_cls+'classes_runway20200112.csv',inpath_cls+'classes_snow120200112.csv',inpath_cls+'classes_recon20200107.csv',inpath_cls+'classes_special20200107.csv',inpath_cls+'classes_special20200115.csv',inpath_cls+'classes_special20200123.csv',inpath_cls+'classes_recon20200126.csv',inpath_cls+'classes_special20200126.csv',inpath_cls+'classes_ridgeFR120200119.csv',inpath_cls+'classes_ridgeA120200117.csv']
 
     if dt=='20200213':
         #20200213T055044_20200216T055106
@@ -124,7 +124,7 @@ for dt in dates:
         lat0=87.94738928916001
         head0=276.682326681203
         
-        rug_fn = [inpath_cls+'classes_Sloop20200220.csv',inpath_cls+'classes_Nloop20200220.csv',inpath_cls+'classes_runway20200207.csv',inpath_cls+'classes_snow120200207.csv',inpath_cls+'classes_ridgeFR120200221.csv',inpath_cls+'classes_ridgeFR220200221.csv',inpath_cls+'classes_ridgeA120200228.csv',inpath_cls+'classes_recon20200228.csv']
+        rug_fn = [inpath_cls+'classes_Sloop20200220.csv',inpath_cls+'classes_Nloop20200220.csv',inpath_cls+'classes_runway20200207.csv',inpath_cls+'classes_snow120200207.csv',inpath_cls+'classes_ridgeFR120200221.csv',inpath_cls+'classes_ridgeFR220200221.csv',inpath_cls+'classes_ridgeA120200228.csv',inpath_cls+'classes_recon20200228.csv',inpath_cls+'classes_recon20200226.csv']
 
     if dt=='20200317':
         #20200317T095226_20200317T095248

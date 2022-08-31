@@ -173,11 +173,14 @@ loc1=None
 #loc='special'
 #dates = ['20200107','20200115','20200123','20200226','20200326','20200430','20200617','20200719','20200719','20200827','20200903','20200910','20200902','20200909','20200919']
 
-#loc = 'recon'
-#dates = ['20200228']   #airport recon - has no MP data
-##table_output=False  #not useful
-#step=5
-#limit = step*2            #no need to search far
+loc = 'recon'   #has no MP data
+dates = ['20200228']   #airport recon
+dates = ['20200226']   #Darnitsyn Lead
+#dates = ['20200107']   #Dark site FYI
+#dates = ['20200126']   #lead Event
+table_output=False  #not useful
+step=5
+limit = step*2            #no need to search far
 
 #leg4
 #loc = 'transect'
@@ -496,8 +499,8 @@ for dd in range(0,len(dates)):
 
     #whole CO
     if loc == 'recon':
-        grid_x, grid_y = np.mgrid[-1100:250:step, -850:1100:step]
-        extent=(-1100,250,-850,1100)
+        grid_x, grid_y = np.mgrid[-1300:1500:step, -850:1100:step]
+        extent=(-1300,1500,-850,1100)
     
     if loc1 == 'Nloop_spine':
         grid_x, grid_y = np.mgrid[460:850:step, -500:-180:step]

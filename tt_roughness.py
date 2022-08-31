@@ -18,18 +18,18 @@ polyorder=3
 window=231
 
 
-#location and dates - if gridded data is used these dates have to correspond to the dates in tt_grid_roll.py
-loc = 'Sloop'
-dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
-title='Southern transect loop '
+##location and dates - if gridded data is used these dates have to correspond to the dates in tt_grid_roll.py
+#loc = 'Sloop'
+#dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
+#title='Southern transect loop '
 
-selection = ['20191031','20191107','20191114','20191205','20200102','20200109','20200130','20200220','20200227','20200305','20200330','20200406','20200426','20200507']  #best data
+#selection = ['20191031','20191107','20191114','20191205','20200102','20200109','20200130','20200220','20200227','20200305','20200330','20200406','20200426','20200507']  #best data
 
 
-#loc = 'Nloop'
-#dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
+loc = 'Nloop'
+dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
 
-#selection=['20191024','20191128','20191205',  '20191219','20200102','20200109','20200130','20200220','20200227', '20200305','20200320','20200326','20200403','20200424','20200430','20200507']
+selection=['20191024','20191128','20191205',  '20191219','20200102','20200109','20200130','20200220','20200227', '20200305','20200320','20200326','20200403','20200424','20200430','20200507']
 
 #loc= 'snow1'
 #dates = ['20191222','20200112','20200126','20200207']    #20200126 is reduced track (square!)
@@ -166,9 +166,12 @@ nit_ts=[]
 ts_level_si=[]
 ts_rubble_si=[]
 ts_ridge_si=[]
+ts_deform_si=[]
 
 ts_level_it=[]
 ts_rubble_it=[]
+ts_ridge_it=[]
+ts_deform_it=[]
 
 ts_level_frac=[]
 ts_rubble_frac=[]
@@ -339,11 +342,13 @@ for dd in range(0,len(dates)):
         
         if loc=='Nloop':
             rubble=0.2
-            ridge=0.3
+            ridge=0.6
 
         mask_level = std>rubble
         mask_ridge = (std<ridge) #| (itm<2.)
         mask_rubble = ~(mask_level & mask_ridge)
+        #for the meltpond paper (Thilke et al)
+        mask_deform = std<rubble
         
         #give snow volume for these classes
         #level ice
@@ -352,7 +357,7 @@ for dd in range(0,len(dates)):
         print('level rough. value and predicted snow depth: ',level_mid,y_pred)
         #estimate the volume
         level_si = np.ma.array(sitrunc,mask=mask_level).compressed()
-        ##also get level ice thickness for thermodyn. driver and SnowModel assimilation
+        ##also get level ice thickness for thermodyn. driver, meltpond paper and SnowModel assimilation
         level_it = np.ma.array(ittrunc,mask=mask_level).compressed()
         vol = np.sum(level_si)/np.sum(sitrunc)
         print('volume fraction of level ice snow: ',vol)
@@ -378,10 +383,17 @@ for dd in range(0,len(dates)):
         print('ridge rough. value and predicted snow depth: ',ridge_mid,y_pred)
         #estimate the volume
         ridge_si = np.ma.array(sitrunc,mask=mask_ridge).compressed()
+        ##also get ridge ice thickness for meltpond paper
+        ridge_it = np.ma.array(ittrunc,mask=mask_ridge).compressed()
         vol = np.sum(ridge_si)/np.sum(sitrunc)
         print('volume fraction of ridge ice snow: ',vol)
         ridge_n = ridge_si.shape[0]/sitrunc.shape[0]
         print('fraction of ridge ice: ',ridge_n)
+        
+        #deformed ice for meltpond paper (Thilke et al)
+        deform_si = np.ma.array(sitrunc,mask=mask_deform).compressed()
+        deform_it = np.ma.array(ittrunc,mask=mask_deform).compressed()
+
         
         
         #store these for time series!
@@ -395,6 +407,10 @@ for dd in range(0,len(dates)):
         
         ts_level_it.append(level_it)
         ts_rubble_it.append(rubble_it)
+        
+        ts_ridge_it.append(ridge_it)
+        ts_deform_si.append(deform_si)
+        ts_deform_it.append(deform_it)
         
         #print(ridge_si)
         
@@ -759,6 +775,7 @@ fig5.savefig(outpath+outname_ts_type,bbox_inches='tight')
 #write snow and ice values for different roughness categories to files
 #LEVEL ICE
 file_name = inpath_table+'SnowModel_'+loc+'_level.csv'
+file_name = inpath_table+'meltponds_'+loc+'_level.csv'
 print(file_name)
 
 #calculate means and standard deviations
@@ -788,6 +805,7 @@ with open(file_name, 'wb') as f:
 
 #RUBBLE ICE
 file_name = inpath_table+'SnowModel_'+loc+'_rubble.csv'
+file_name = inpath_table+'meltponds_'+loc+'_rubble.csv'
 print(file_name)
 
 #calculate means and standard deviations
@@ -812,6 +830,58 @@ with open(file_name, 'wb') as f:
     f.write(b'date,snow depth (m),snow depth std (m),ice thickness (m),ice thickness std (m),ice mode (m)\n')
     np.savetxt(f, table, fmt="%s", delimiter=",")
 
+#RIDGES
+file_name = inpath_table+'meltponds_'+loc+'_ridge.csv'
+print(file_name)
+
+#calculate means and standard deviations
+ts_ridge_si_m = [ np.mean(x) for x in ts_ridge_si ]
+ts_ridge_si_std = [ np.std(x) for x in ts_ridge_si ]
+
+ts_ridge_it_m = [ np.mean(x) for x in ts_ridge_it ]
+ts_ridge_it_std = [ np.std(x) for x in ts_ridge_it ]
+
+#mode
+ts_ridge_it_mo = []
+for i in range(0,len(ts_ridge_it)):
+    mo = get_ice_mode(ts_ridge_it[i],irbins)
+    ts_ridge_it_mo.append(mo)
+
+
+tt = [selection,ts_ridge_si_m,ts_ridge_si_std,ts_ridge_it_m,ts_ridge_it_std,ts_ridge_it_mo]
+table = list(zip(*tt))
+
+with open(file_name, 'wb') as f:
+    #header
+    f.write(b'date,snow depth (m),snow depth std (m),ice thickness (m),ice thickness std (m),ice mode (m)\n')
+    np.savetxt(f, table, fmt="%s", delimiter=",")
+
+
+#DEFORMED ICE (rubble+ridges)
+file_name = inpath_table+'meltponds_'+loc+'_deformed.csv'
+print(file_name)
+
+#calculate means and standard deviations
+ts_deform_si_m = [ np.mean(x) for x in ts_deform_si ]
+ts_deform_si_std = [ np.std(x) for x in ts_deform_si ]
+
+ts_deform_it_m = [ np.mean(x) for x in ts_deform_it ]
+ts_deform_it_std = [ np.std(x) for x in ts_deform_it ]
+
+#mode
+ts_deform_it_mo = []
+for i in range(0,len(ts_deform_it)):
+    mo = get_ice_mode(ts_deform_it[i],irbins)
+    ts_deform_it_mo.append(mo)
+
+
+tt = [selection,ts_deform_si_m,ts_deform_si_std,ts_deform_it_m,ts_deform_it_std,ts_deform_it_mo]
+table = list(zip(*tt))
+
+with open(file_name, 'wb') as f:
+    #header
+    f.write(b'date,snow depth (m),snow depth std (m),ice thickness (m),ice thickness std (m),ice mode (m)\n')
+    np.savetxt(f, table, fmt="%s", delimiter=",")
 
 #Sloop
 #20191031

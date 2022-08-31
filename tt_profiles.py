@@ -99,18 +99,18 @@ dates = ['20200130']
 #dates = ['20191031','20191114','20191205','20200116','20200130','20200220','20200305','20200330']   #use for gridded data!!!
 title='g) Southern transect loop - '
 
-#loc = 'Nloop'
+loc = 'Nloop'
 ##dates = ['20191024']
 ##dates = ['20191114']
 ##dates = ['20191205']
 ##dates = ['20200116']
-#dates = ['20200130']
+dates = ['20200130']
 ##dates = ['20200109']
 ##dates = ['20200220']
 ##dates = ['20200305']
 ##dates = ['20200326']
 ##dates = ['20191024','20191114','20191205','20200116','20200130','20200109','20200220','20200305','20200326']
-#title='f) Northern transect loop - '
+title='f) Northern transect loop - '
 
 #loc= 'snow1'
 ##dates = ['20200112']
@@ -138,9 +138,9 @@ title='g) Southern transect loop - '
 #dates = ['20200115']
 #title='b) Dark Side SYI - '
 
-loc= 'special'
-dates = ['20200123']
-title='c) Long transect - '
+#loc= 'special'
+#dates = ['20200123']
+#title='c) Long transect - '
 
 ##leg 4 transect
 #loc= 'special'
@@ -151,8 +151,11 @@ title='c) Long transect - '
 #dates = ['20200630']
 #title='First full transect of Leg 4 '
 
-#loc='recon'
-#dates=['20200228']
+#loc='recon'    #has no MP data
+#dates = ['20200228']   #airport recon
+#dates = ['20200226']   #Darnitsyn Lead
+#dates = ['20200107']   #Dark site FYI
+##dates = ['20200126']   #lead Event
 #title='Recon '
 
 ##special (long) transects of leg 5
@@ -185,13 +188,13 @@ als_elev=False
 
 #roughness classes limits
 #rubble can vary depending on the transect
-roughness_cls=False
+roughness_cls=True
 rubble=0.06
 rubble=0.1      #transect paper
 ridge=0.3
 if loc=='Nloop':
-    rubble=0.5
-    ridge=0.6
+    rubble=0.2
+    ridge=0.3
 
 dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
 
@@ -211,6 +214,7 @@ if len(dates) == 1:
 inpath_table = '../data/MCS/MP/'
 inpath_ridges = '../data/ridges/'
 outpath = '../plots_revision/'
+outpath = '../plots_meltponds/'
 #outpath = '../plots_ridges/'
 outpath_cls = '../data/classes_tsx/'
 inpath_grid = '../data/grids_AGU/'
@@ -314,7 +318,7 @@ for dd in range(0,len(dates)):
         
         #inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track1.npz'
         inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track2.npz'
-        
+                
         data = np.load(inf)
 
         transect_snow = data['snow']
@@ -359,6 +363,22 @@ for dd in range(0,len(dates)):
     #use meltponds as separate color in summer. They should be blue and bellow FB
     #at all late summer dates: melt ponds FB=0, then plot blue water bellow, then ice if any (if ice negative, then zero)
     
+    #there are invalid data left in data and coordinates - especially in recon
+    ii = np.ma.masked_invalid(ii)
+    si = np.ma.array(si,mask=ii.mask);si = si.compressed()
+    mi = np.ma.array(mi,mask=ii.mask);mi = mi.compressed()
+    mxx = np.ma.array(mxx,mask=ii.mask); mxx = mxx.compressed()
+    myy = np.ma.array(myy,mask=ii.mask); myy = myy.compressed()
+    
+    ii = ii.compressed()
+    
+    mxx = np.ma.masked_invalid(mxx)
+    si = np.ma.array(si,mask=mxx.mask);si = si.compressed()
+    mi = np.ma.array(mi,mask=mxx.mask);mi = mi.compressed()
+    ii = np.ma.array(ii,mask=mxx.mask); ii = ii.compressed()
+    myy = np.ma.array(myy,mask=mxx.mask); myy = myy.compressed()
+    
+    mxx = mxx.compressed()
     
     #get distances between fixed date MP points
     dx = mxx[1:]-mxx[:-1]
@@ -500,7 +520,7 @@ for dd in range(0,len(dates)):
         
         #roughness
         if roughness_cls:
-            nit=30
+            nit=50
             itm,itv = running_stats(ii,nit)
             std = np.sqrt(itv)
             

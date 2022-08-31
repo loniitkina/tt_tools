@@ -7,8 +7,9 @@ from glob import glob
 from tt_func import getColumn, proj_sat
 import gc
 
-outpath='../plots_gridded/'
-out_type='classes'  #classes, snow, ice
+inpath='../data/classes_meltponds/'
+outpath='../plots_meltponds/'
+out_type='ice'  #classes, snow, ice
 
 
 #RS-2 scene for 31 Dec 2019, 03:35:02 UTC
@@ -73,26 +74,26 @@ head0=302.2
 
 #ALS tif from 21 Jan
 #time: 20200121T103544-20200121T103614 to 20200121T121616-20200121T121646
-#tif='../data/ALS/20200121_als_merged_grid-stere.tiff'
-#outname='ALS_20200121_map.png'
-#alos=False
+tif='../data/ALS/20200121_als_merged_grid-stere.tiff'
+outname1='ALS_20200121_'
+alos=False
 
-##refstation
-##2020-01-21 10:35:00,96.16950957480864,87.48817329565784,284.55644100627484,3.348816529475723,0.686339670008361
-#lon0=96.16950957480864
-#lat0=87.48817329565784
-#head0=284.55644100627484
+#refstation
+#2020-01-21 10:35:00,96.16950957480864,87.48817329565784,284.55644100627484,3.348816529475723,0.686339670008361
+lon0=96.16950957480864
+lat0=87.48817329565784
+head0=284.55644100627484
 
 
 
-arr2,rot_x2,rot_y2=proj_sat(tif,lon0,lat0,head0,alos=alos,spacing=1,band=1,ps_pos=True)
-#arr2,rot_x2,rot_y2=proj_sat(tif,lon0,lat0,head0,alos=alos,spacing=10,band=1,ps_pos=True)
+#arr2,rot_x2,rot_y2=proj_sat(tif,lon0,lat0,head0,alos=alos,spacing=1,band=1,ps_pos=True)
+arr2,rot_x2,rot_y2=proj_sat(tif,lon0,lat0,head0,alos=alos,spacing=10,band=1,ps_pos=True)
 
 #Wenkai masks no values as 999
 arr2 = np.where(arr2==999,0,arr2)
 
 #setup figure
-fig1 = plt.figure(figsize=(35,15))
+fig1 = plt.figure(figsize=(18,15))
 ax = fig1.add_subplot(111)
 
 
@@ -104,23 +105,23 @@ if alos:
     cb.set_label(label='Intensity (dB)',fontsize=20)
 else:
     ###for TSX and RS-2
-    CS1=ax.contourf(rot_x2, rot_y2, arr2.T, 50,cmap=plt.cm.binary_r)
+    #CS1=ax.contourf(rot_x2, rot_y2, arr2.T, 50,cmap=plt.cm.binary_r)
     #cb = plt.colorbar(CS1)  # draw colorbar
     #cb.set_label(label='Intensity (dB)',fontsize=20)
     
-    ##for ALS
-    ##do something about the PS (too high!)
-    #arr = np.where(arr2>1.,1.,arr2)
-    ##and some low points
-    #arr = np.where(arr<0,0,arr)
-    #CS2 = plt.contourf(rot_x2, rot_y2, arr.T, 30, vmax=1., vmin=0,cmap=plt.cm.binary_r,alpha=1)
+    #for ALS
+    #do something about the PS (too high!)
+    arr = np.where(arr2>1.,1.,arr2)
+    #and some low points
+    arr = np.where(arr<0,0,arr)
+    CS2 = plt.contourf(rot_x2, rot_y2, arr.T, 30, vmax=1., vmin=0,cmap=plt.cm.binary_r,alpha=1)
     #cb = plt.colorbar(CS2)  # draw colorbar
     #cb.set_label(label='Elevation (m)',fontsize=20)
         
         
 #transect paper
-ax.set_xlim(-7000,2500)
-ax.set_ylim(-1400,3700)
+ax.set_xlim(-1500,2000)
+ax.set_ylim(-1500,1000)
 
 #larger ticks
 ax.tick_params(axis="x", labelsize=18)
@@ -130,15 +131,7 @@ ax.tick_params(axis="y", labelsize=18)
 gc.collect()
 
 #data produced by tt_profiles.py
-fnames=['../data/classes_special20200107.csv',
-        '../data/classes_special20200115.csv',
-        '../data/classes_runway20200112.csv',
-        '../data/classes_snow120200112.csv',
-        '../data/classes_Sloop20200130.csv',
-        '../data/classes_Nloop20200130.csv',
-        '../data/classes_special20200123.csv',
-        '../data/classes_special20200126.csv',
-        '../data/classes_recon20200228.csv']
+fnames=glob(inpath+'classes_*202001*.csv')  #all of the January transects
 
 for fname in fnames:
     print(fname)

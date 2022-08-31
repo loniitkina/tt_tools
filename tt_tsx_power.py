@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from tt_func import getColumn, proj_sat, logfit
 
 
-outpath='../plots_tsx/'
+outpath='../plots_tsx/3x3km_revision/'
 
 fig1 = plt.figure(figsize=(10,10))
 ax = fig1.add_subplot(111)

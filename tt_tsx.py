@@ -19,8 +19,8 @@ from scipy.signal import savgol_filter
 #20200328T112657_20200328T112719
 
 inpath='../data/TSX_Wenkai/classified_geotiffs/'
-inpath_cls='../data/'
-outpath='../plots_tsx/3x3km/'
+inpath_cls='../data/classes_tsx/'
+outpath='../plots_tsx/3x3km_revision/'
 
 dates=['20191115','20191215','20200108','20200112','20200213','20200317','20200328']
 dates=['20191115','20191215','20200112','20200213','20200317','20200328']   #for paper
@@ -102,7 +102,7 @@ for dt in dates:
         lat0=87.11089584512887
         head0=301.2193853959709
         
-        rug_fn = [inpath_cls+'classes_Sloop20200116.csv',inpath_cls+'classes_Nloop20200116.csv',inpath_cls+'classes_runway20200112.csv',inpath_cls+'classes_snow120200112.csv',inpath_cls+'classes_special20200107.csv',inpath_cls+'classes_special20200115.csv',inpath_cls+'classes_ridgeFR120200119.csv',inpath_cls+'classes_ridgeA120200117.csv']
+        rug_fn = [inpath_cls+'classes_Sloop20200116.csv',inpath_cls+'classes_Nloop20200116.csv',inpath_cls+'classes_runway20200112.csv',inpath_cls+'classes_snow120200112.csv',inpath_cls+'classes_recon20200107.csv',inpath_cls+'classes_special20200107.csv',inpath_cls+'classes_special20200115.csv',inpath_cls+'classes_ridgeFR120200119.csv',inpath_cls+'classes_ridgeA120200117.csv']
     
     if dt=='20200112':
         #20200112T034138_20200116T034200
@@ -112,7 +112,7 @@ for dt in dates:
         lat0=87.26208996286708
         head0=298.75119555621717
         
-        rug_fn = [inpath_cls+'classes_Sloop20200116.csv',inpath_cls+'classes_Nloop20200116.csv',inpath_cls+'classes_runway20200112.csv',inpath_cls+'classes_snow120200112.csv',inpath_cls+'classes_special20200107.csv',inpath_cls+'classes_special20200115.csv',inpath_cls+'classes_special20200123.csv',inpath_cls+'classes_special20200126.csv',inpath_cls+'classes_ridgeFR120200119.csv',inpath_cls+'classes_ridgeA120200117.csv']
+        rug_fn = [inpath_cls+'classes_Sloop20200116.csv',inpath_cls+'classes_Nloop20200116.csv',inpath_cls+'classes_runway20200112.csv',inpath_cls+'classes_snow120200112.csv',inpath_cls+'classes_recon20200107.csv',inpath_cls+'classes_special20200107.csv',inpath_cls+'classes_special20200115.csv',inpath_cls+'classes_special20200123.csv',inpath_cls+'classes_recon20200126.csv',inpath_cls+'classes_special20200126.csv',inpath_cls+'classes_ridgeFR120200119.csv',inpath_cls+'classes_ridgeA120200117.csv']
 
     if dt=='20200213':
         #20200213T055044_20200216T055106
@@ -121,7 +121,7 @@ for dt in dates:
         lat0=87.94738928916001
         head0=276.682326681203
         
-        rug_fn = [inpath_cls+'classes_Sloop20200220.csv',inpath_cls+'classes_Nloop20200220.csv',inpath_cls+'classes_runway20200207.csv',inpath_cls+'classes_snow120200207.csv',inpath_cls+'classes_ridgeFR120200221.csv',inpath_cls+'classes_ridgeFR220200221.csv',inpath_cls+'classes_ridgeA120200228.csv',inpath_cls+'classes_recon20200228.csv']
+        rug_fn = [inpath_cls+'classes_Sloop20200220.csv',inpath_cls+'classes_Nloop20200220.csv',inpath_cls+'classes_runway20200207.csv',inpath_cls+'classes_snow120200207.csv',inpath_cls+'classes_ridgeFR120200221.csv',inpath_cls+'classes_ridgeFR220200221.csv',inpath_cls+'classes_ridgeA120200228.csv',inpath_cls+'classes_recon20200228.csv',inpath_cls+'classes_recon20200226.csv']
 
     if dt=='20200317':
         #20200317T095226_20200317T095248
@@ -184,9 +184,22 @@ for dt in dates:
     fig1 = plt.figure(figsize=(22,10))
     
     ax = fig1.add_subplot(121)
+    #dont have any ticks
+    ax.set_xticks([])
+    ax.set_xticks([], minor=True)
+    ax.set_yticks([])
+    ax.set_yticks([], minor=True)
+    
+    
     CS1=ax.contourf(rot_x1, rot_y1, arr1.T, 50,cmap=plt.cm.binary_r)
     
     bx = fig1.add_subplot(122)
+    #dont have any ticks
+    bx.set_xticks([])
+    bx.set_xticks([], minor=True)
+    bx.set_yticks([])
+    bx.set_yticks([], minor=True)
+    
     CS2=bx.contourf(rot_x1, rot_y1, arr2.T, 10,cmap=class_cm)
     #cb = plt.colorbar(CS1)  # draw colorbar
     #cb.set_label(label='Intensity (dB)',fontsize=20)
@@ -200,12 +213,12 @@ for dt in dates:
     
     
     
-    #larger ticks
-    ax.tick_params(axis="x", labelsize=18)
-    ax.tick_params(axis="y", labelsize=18)
+    ##larger ticks
+    #ax.tick_params(axis="x", labelsize=18)
+    #ax.tick_params(axis="y", labelsize=18)
     
-    bx.tick_params(axis="x", labelsize=18)
-    bx.tick_params(axis="y", labelsize=18)
+    #bx.tick_params(axis="x", labelsize=18)
+    #bx.tick_params(axis="y", labelsize=18)
 
     #plot/compare with some transect data
     
@@ -259,6 +272,7 @@ for dt in dates:
         
         #take a value for every pixel/every 3 pixels and every roughness feature scale (24 m is again a good first guess)
         #this depends on the measurement spacing
+        #WARNING: in order this to work the spacing needs to be homogeneous - currently recond data needs to be manually edited - MP part of the transects needs to removed
         xx = xx[::window]
         yy = yy[::window]
         std = std[::window]        
@@ -289,6 +303,8 @@ for dt in dates:
             cls=np.where(std<rubble,cls*7,cls*9)
         elif loc=='recon':                              #this was a ski-do transect, larger footprint, different threshold necessary?
             cls=np.where(std<rubble,cls*7,cls*9)
+        elif (loc=='recon') & (loc_dt=='20200107'):                              #this was a ski-do transect, larger footprint, different threshold necessary?
+            cls=np.where(std<rubble,cls*9,cls*10)
             
         elif (loc=='ridgeFR1') | (loc=='ridgeA1')| (loc=='ridgeFR2'):
             cls=np.where(std<rubble,cls*9,cls*10)
@@ -304,13 +320,13 @@ for dt in dates:
         
         
         #ax.scatter(xx,yy,c=std,s=4,cmap=plt.cm.Blues,vmin=0,vmax=.5)
-        ax.scatter(xx,yy,c=cls,cmap=class_cm,s=7,vmin=1,vmax=11)
+        ax.scatter(xx,yy,c=cls,cmap=class_cm,s=25,vmin=1,vmax=11)#,ec='k')
         
         #pin zero,zero to see how it compares to PS in HH
-        ax.scatter(0,0,marker='*',s=3,c='g')
+        #ax.scatter(0,0,marker='*',s=3,c='g')
                 
         #ice roughness - sigma - std
-        bx.scatter(xx,yy,c=std,s=7,cmap=plt.cm.Blues,vmin=0,vmax=.5)
+        bx.scatter(xx,yy,c=std,s=25,cmap=plt.cm.Blues,vmin=0,vmax=.5)#,ec='k')
             
         #Can we track the algorithm score/goodness test?
         #Count in how many cases out of all, the algorithm gets the ice in the same class as the roughness from transects...
