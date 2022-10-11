@@ -86,30 +86,31 @@ window=5
 #title = "ECO Ridge Transect "
 
 ##comparable loop transects
-loc = 'Sloop'
+#loc = 'Sloop'
 #dates = ['20191031']
 #dates = ['20191114']
 #dates = ['20191205']
 #dates = ['20200116']
-dates = ['20200130']
+#dates = ['20200130']
 #dates = ['20200220']
 #dates = ['20200305']
 #dates = ['20200330']
 ###dates=['20200507']
 #dates = ['20191031','20191114','20191205','20200116','20200130','20200220','20200305','20200330']   #use for gridded data!!!
-title='g) Southern transect loop - '
+#title='g) Southern transect loop - '
 
 loc = 'Nloop'
 ##dates = ['20191024']
-##dates = ['20191114']
+#dates = ['20191107']
+#dates = ['20191114']
 ##dates = ['20191205']
 ##dates = ['20200116']
 dates = ['20200130']
-##dates = ['20200109']
+dates = ['20200109']
 ##dates = ['20200220']
 ##dates = ['20200305']
 ##dates = ['20200326']
-##dates = ['20191024','20191114','20191205','20200116','20200130','20200109','20200220','20200305','20200326']
+#dates = ['20191024','20191114','20191205','20200116','20200130','20200109','20200220','20200305','20200326']
 title='f) Northern transect loop - '
 
 #loc= 'snow1'
@@ -182,19 +183,28 @@ title='f) Northern transect loop - '
 #dates = ['20210513']
 #title='Nansen Legacy Q2 - P7 '
 
+##CIRFA22
+#loc='Drift1'
+#dates = ['20220505']
+#title='CIRFA22 - Drift1 '
+
+#loc='Drift2'
+#dates = ['20220507']
+#title='CIRFA22 - Drift2 '
+
 #elevation from ALS 
 als_elev=True
 als_elev=False
 
 #roughness classes limits
 #rubble can vary depending on the transect
-roughness_cls=True
+roughness_cls=False
 rubble=0.06
 rubble=0.1      #transect paper
 ridge=0.3
 if loc=='Nloop':
-    rubble=0.2
-    ridge=0.3
+    rubble=.2
+    ridge=.6
 
 dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
 
@@ -212,16 +222,22 @@ if len(dates) == 1:
     
 #MOSAiC
 inpath_table = '../data/MCS/MP/'
-inpath_ridges = '../data/ridges/'
-outpath = '../plots_revision/'
+#inpath_ridges = '../data/ridges/'
+#outpath = '../plots_revision/'
 outpath = '../plots_meltponds/'
 #outpath = '../plots_ridges/'
-outpath_cls = '../data/classes_tsx/'
+#outpath_cls = '../data/classes_tsx/'
+outpath_cls = '../plots_meltponds/'
 inpath_grid = '../data/grids_AGU/'
 
 ##Nansen Legacy
 #inpath_table = '../data/NansenLegacy/magnaprobe/'
 #outpath = '../plots_NL/'
+
+##CIRFA22
+#inpath_table = '../data/CIRFA22/'+loc+'/'
+#outpath = '../plots_cirfa22/'
+
 
 station = True
 #station = False
@@ -533,7 +549,7 @@ for dd in range(0,len(dates)):
             ridge_cls=np.where((std>ridge)&(itm>2),1,np.nan)    #ridges also need to be thicker than 2.5m!
             rubble_cls=np.where(~((level_cls==1)|(ridge_cls==1)),1,np.nan)
 
-            ax.scatter(x,np.ones_like(x)*level_cls*1.15,c='y',ls='-',label='level ice')
+            ax.scatter(x,np.ones_like(x)*level_cls*1.15,marker='x',c='y',ls='-',label='level ice')
             ax.scatter(x,np.ones_like(x)*rubble_cls*1.15,c='royalblue',ls='-',label='rubble')
             ax.scatter(x,np.ones_like(x)*ridge_cls*1.15,c='purple',ls='-',label='ridge/lead edge')
         

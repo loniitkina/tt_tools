@@ -6,6 +6,7 @@ from datetime import datetime
 import matplotlib.dates as mdates
 
 inpath_table = '../data/MCS/MP/'
+inpath_table = '../plots_meltponds/'
 outpath = '../plots_meltponds/'
 loc = 'Nloop'
 
@@ -55,4 +56,4 @@ ax.legend()
 bx.legend()
     
 plt.show()
-fig1.savefig(outpath+'ts_ice_type_forLinda.png')
+fig1.savefig(outpath+'ts_ice_type_forLinda_doubleTH.png')

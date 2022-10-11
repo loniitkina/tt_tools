@@ -173,14 +173,14 @@ loc1=None
 #loc='special'
 #dates = ['20200107','20200115','20200123','20200226','20200326','20200430','20200617','20200719','20200719','20200827','20200903','20200910','20200902','20200909','20200919']
 
-loc = 'recon'   #has no MP data
-dates = ['20200228']   #airport recon
-dates = ['20200226']   #Darnitsyn Lead
-#dates = ['20200107']   #Dark site FYI
-#dates = ['20200126']   #lead Event
-table_output=False  #not useful
-step=5
-limit = step*2            #no need to search far
+#loc = 'recon'   #has no MP data
+#dates = ['20200228']   #airport recon
+#dates = ['20200226']   #Darnitsyn Lead
+##dates = ['20200107']   #Dark site FYI
+##dates = ['20200126']   #lead Event
+#table_output=False  #not useful
+#step=5
+#limit = step*2            #no need to search far
 
 #leg4
 #loc = 'transect'
@@ -259,6 +259,22 @@ limit = step*2            #no need to search far
 #loc = 'P7'
 #dates = ['20210513']
 
+#CIRFA cruise
+
+outpath = '../plots_cirfa22/'
+outpath_grid = '../data/grids_cirfa22/'
+
+#loc='Landfast_S'
+#dates=['20220427']
+
+loc='Drift1'
+dates=['20220505']
+
+loc='Drift2'
+dates=['20220507']
+
+inpath_ice = '../data/CIRFA22/'+loc+'/'
+inpath_snow = inpath_ice
 
 for dd in range(0,len(dates)):
     date=dates[dd]
@@ -302,6 +318,8 @@ for dd in range(0,len(dates)):
     xx = []
     yy = []
     fname = glob(inpath_ice+date_gem2+'*/*-track-icecs-xy.csv')
+    if outpath == '../plots_cirfa22/':
+        fname = glob(inpath_ice+'*'+date_gem2+'*gem2*-track-icecs-xy.csv')
     for fn in fname:
         print(fn)
         x = getColumn(fn,3)
@@ -315,6 +333,9 @@ for dd in range(0,len(dates)):
     #ice thickness data
     tt18 = []; tt5 = []; tt93 = []
     fname = glob(inpath_ice+date_gem2+'*/*-channel-thickness.csv')
+    if outpath == '../plots_cirfa22/':
+        fname = glob(inpath_ice+'*'+date_gem2+'*-channel-thickness.csv')
+
     for fn in fname:
         print(fn)
         #time, record_id, longitude, latitude, xc, yc, f1525Hz_hcp_i, f1525Hz_hcp_q, f5325Hz_hcp_i, f5325Hz_hcp_q, f18325Hz_hcp_i, f18325Hz_hcp_q, f63025Hz_hcp_i, f63025Hz_hcp_q, f93075Hz_hcp_i, f93075Hz_hcp_q
@@ -322,9 +343,16 @@ for dd in range(0,len(dates)):
             t18 = getColumn(fn,11)
             t5 = getColumn(fn,13)
             t93 = getColumn(fn,15)
+            
+        elif outpath == '../plots_cirfa22/':
+            t18 = getColumn(fn,12)        #take 18KHz ip (12)
+            t5 = getColumn(fn,10)        #take 1.5KHz ip (10)
+            t93 = getColumn(fn,14)         #take 63KHz ip (14)
+
+            
         else:
-            t18 = getColumn(fn,10)        #take 18KHz ip (10)
-            t5 = getColumn(fn,8)        #take 5KHz ip (8)
+            t18 = getColumn(fn,12)        #take 18KHz ip (10)
+            t5 = getColumn(fn,10)        #take 5KHz ip (8)
             t93 = getColumn(fn,14)         #take 93KHz ip (14) 
 
         tt18.extend(t18[1:-1])     #floenavi scripts looses coordinates at the start and end of the file
@@ -345,7 +373,12 @@ for dd in range(0,len(dates)):
     #MP
     #get magnaprobe track file
     if loc != 'recon':
-        fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+'-track-icecs-xy_corr.csv')[0]
+        
+        if outpath == '../plots_cirfa22/':
+            fname = glob(inpath_snow+'*magnaprobe-'+loc+'-'+date+'*-track-icecs-xy_corr.csv')[0]
+            
+        else:
+            fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+'-track-icecs-xy_corr.csv')[0]
         
         #on certain dates there can be more than one 'special' transect on same date
         if loc == 'special':
@@ -367,6 +400,8 @@ for dd in range(0,len(dates)):
                         fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+'47-226'+'*'+loc+'-track-icecs-xy_corr.csv')[0]
                         
                 print(fname)
+        
+        
         
         print(fname)
 
@@ -566,12 +601,22 @@ for dd in range(0,len(dates)):
     output_tt = [grid_tt18,grid_tt5,grid_tt93]
 
     for ch in range(0,len(channels)):
+        print(ch_name[ch])
+        print(channels[ch])
         #get all original coordinates for each channel
         xx = xx_full.copy()
         yy = yy_full.copy()        
         
+        print(xx)
+        
         #there can be nans in the thickness data, fix this before we proceed
-        tt = np.ma.masked_invalid(channels[ch])        
+        tt = np.ma.masked_invalid(channels[ch])  
+        
+        print(tt.shape)
+        print(xx.shape)
+        
+        
+        
         xx = xx[tt.mask == False]
         yy = yy[tt.mask == False]
         tt = tt[tt.mask == False]

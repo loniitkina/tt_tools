@@ -35,18 +35,18 @@ numdays=365
 start = datetime(2019,8,1)
 dt = [start + timedelta(days=x) for x in range(numdays)]
 
-fig1 = plt.figure(figsize=(20,10))
+fig1 = plt.figure(figsize=(10,10))
 ax = fig1.add_subplot(111)
 
 ax.plot(dt,snod, lw=5, c='turquoise', label='SnowModel snow')
 ax.plot(dt,np.zeros_like(snod),':k')
-ax.plot(dt,tice, lw=5, c='cornflowerblue', label='HIGTSI ice')
+ax.plot(dt,tice, lw=5, c='cornflowerblue', label='SnowModel ice (HIGTSI)')
 
 ax.plot(dt,so,'x', markeredgewidth=4, c='royalblue', ms=8, label='Transect snow')
 ax.plot(dt,io1,'x', markeredgewidth=4, c='purple', ms=8, label='Transect winter ice')
 ax.plot(dt,io2,'x', markeredgewidth=4, c= 'orange', ms=8, label='Transect summer ice')
 
-ax.legend(fontsize=20)
+ax.legend(fontsize=20,loc='lower left')
 
 ax.set_ylabel('Ice thickness/Snow depth (m)',fontsize=20) # Y axis data label
 

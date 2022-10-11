@@ -11,14 +11,32 @@ from mpl_toolkits.basemap import Basemap
 import rasterio
 from pyproj import Transformer
 
-
+from sklearn.metrics import r2_score
 
 def getColumn(filename, column, delimiter=',', skipinitialspace=False, skipheader=1):
     results = csv.reader(open(filename),delimiter=delimiter,skipinitialspace=skipinitialspace)
     while skipheader>0:
         next(results, None)
         skipheader=skipheader-1
+        
     return [result[column] for result in results]
+
+
+def linreg_model(x,y):
+    model = np.polyfit(x,y, 1)
+    predict = np.poly1d(model)
+    
+    r2 = r2_score(y, predict(x))
+
+    x_lin_reg = np.arange(0, max(x)*3,max(x)/2)
+    y_lin_reg = predict(x_lin_reg)
+    
+    n=len(x)
+    
+    return(x_lin_reg, y_lin_reg, n, r2)
+
+
+
 
 #f1525Hz_hcp_i, f1525Hz_hcp_q, f5325Hz_hcp_i, f5325Hz_hcp_q, f18325Hz_hcp_i, f18325Hz_hcp_q, f63025Hz_hcp_i, f63025Hz_hcp_q, f93075Hz_hcp_i, f93075Hz_hcp_q
 def ridge_thick(fname): 

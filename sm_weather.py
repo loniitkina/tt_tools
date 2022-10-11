@@ -1,108 +1,146 @@
+import csv
+import re
 import numpy as np
-from glob import glob
-from tt_func import getColumn, running_stats, get_ice_mode
-from scipy.signal import savgol_filter
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
+inpath='../data/SnowModel/'
+outpath='../plots_sm/'
 
-
-
-#weather
-fname = inpath_weather+'weather_Oct-Jul.csv'
+fname = inpath+'final_10m_3hrly_met_forcing.dat'
 print(fname)
-date = getColumn(fname,0, delimiter=',')
-date = [ datetime.strptime(x, '%Y/%m/%d %H:%M:%S') for x in date ]
-wind = getColumn(fname,7, delimiter=',')
-wind = np.array(wind,dtype=np.float)
-wind = savgol_filter(wind, window, polyorder)
 
-windd = getColumn(fname,6, delimiter=',')
-windd = np.array(windd,dtype=np.float)
-windd = savgol_filter(windd, window, polyorder)
+results = csv.reader(open(fname))
+#get rid of all multi-white spaces and split in those that remain
+results_clean = [re.sub(" +", " ",row[0]) for row in results]
 
-temp = getColumn(fname,4, delimiter=',')
-temp = np.array(temp,dtype=np.float)
-temp = savgol_filter(temp, window, polyorder)
+#temperature, humidity, wind speed, wind direction, precipitation
 
-#precipitation
-fname=inpath_ARM+'precipitation_events.csv'
+tair = [row.split(" ")[2] for row in results_clean]
+tair = np.array(tair,dtype=np.float)     
+tair = np.ma.array(tair,mask=tair==-9999)
+
+rh = [row.split(" ")[3] for row in results_clean]
+rh = np.array(rh,dtype=np.float)     
+rh = np.ma.array(rh,mask=rh==-9999)
+
+ws = [row.split(" ")[4] for row in results_clean]
+ws = np.array(ws,dtype=np.float)     
+ws = np.ma.array(ws,mask=ws==-9999)
+
+wd = [row.split(" ")[5] for row in results_clean]
+wd = np.array(wd,dtype=np.float)     
+wd = np.ma.array(wd,mask=wd==-9999)
+
+pp = [row.split(" ")[6] for row in results_clean]
+pp = np.array(pp,dtype=np.float)     
+pp = np.ma.array(pp,mask=pp==-9999)/10  #match Glen's plot #WARNING - please chck if this is OK!
+
+pp_cum = np.cumsum(pp/1000)    #convert to meters
+
+#import also indexes to tell apart measured and reanalysis data
+fname = inpath+'index_10m_3hrly_met.dat'
 print(fname)
-date_p = getColumn(fname,0, delimiter=',')
-date_p = [ datetime.strptime(x, '%Y-%m-%dT%H:%M:%S') for x in date_p ]
-precip = getColumn(fname,1, delimiter=',')
-precip = np.array(precip,dtype=np.float)
 
-#plotting the time series
+results = csv.reader(open(fname))
+#get rid of all multi-white spaces and split in those that remain
+results_clean = [re.sub(" +", " ",row[0]) for row in results]
 
-#spacing between the box plots
-dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
-dt_diff = [ (x-dt[0]).days for x in dt ]
-dt_diff_off1 = [ (x-dt[0]).days+2 for x in dt ]
-dt_diff_off2 = [ (x-dt[0]).days+4 for x in dt ]
-cx[0].set_xlim(-2,dt_diff[-1]+7)  #first date here: 20191031, last date:20200507
+#1=reanalysis model, 2=observations
+idx_tair = [row.split(" ")[2] for row in results_clean]
+idx_tair = np.array(idx_tair,dtype=np.float)
+idx_tair = np.where(idx_tair==1,1,0)
+tair_model = np.ma.array(tair,mask=idx_tair)
 
-#snow on level ice
-bp1=cx[0].boxplot(ts_level_si, notch=True, showfliers=False, positions=dt_diff,widths=2,patch_artist=True,
-            boxprops=dict(facecolor='purple',alpha=.4))
+idx_rh = [row.split(" ")[3] for row in results_clean]
+idx_rh = np.array(idx_rh,dtype=np.float)
+idx_rh = np.where(idx_rh==1,1,0)
+rh_model = np.ma.array(rh,mask=idx_rh)
 
-#snow in rubble
-bp2=cx[0].boxplot(ts_rubble_si, notch=True, showfliers=False, positions=dt_diff_off1,widths=2,patch_artist=True,
-            boxprops=dict(facecolor=colors[2],alpha=.4))
+idx_ws = [row.split(" ")[4] for row in results_clean]
+idx_ws = np.array(idx_ws,dtype=np.float)
+idx_ws = np.where(idx_ws==1,1,0)
+ws_model = np.ma.array(ws,mask=idx_ws)
 
-#snow in ridges
-bp3=cx[0].boxplot(ts_ridge_si, notch=True, showfliers=False, positions=dt_diff_off2,widths=2,patch_artist=True,
-            boxprops=dict(facecolor=colors[4],alpha=.4))
-
-#and a dirty trick for the X axis
-dates_m = ['20191101','20191201','20200101','20200201','20200301','20200401','20200501']
-dt_m = [ datetime.strptime(x, '%Y%m%d') for x in dates_m ]
-dt_diff = [ (x-dt[0]).days for x in dt_m ]
-cx[0].set_xticks(dt_diff)
-cx[0].set_xticklabels(['2019-11','2019-12','2020-01','2020-02','2020-03','2020-4','2020-5'])
-
-cx[0].legend([bp1["boxes"][0], bp2["boxes"][0], bp3["boxes"][0]], ['level', 'rubble', 'ridges'], loc='upper left', fontsize=15,ncol=3)
+idx_pp = [row.split(" ")[6] for row in results_clean]
+idx_pp = np.array(idx_pp,dtype=np.float)
+idx_pp = np.where(idx_pp==1,1,0)
+pp_model = np.ma.array(pp,mask=idx_pp)
+pp_cum_model = np.ma.array(pp_cum,mask=idx_pp)
 
 
-#surface type fractions
-cx[1].plot(dt_list,ts_level_frac,color='purple',ls='-',label='level')
-cx[1].plot(dt_list,ts_rubble_frac,color=colors[2],ls='-',label='rubble')
-cx[1].plot(dt_list,ts_ridge_frac,color=colors[4],ls='-',label='ridge')
-cx[1].legend(fontsize=15,ncol=3)
+#dates
+numdays=366*8
+start = datetime(2019,8,1)
+dt = [start + timedelta(hours=x*3) for x in range(numdays)]
+end = datetime(2020,8,1)
 
-#correlations
-cx[2].plot(dt_list_s,r2_ts,color='k',ls=':',label='thermodyn. driver')
-cx[2].scatter(dt_list[:4],r2_ts[:4], s=150, facecolors='none', edgecolors='r')     #red circle for negative correlation
-cx[2].plot(dt_list_s,r2_ts_roughness,color='k',ls='--',label='dyn. driver')
-cx[2].legend(fontsize=15,ncol=2)
-
+#Plotting the time series
+fig1, ax = plt.subplots(4, 1,figsize=(10,15))
 
 #air temperature
-cx[3].set_ylabel('Temperature (C)', fontsize=20)
-cx[3].tick_params(axis="x", labelsize=14)
-cx[3].tick_params(axis="y", labelsize=14)
-cx[3].set_xlim(start,end)
+ax[0].set_ylabel('Temperature ($^\circ$C)', fontsize=15)
+ax[0].tick_params(axis="x", labelsize=12)
+ax[0].tick_params(axis="y", labelsize=12)
+ax[0].set_xlim(start,end)
 
-cx[3].plot(date,temp,c='darkred')
+ax[0].plot(dt,tair,c='darkred')
+ax[0].plot(dt,tair_model,c='k')
+
+#specific humidity
+ax[1].set_ylabel('Relative Humidity (%)', fontsize=15)
+ax[1].tick_params(axis="x", labelsize=12)
+ax[1].tick_params(axis="y", labelsize=12)
+ax[1].set_xlim(start,end)
+
+ax[1].plot(dt,rh,c='teal')
+ax[1].plot(dt,rh_model,c='k')
+
+#precipitation
+ax[2].set_ylabel('WE Precipitation (mm/3h)', fontsize=15)
+ax[2].tick_params(axis="x", labelsize=12)
+ax[2].tick_params(axis="y", labelsize=12)
+ax[2].set_xlim(start,end)
+
+ax[2].plot(dt,pp,'*',c='royalblue')
+ax[2].plot(dt,pp_model,'*',c='k')
+
+ax1 = ax[2].twinx()
+ax1.set_ylabel('Cumulative Precipitation (m)', fontsize=15)
+ax1.plot(dt,pp_cum,c='b')
+ax1.plot(dt,pp_cum_model,c='k')
 
 #wind speed and direction
-cx[4].set_ylabel('Wind Speed (m/s)', fontsize=20)
-cx[4].tick_params(axis="x", labelsize=14)
-cx[4].tick_params(axis="y", labelsize=14)
-cx[4].set_xlim(start,end)
+ax[3].set_ylabel('Wind Speed (m/s)', fontsize=15)
+ax[3].tick_params(axis="x", labelsize=12)
+ax[3].tick_params(axis="y", labelsize=12)
+ax[3].set_xlim(start,end)
 
-cs = cx[4].scatter(date,wind,c=windd,cmap=plt.cm.twilight)
-cb = plt.colorbar(cs,orientation='horizontal',aspect=80, fraction=.05, pad=.1)  # draw colorbar
+cs = ax[3].scatter(dt,ws,c=wd,cmap=plt.cm.twilight)
+cb = plt.colorbar(cs,orientation='horizontal',aspect=80, fraction=.05, pad=.2)  # draw colorbar
 cb.set_label(label='Wind direction (deg.)',fontsize=15)
 
 #horizontal line for drifting snow limit (7.7m/s based on dry snow estimate of Li and Pomeroy, 1997)
-driftsnow=np.ones_like(wind)*7.7
-cx[4].plot(date,driftsnow,c='k')
+driftsnow=np.ones_like(wd)*7.7
+ax[3].plot(dt,driftsnow,c='k')
 
-#precipitation
-cx[4].plot(date_p,precip,'*',c='b')
-cx[4].set_ylim(0,15)
 
-#fig2.autofmt_xdate()
+#dates for the publisher
+from matplotlib.dates import MonthLocator, DateFormatter
+import locale
+locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
-fig2.savefig(outpath+'r2_ts1'+suff+'_'+loc,bbox_inches='tight')
+ax[0].xaxis.set_minor_locator(MonthLocator())
+ax[0].xaxis.set_major_formatter(DateFormatter('%b %Y'))
+
+ax[1].xaxis.set_minor_locator(MonthLocator())
+ax[1].xaxis.set_major_formatter(DateFormatter('%b %Y'))
+
+ax[2].xaxis.set_minor_locator(MonthLocator())
+ax[2].xaxis.set_major_formatter(DateFormatter('%b %Y'))
+
+ax[3].xaxis.set_minor_locator(MonthLocator())
+ax[3].xaxis.set_major_formatter(DateFormatter('%b %Y'))
+
+#plt.show()
+fig1.savefig(outpath+'sm_weather.png',bbox_inches='tight')

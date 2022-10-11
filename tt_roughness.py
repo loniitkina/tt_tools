@@ -29,16 +29,21 @@ window=231
 loc = 'Nloop'
 dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
 
-selection=['20191024','20191128','20191205',  '20191219','20200102','20200109','20200130','20200220','20200227', '20200305','20200320','20200326','20200403','20200424','20200430','20200507']
+#selection=['20191024','20191128','20191205',  '20191219','20200102','20200109','20200130','20200220','20200227', '20200305','20200320','20200326','20200403','20200424','20200430','20200507']
+
+#same track all the time
+selection=['20191107','20191128','20191205',  '20191219','20200102','20200109','20200130','20200220','20200227', '20200305','20200320','20200326','20200403','20200424','20200430','20200507']
+
+selection_meltpond=['20200130']
 
 #loc= 'snow1'
 #dates = ['20191222','20200112','20200126','20200207']    #20200126 is reduced track (square!)
 #title='Snow1 transect '
 
-#loc= 'runway'
-#dates = ['20200112','20200207']
-#title='Runway transect '
-#selection=dates
+loc= 'runway'
+dates = ['20200112','20200207']
+title='Runway transect '
+selection=dates
 
 #loc= 'special'
 #dates = ['20200123']
@@ -71,6 +76,9 @@ inpath_grid = '../data/grids_AGU/'
 inpath_weather = '../data/weather/'
 inpath_ARM='../data/weather_ARM/'
 outpath = '../plots_revision/'
+outpath = '../plots_meltponds/'
+outpath = '../plots_sm/'
+outpath_data = '../data/MCS/MP/SnowModel_calval/'
 
 step = 2
 step = 1
@@ -148,6 +156,41 @@ cx[2].set_ylabel('$R^2$', fontsize=20)
 cx[2].tick_params(axis="x", labelsize=14)
 cx[2].tick_params(axis="y", labelsize=14)
 cx[2].set_xlim(start,end)
+
+#PDFs for the meltpond paper
+fig6 = plt.figure(figsize=(10,5))
+#fig1.patch.set_facecolor('0.5')
+px = fig6.add_subplot(121)
+px.set_xlabel('Snow depth (m)', fontsize=20)
+px.set_ylabel('Probability', fontsize=20)
+px.tick_params(axis="x", labelsize=14)
+px.tick_params(axis="y", labelsize=14)
+#px.set_xlim(0,.5)
+
+rx = fig6.add_subplot(122)
+#ymax=.5
+#rx.set_ylim(0,ymax)
+rx.set_xlabel('Ice thickness (m)', fontsize=20)
+#rx.set_ylabel('Probability', fontsize=20)
+rx.tick_params(axis="x", labelsize=14)
+rx.tick_params(axis="y", labelsize=14)
+#rx.set_xlim(0,2)
+
+
+
+
+
+
+#bx.set_xlabel('Snow (m)', fontsize=20)
+##bx.set_title(title, fontsize=25)
+#bx.text(-.05, 2, "b", ha="center", va="center", size=35)  #make simple figure annotation
+#bx.set_ylabel('Ice (m)', fontsize=20)
+#bx.tick_params(axis="x", labelsize=14)
+#bx.tick_params(axis="y", labelsize=14)
+##ax.set_facecolor('0.3')
+#bx.set_xlim(0,.5)
+#bx.set_ylim(0,2)
+
 
 
 std_list=[]
@@ -294,6 +337,21 @@ for dd in range(0,len(dates)):
     if date in selection:
         ax.scatter(std,sim,alpha=0.1,c=np.array([colors[dd]]))
         #ax.scatter(std,sitrunc,alpha=0.1,c=np.array([colors[dd]]))
+        
+    #PDF plots for meltpond paper
+    if date in selection_meltpond:
+        srbins = np.arange(0,.8,.02)
+        weights = np.ones_like(sitrunc) / (len(sitrunc))
+        n, bins, patches = px.hist(sitrunc, srbins, histtype='stepfilled', color=colors[dd], linewidth=4, alpha=1, weights=weights, label=datel[dd])
+        #n, bins, patches = px.hist(sitrunc, srbins, histtype='step', color='k', weights=weights)
+        #px.plot([mn,mn],[0,ymax],c=colors[i],ls='--', label='mean = '+str(round(mn,2))+' m')
+
+        irbins = np.arange(0,5,.1)
+        weights = np.ones_like(ittrunc) / (len(ittrunc))
+        n, bins, patches = rx.hist(ittrunc, irbins, histtype='stepfilled', color=colors[dd], linewidth=4, alpha=1, weights=weights, label=datel[dd])
+        #rx.plot([mo,mo],[0,ymax],c=colors[i],ls='--', label='mode = '+str(round(mo,2))+' m')
+        #bx.plot([mni,mni],[0,ymax],c='k',ls=':', label='mean = '+str(round(mni,2)))
+
     
     #r2 estimates
     x = std
@@ -330,197 +388,199 @@ for dd in range(0,len(dates)):
             dt_list_s.append(dt)
         
         
-        #estimate the threshold values
-        level=0
-        rubble=0.1
-        ridge=0.3
-        
-        ###leg 4 transect is very deformed, decrease criteria, to get at least some useful level ice data
-        if loc=='transect':
+            #estimate the threshold values
+            level=0
             rubble=0.1
             ridge=0.3
-        
-        if loc=='Nloop':
-            rubble=0.2
-            ridge=0.6
+            
+            ###leg 4 transect is very deformed, decrease criteria, to get at least some useful level ice data
+            if loc=='transect':
+                rubble=0.1
+                ridge=0.3
+            
+            if loc=='Nloop':
+                rubble=0.1
+                ridge=0.3
 
-        mask_level = std>rubble
-        mask_ridge = (std<ridge) #| (itm<2.)
-        mask_rubble = ~(mask_level & mask_ridge)
-        #for the meltpond paper (Thilke et al)
-        mask_deform = std<rubble
-        
-        #give snow volume for these classes
-        #level ice
-        y_pred = predict(level)
-        level_mid = (level+rubble)/2
-        print('level rough. value and predicted snow depth: ',level_mid,y_pred)
-        #estimate the volume
-        level_si = np.ma.array(sitrunc,mask=mask_level).compressed()
-        ##also get level ice thickness for thermodyn. driver, meltpond paper and SnowModel assimilation
-        level_it = np.ma.array(ittrunc,mask=mask_level).compressed()
-        vol = np.sum(level_si)/np.sum(sitrunc)
-        print('volume fraction of level ice snow: ',vol)
-        level_n = level_si.shape[0]/sitrunc.shape[0]
-        print('fraction of level ice: ',level_n)
-        
-        #rubble
-        rubble_mid = (rubble+ridge)/2
-        y_pred = predict(rubble_mid)
-        print('rubble rough. value and predicted snow depth: ',rubble_mid,y_pred)
-        #estimate the volume
-        rubble_si = np.ma.array(sitrunc,mask=mask_rubble).compressed()
-        ##also get rubble ice thickness for SnowModel assimilation
-        rubble_it = np.ma.array(ittrunc,mask=mask_rubble).compressed()
-        vol = np.sum(rubble_si)/np.sum(sitrunc)
-        print('volume fraction of rubble ice snow: ',vol)
-        rubble_n = rubble_si.shape[0]/sitrunc.shape[0]
-        print('fraction of rubble ice: ',rubble_n)
+            #This mask should stay the same if the data is gridded!!!
+            if date==selection[0]:
+                mask_level = std>rubble
+                mask_ridge = (std<ridge) #| (itm<2.)
+                mask_rubble = ~(mask_level & mask_ridge)
+                #for the meltpond paper (Thilke et al)
+                mask_deform = std<rubble
+            
+            #give snow volume for these classes
+            #level ice
+            y_pred = predict(level)
+            level_mid = (level+rubble)/2
+            print('level rough. value and predicted snow depth: ',level_mid,y_pred)
+            #estimate the volume
+            level_si = np.ma.array(sitrunc,mask=mask_level).compressed()
+            ##also get level ice thickness for thermodyn. driver, meltpond paper and SnowModel assimilation
+            level_it = np.ma.array(ittrunc,mask=mask_level).compressed()
+            vol = np.sum(level_si)/np.sum(sitrunc)
+            print('volume fraction of level ice snow: ',vol)
+            level_n = level_si.shape[0]/sitrunc.shape[0]
+            print('fraction of level ice: ',level_n)
+            
+            #rubble
+            rubble_mid = (rubble+ridge)/2
+            y_pred = predict(rubble_mid)
+            print('rubble rough. value and predicted snow depth: ',rubble_mid,y_pred)
+            #estimate the volume
+            rubble_si = np.ma.array(sitrunc,mask=mask_rubble).compressed()
+            ##also get rubble ice thickness for SnowModel assimilation
+            rubble_it = np.ma.array(ittrunc,mask=mask_rubble).compressed()
+            vol = np.sum(rubble_si)/np.sum(sitrunc)
+            print('volume fraction of rubble ice snow: ',vol)
+            rubble_n = rubble_si.shape[0]/sitrunc.shape[0]
+            print('fraction of rubble ice: ',rubble_n)
 
-        #ridges
-        ridge_mid = ridge*2
-        y_pred = predict(ridge_mid)
-        print('ridge rough. value and predicted snow depth: ',ridge_mid,y_pred)
-        #estimate the volume
-        ridge_si = np.ma.array(sitrunc,mask=mask_ridge).compressed()
-        ##also get ridge ice thickness for meltpond paper
-        ridge_it = np.ma.array(ittrunc,mask=mask_ridge).compressed()
-        vol = np.sum(ridge_si)/np.sum(sitrunc)
-        print('volume fraction of ridge ice snow: ',vol)
-        ridge_n = ridge_si.shape[0]/sitrunc.shape[0]
-        print('fraction of ridge ice: ',ridge_n)
-        
-        #deformed ice for meltpond paper (Thilke et al)
-        deform_si = np.ma.array(sitrunc,mask=mask_deform).compressed()
-        deform_it = np.ma.array(ittrunc,mask=mask_deform).compressed()
+            #ridges
+            ridge_mid = ridge*2
+            y_pred = predict(ridge_mid)
+            print('ridge rough. value and predicted snow depth: ',ridge_mid,y_pred)
+            #estimate the volume
+            ridge_si = np.ma.array(sitrunc,mask=mask_ridge).compressed()
+            ##also get ridge ice thickness for meltpond paper
+            ridge_it = np.ma.array(ittrunc,mask=mask_ridge).compressed()
+            vol = np.sum(ridge_si)/np.sum(sitrunc)
+            print('volume fraction of ridge ice snow: ',vol)
+            ridge_n = ridge_si.shape[0]/sitrunc.shape[0]
+            print('fraction of ridge ice: ',ridge_n)
+            
+            #deformed ice for meltpond paper (Thilke et al)
+            deform_si = np.ma.array(sitrunc,mask=mask_deform).compressed()
+            deform_it = np.ma.array(ittrunc,mask=mask_deform).compressed()
 
+            
+            
+            #store these for time series!
+            ts_level_si.append(level_si)
+            ts_rubble_si.append(rubble_si)
+            ts_ridge_si.append(ridge_si)
+            
+            ts_level_frac.append(level_n)
+            ts_rubble_frac.append(rubble_n)
+            ts_ridge_frac.append(ridge_n)
+            
+            ts_level_it.append(level_it)
+            ts_rubble_it.append(rubble_it)
+            
+            ts_ridge_it.append(ridge_it)
+            ts_deform_si.append(deform_si)
+            ts_deform_it.append(deform_it)
+            
+            #print(ridge_si)
+            
         
+        ##snow depth derivative
+        #x = std1
+        #y = dsi1
+        #model = np.polyfit(x, y, 1)
+        #print('coefficients: ', model)
         
-        #store these for time series!
-        ts_level_si.append(level_si)
-        ts_rubble_si.append(rubble_si)
-        ts_ridge_si.append(ridge_si)
-        
-        ts_level_frac.append(level_n)
-        ts_rubble_frac.append(rubble_n)
-        ts_ridge_frac.append(ridge_n)
-        
-        ts_level_it.append(level_it)
-        ts_rubble_it.append(rubble_it)
-        
-        ts_ridge_it.append(ridge_it)
-        ts_deform_si.append(deform_si)
-        ts_deform_it.append(deform_it)
-        
-        #print(ridge_si)
-        
-    
-    ##snow depth derivative
-    #x = std1
-    #y = dsi1
-    #model = np.polyfit(x, y, 1)
-    #print('coefficients: ', model)
-    
-    #if np.isnan(model[0]):
-        #r2_ts_roughness2.append(0)
-    #else:
-        #predict = np.poly1d(model)
-        #from sklearn.metrics import r2_score
-        #r2 = r2_score(y, predict(x))
-        #print('R2: ',r2)
-        
-        #r2_ts_roughness2.append(r2)
-         
-
-
-    
-    
-    
-    #thermodynamics plot
-    #take all the roughness < 0.1 and plot thickness against snow depth
-    #thickice margin helps to mask the outliers - needs to be replaced by mode???
-
-    #what about working with some 'dune footprint' - similar to range in semi-variogram*2, typically 15-45
-    
-    si,var = running_stats(si,dune_range[dd])   #n has to be divideable by 2
-    it,var = running_stats(it,dune_range[dd])
-    
-    #si,var = running_stats(si,nit)   #n has to be divideable by 2
-    #it,var = running_stats(it,nit)
-    
-    #from semivar
-    #get distances between points
-    dx = mxx[1:]-mxx[:-1]
-    dy = myy[1:]-myy[:-1]
-    md = np.sqrt(dx**2+dy**2)
-    x = np.zeros_like(si)
-    x[1:] = np.cumsum(md)
-    
-    #all level ice between 200 and 700m distance - level ice always thinner than 1m
-    #ax.set_title('All level ice - several lines', fontsize=25)
-    #mask = (x<100) | (x>750)  | (std_whole>rubble) | (si==0) #first and last values in running means are zeros!!!
-
-    mask = (std_whole>rubble) | (si==0)
-
-    si_level = np.ma.array(si,mask=mask).compressed()
-    it_level = np.ma.array(it,mask=mask).compressed()
-    
-    #print(si_level)
-    if len(si_level)==0:
-        print('empty series')
-        r2_ts.append(0)
-        continue
+        #if np.isnan(model[0]):
+            #r2_ts_roughness2.append(0)
+        #else:
+            #predict = np.poly1d(model)
+            #from sklearn.metrics import r2_score
+            #r2 = r2_score(y, predict(x))
+            #print('R2: ',r2)
+            
+            #r2_ts_roughness2.append(r2)
+            
 
 
-    #plot
-    ##running mean values
-    if date in selection:
-        #running means
-        bx.scatter(si_level,it_level,alpha=0.1,c=colors[dd])
-        x = si_level
-        y = it_level
+        
+        
+        
+            #thermodynamics plot
+            #take all the roughness < 0.1 and plot thickness against snow depth
+            #thickice margin helps to mask the outliers - needs to be replaced by mode???
 
-        ##original values
-        #bx.scatter(level_si,level_it,alpha=0.1,c=colors[dd])
-        #x=level_si
-        #y=level_it
-        
-        model = np.polyfit(x, y, 1)
-        print('coefficients: ', model)
+            #what about working with some 'dune footprint' - similar to range in semi-variogram*2, typically 15-45
+            
+            si,var = running_stats(si,dune_range[dd])   #n has to be divideable by 2
+            it,var = running_stats(it,dune_range[dd])
+            
+            #si,var = running_stats(si,nit)   #n has to be divideable by 2
+            #it,var = running_stats(it,nit)
+            
+            #from semivar
+            #get distances between points
+            dx = mxx[1:]-mxx[:-1]
+            dy = myy[1:]-myy[:-1]
+            md = np.sqrt(dx**2+dy**2)
+            x = np.zeros_like(si)
+            x[1:] = np.cumsum(md)
+            
+            #all level ice between 200 and 700m distance - level ice always thinner than 1m
+            #ax.set_title('All level ice - several lines', fontsize=25)
+            #mask = (x<100) | (x>750)  | (std_whole>rubble) | (si==0) #first and last values in running means are zeros!!!
 
-        predict = np.poly1d(model)
-        from sklearn.metrics import r2_score
-        r2 = r2_score(y, predict(x))
-        print('R2 thermo: ',r2)
-        r2_ts.append(r2)
+            mask = (std_whole>rubble) | (si==0)
 
-        x_lin_reg = np.arange(0, 1.1,.1)
-        y_lin_reg = predict(x_lin_reg)
-        
-        print(x_lin_reg)
-        print(y_lin_reg)
+            si_level = np.ma.array(si,mask=mask).compressed()
+            it_level = np.ma.array(it,mask=mask).compressed()
+            
+            #print(si_level)
+            if len(si_level)==0:
+                print('empty series')
+                r2_ts.append(0)
+                continue
 
-        #plot the linear regression model
-        bx.plot(x_lin_reg, y_lin_reg, c=colors[dd], label=datel[dd])
-        
-        #plot the R2 time series
-        cx[2].scatter(dt,r2,facecolors=colors[dd],s=70)
-        
-        #get siginificance
-        from scipy.stats import linregress
-        print(linregress(x,y))
-        slope,intercept,rvalue,pvalue,stderr=linregress(x,y)
-        #p-value : two-sided p-value for a hypothesis test whose null hypothesis is that the slope is zero
-        if pvalue < 0.0001:
-            cx[2].scatter(dt,r2,marker='x',c='k',s=70)
-        
-        
-        
-        
-        
-    std_list.extend(std_whole)
-    si_list.extend(si)
-    it_list.extend(it)
+
+            #plot
+            ##running mean values
+            if date in selection:
+                #running means
+                bx.scatter(si_level,it_level,alpha=0.1,c=colors[dd])
+                x = si_level
+                y = it_level
+
+                ##original values
+                #bx.scatter(level_si,level_it,alpha=0.1,c=colors[dd])
+                #x=level_si
+                #y=level_it
+                
+                model = np.polyfit(x, y, 1)
+                print('coefficients: ', model)
+
+                predict = np.poly1d(model)
+                from sklearn.metrics import r2_score
+                r2 = r2_score(y, predict(x))
+                print('R2 thermo: ',r2)
+                r2_ts.append(r2)
+
+                x_lin_reg = np.arange(0, 1.1,.1)
+                y_lin_reg = predict(x_lin_reg)
+                
+                print(x_lin_reg)
+                print(y_lin_reg)
+
+                #plot the linear regression model
+                bx.plot(x_lin_reg, y_lin_reg, c=colors[dd], label=datel[dd])
+                
+                #plot the R2 time series
+                cx[2].scatter(dt,r2,facecolors=colors[dd],s=70)
+                
+                #get siginificance
+                from scipy.stats import linregress
+                print(linregress(x,y))
+                slope,intercept,rvalue,pvalue,stderr=linregress(x,y)
+                #p-value : two-sided p-value for a hypothesis test whose null hypothesis is that the slope is zero
+                if pvalue < 0.0001:
+                    cx[2].scatter(dt,r2,marker='x',c='k',s=70)
+                
+                
+                
+                
+                
+            std_list.extend(std_whole)
+            si_list.extend(si)
+            it_list.extend(it)
 
 
 #Roughness scatterplot
@@ -533,8 +593,126 @@ bx.legend(ncol=3)
 fig1.savefig(outpath+'thermo_scatter_1'+suff+'_'+loc,bbox_inches='tight')
 plt.close(fig1)
 
+#PDF figure for the meltpond paper
+px.legend()
+fig6.savefig(outpath+'PDFs'+suff+'_'+loc,bbox_inches='tight')
+#exit()
+
+################################################################################################################################3
+#write snow and ice values for different roughness categories to files
+#LEVEL ICE
+file_name = outpath_data+'SnowModel_'+loc+'_level.csv'
+#file_name = outpath+'meltponds_'+loc+'_level.csv'
+print(file_name)
+
+#calculate means and standard deviations
+ts_level_si_m = [ np.mean(x) for x in ts_level_si ]
+ts_level_si_std = [ np.std(x) for x in ts_level_si ]
+
+ts_level_it_m = [ np.mean(x) for x in ts_level_it ]
+ts_level_it_std = [ np.std(x) for x in ts_level_it ]
+
+#mode
+ts_level_it_mo = []
+for i in range(0,len(ts_level_it)):
+    mo = get_ice_mode(ts_level_it[i],irbins)
+    ts_level_it_mo.append(mo)
+
+#print(ts_level_it_m)
+#print(ts_level_it_mo)
+#exit()
+
+tt = [selection,ts_level_si_m,ts_level_si_std,ts_level_it_m,ts_level_it_std,ts_level_it_mo]
+table = list(zip(*tt))
+
+with open(file_name, 'wb') as f:
+    #header
+    f.write(b'date,snow depth (m),snow depth std (m),ice thickness (m),ice thickness std (m),ice mode (m)\n')
+    np.savetxt(f, table, fmt="%s", delimiter=",")
+
+#RUBBLE ICE
+file_name = outpath_data+'SnowModel_'+loc+'_rubble.csv'
+#file_name = outpath+'meltponds_'+loc+'_rubble.csv'
+print(file_name)
+
+#calculate means and standard deviations
+ts_rubble_si_m = [ np.mean(x) for x in ts_rubble_si ]
+ts_rubble_si_std = [ np.std(x) for x in ts_rubble_si ]
+
+ts_rubble_it_m = [ np.mean(x) for x in ts_rubble_it ]
+ts_rubble_it_std = [ np.std(x) for x in ts_rubble_it ]
+
+#mode
+ts_rubble_it_mo = []
+for i in range(0,len(ts_rubble_it)):
+    mo = get_ice_mode(ts_rubble_it[i],irbins)
+    ts_rubble_it_mo.append(mo)
 
 
+tt = [selection,ts_rubble_si_m,ts_rubble_si_std,ts_rubble_it_m,ts_rubble_it_std,ts_rubble_it_mo]
+table = list(zip(*tt))
+
+with open(file_name, 'wb') as f:
+    #header
+    f.write(b'date,snow depth (m),snow depth std (m),ice thickness (m),ice thickness std (m),ice mode (m)\n')
+    np.savetxt(f, table, fmt="%s", delimiter=",")
+
+#RIDGES
+file_name = outpath_data+'SnowModel_'+loc+'_ridge.csv'
+#file_name = outpath+'meltponds_'+loc+'_ridge.csv'
+print(file_name)
+
+#calculate means and standard deviations
+ts_ridge_si_m = [ np.mean(x) for x in ts_ridge_si ]
+ts_ridge_si_std = [ np.std(x) for x in ts_ridge_si ]
+
+ts_ridge_it_m = [ np.mean(x) for x in ts_ridge_it ]
+ts_ridge_it_std = [ np.std(x) for x in ts_ridge_it ]
+
+#mode
+ts_ridge_it_mo = []
+for i in range(0,len(ts_ridge_it)):
+    mo = get_ice_mode(ts_ridge_it[i],irbins)
+    ts_ridge_it_mo.append(mo)
+
+
+tt = [selection,ts_ridge_si_m,ts_ridge_si_std,ts_ridge_it_m,ts_ridge_it_std,ts_ridge_it_mo]
+table = list(zip(*tt))
+
+with open(file_name, 'wb') as f:
+    #header
+    f.write(b'date,snow depth (m),snow depth std (m),ice thickness (m),ice thickness std (m),ice mode (m)\n')
+    np.savetxt(f, table, fmt="%s", delimiter=",")
+
+
+#DEFORMED ICE (rubble+ridges)
+file_name = outpath_data+'SnowModel_'+loc+'_deformed.csv'
+#file_name = outpath+'meltponds_'+loc+'_deformed.csv'
+print(file_name)
+
+#calculate means and standard deviations
+ts_deform_si_m = [ np.mean(x) for x in ts_deform_si ]
+ts_deform_si_std = [ np.std(x) for x in ts_deform_si ]
+
+ts_deform_it_m = [ np.mean(x) for x in ts_deform_it ]
+ts_deform_it_std = [ np.std(x) for x in ts_deform_it ]
+
+#mode
+ts_deform_it_mo = []
+for i in range(0,len(ts_deform_it)):
+    mo = get_ice_mode(ts_deform_it[i],irbins)
+    ts_deform_it_mo.append(mo)
+
+
+tt = [selection,ts_deform_si_m,ts_deform_si_std,ts_deform_it_m,ts_deform_it_std,ts_deform_it_mo]
+table = list(zip(*tt))
+
+with open(file_name, 'wb') as f:
+    #header
+    f.write(b'date,snow depth (m),snow depth std (m),ice thickness (m),ice thickness std (m),ice mode (m)\n')
+    np.savetxt(f, table, fmt="%s", delimiter=",")
+###******************************************************************************************************************************
+exit()
 
 std_list = np.array(std_list)
 
@@ -771,117 +949,6 @@ outname_ts_type='ts_'+loc+'_'+'1m_gridded_roughness_type.png'
 fig5.savefig(outpath+outname_ts_type,bbox_inches='tight')
 
 
-################################################################################################################################3
-#write snow and ice values for different roughness categories to files
-#LEVEL ICE
-file_name = inpath_table+'SnowModel_'+loc+'_level.csv'
-file_name = inpath_table+'meltponds_'+loc+'_level.csv'
-print(file_name)
-
-#calculate means and standard deviations
-ts_level_si_m = [ np.mean(x) for x in ts_level_si ]
-ts_level_si_std = [ np.std(x) for x in ts_level_si ]
-
-ts_level_it_m = [ np.mean(x) for x in ts_level_it ]
-ts_level_it_std = [ np.std(x) for x in ts_level_it ]
-
-#mode
-ts_level_it_mo = []
-for i in range(0,len(ts_level_it)):
-    mo = get_ice_mode(ts_level_it[i],irbins)
-    ts_level_it_mo.append(mo)
-
-#print(ts_level_it_m)
-#print(ts_level_it_mo)
-#exit()
-
-tt = [selection,ts_level_si_m,ts_level_si_std,ts_level_it_m,ts_level_it_std,ts_level_it_mo]
-table = list(zip(*tt))
-
-with open(file_name, 'wb') as f:
-    #header
-    f.write(b'date,snow depth (m),snow depth std (m),ice thickness (m),ice thickness std (m),ice mode (m)\n')
-    np.savetxt(f, table, fmt="%s", delimiter=",")
-
-#RUBBLE ICE
-file_name = inpath_table+'SnowModel_'+loc+'_rubble.csv'
-file_name = inpath_table+'meltponds_'+loc+'_rubble.csv'
-print(file_name)
-
-#calculate means and standard deviations
-ts_rubble_si_m = [ np.mean(x) for x in ts_rubble_si ]
-ts_rubble_si_std = [ np.std(x) for x in ts_rubble_si ]
-
-ts_rubble_it_m = [ np.mean(x) for x in ts_rubble_it ]
-ts_rubble_it_std = [ np.std(x) for x in ts_rubble_it ]
-
-#mode
-ts_rubble_it_mo = []
-for i in range(0,len(ts_rubble_it)):
-    mo = get_ice_mode(ts_rubble_it[i],irbins)
-    ts_rubble_it_mo.append(mo)
-
-
-tt = [selection,ts_rubble_si_m,ts_rubble_si_std,ts_rubble_it_m,ts_rubble_it_std,ts_rubble_it_mo]
-table = list(zip(*tt))
-
-with open(file_name, 'wb') as f:
-    #header
-    f.write(b'date,snow depth (m),snow depth std (m),ice thickness (m),ice thickness std (m),ice mode (m)\n')
-    np.savetxt(f, table, fmt="%s", delimiter=",")
-
-#RIDGES
-file_name = inpath_table+'meltponds_'+loc+'_ridge.csv'
-print(file_name)
-
-#calculate means and standard deviations
-ts_ridge_si_m = [ np.mean(x) for x in ts_ridge_si ]
-ts_ridge_si_std = [ np.std(x) for x in ts_ridge_si ]
-
-ts_ridge_it_m = [ np.mean(x) for x in ts_ridge_it ]
-ts_ridge_it_std = [ np.std(x) for x in ts_ridge_it ]
-
-#mode
-ts_ridge_it_mo = []
-for i in range(0,len(ts_ridge_it)):
-    mo = get_ice_mode(ts_ridge_it[i],irbins)
-    ts_ridge_it_mo.append(mo)
-
-
-tt = [selection,ts_ridge_si_m,ts_ridge_si_std,ts_ridge_it_m,ts_ridge_it_std,ts_ridge_it_mo]
-table = list(zip(*tt))
-
-with open(file_name, 'wb') as f:
-    #header
-    f.write(b'date,snow depth (m),snow depth std (m),ice thickness (m),ice thickness std (m),ice mode (m)\n')
-    np.savetxt(f, table, fmt="%s", delimiter=",")
-
-
-#DEFORMED ICE (rubble+ridges)
-file_name = inpath_table+'meltponds_'+loc+'_deformed.csv'
-print(file_name)
-
-#calculate means and standard deviations
-ts_deform_si_m = [ np.mean(x) for x in ts_deform_si ]
-ts_deform_si_std = [ np.std(x) for x in ts_deform_si ]
-
-ts_deform_it_m = [ np.mean(x) for x in ts_deform_it ]
-ts_deform_it_std = [ np.std(x) for x in ts_deform_it ]
-
-#mode
-ts_deform_it_mo = []
-for i in range(0,len(ts_deform_it)):
-    mo = get_ice_mode(ts_deform_it[i],irbins)
-    ts_deform_it_mo.append(mo)
-
-
-tt = [selection,ts_deform_si_m,ts_deform_si_std,ts_deform_it_m,ts_deform_it_std,ts_deform_it_mo]
-table = list(zip(*tt))
-
-with open(file_name, 'wb') as f:
-    #header
-    f.write(b'date,snow depth (m),snow depth std (m),ice thickness (m),ice thickness std (m),ice mode (m)\n')
-    np.savetxt(f, table, fmt="%s", delimiter=",")
 
 #Sloop
 #20191031
