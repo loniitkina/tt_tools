@@ -23,27 +23,27 @@ inpath='../data/iceEYE/'
 inpath_cls='../data/'
 outpath='../plots_cirfa22/'
 
-##station S
-#tran_fn1 = sorted(glob('../data/CIRFA22/Landfast_S/transect-CIRFA22-*-thickness.csv'))
-#tran_fn2 = sorted(glob('../data/CIRFA22/Landfast_S/transect-CIRFA22-*-track.csv'))
+#station S
+tran_fn1 = sorted(glob('../data/CIRFA22/Landfast_S/transect-CIRFA22-*-thickness.csv'))
+tran_fn2 = sorted(glob('../data/CIRFA22/Landfast_S/transect-CIRFA22-*-track.csv'))
 
-#mp_fn1 = sorted(glob('../data/CIRFA22/Landfast_S/magnaprobe-*.dat'))
-#mp_fn2 = sorted(glob('../data/CIRFA22/Landfast_S/magnaprobe-*track.csv'))
+mp_fn1 = sorted(glob('../data/CIRFA22/Landfast_S/magnaprobe-*.dat'))
+mp_fn2 = sorted(glob('../data/CIRFA22/Landfast_S/magnaprobe-*track.csv'))
 
-#smp_coords=glob('../../../CIRFA_cruise/data/CIRFA_landfast_S/**/SMP/**/SMP_coordinates.csv')
+smp_coords=glob('../../../CIRFA_cruise/data/CIRFA_landfast_S/**/SMP/**/SMP_coordinates.csv')
 
-##IMB deployment map
-#outname='Transects_Landfast_S.png'
-#regs = 78.6; regn = 78.75
-#regw = -12.5; rege = -11.5
+#IMB deployment map
+outname='Transects_Landfast_S.png'
+regs = 78.6; regn = 78.75
+regw = -12.5; rege = -11.5
 ##ice station map
 #outname='Transects_Landfast_S_station_snow.png'
 #regs = 78.675; regn = 78.685
 #regw = -12.21; rege = -12.17
 
-#dt='20220427'
-#dt='20220426'
-#fn1 = glob(inpath+'*'+dt+'*.tif')[0]
+dt='20220427'
+dt='20220426'
+fn1 = glob(inpath+'*'+dt+'*.tif')[0]
 
 ##station M
 #tran_fn1 = sorted(glob('../data/CIRFA22/Landfast_M/transect-CIRFA22-*-thickness.csv'))
@@ -65,22 +65,22 @@ outpath='../plots_cirfa22/'
 #regs = 79.168; regn = 79.172
 #regw = -8.91; rege = -8.895
 
-#station N
-tran_fn1 = sorted(glob('../data/CIRFA22/Landfast_N/transect-CIRFA22-*-thickness.csv'))
-tran_fn2 = sorted(glob('../data/CIRFA22/Landfast_N/transect-CIRFA22-*-track.csv'))
+##station N
+#tran_fn1 = sorted(glob('../data/CIRFA22/Landfast_N/transect-CIRFA22-*-thickness.csv'))
+#tran_fn2 = sorted(glob('../data/CIRFA22/Landfast_N/transect-CIRFA22-*-track.csv'))
 
-fn1 = '../data/CIRFA22/sat_images/s1_mosaic_belgica_20220503_HV_epsg3996_LR.tif'
-fn1 = '../data/CIRFA22/sat_images/S1_test.tif'
+#fn1 = '../data/CIRFA22/sat_images/s1_mosaic_belgica_20220503_HV_epsg3996_LR.tif'
+#fn1 = '../data/CIRFA22/sat_images/S1_test.tif'
 
-#transect map
-outname='Transects_Landfast_N.png'
-regs = 79.85; regn = 79.95
-regw = -9.5; rege = -8.5
+##transect map
+#outname='Transects_Landfast_N.png'
+#regs = 79.85; regn = 79.95
+#regw = -9.5; rege = -8.5
 
-#station map
-outname='Transects_Landfast_N_station.png'
-regs = 79.871; regn = 79.875
-regw = -8.82; rege = -8.8
+##station map
+#outname='Transects_Landfast_N_station.png'
+#regs = 79.871; regn = 79.875
+#regw = -8.82; rege = -8.8
 
 print(tran_fn1)
 
@@ -157,7 +157,7 @@ for i in range(0,len(tran_fn1)):
     
     #plot
     xx, yy = map(lons, lats)    
-    chart = ax.scatter(xx,yy,c=it,s=5,cmap=plt.cm.Reds,vmin=0,vmax=5)
+    chart = ax.scatter(xx,yy,c=it,s=5,cmap=plt.cm.rainbow,vmin=0.8,vmax=1.2)
     
             
 cb = plt.colorbar(chart, ax=ax, pad=.01)
