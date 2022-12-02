@@ -15,7 +15,7 @@ plt.yticks(np.arange(0.0, 71000, 5000))
 plt.xlim([0, 5])
 plt.ylim([0, 70000])
 plt.grid(lw=1)
-plt.xlabel("Distance GEM-2 -> ice-ocean interface (m)", fontsize=20)
+plt.xlabel("Distance GEM-2 to ice-ocean interface (m)", fontsize=20)
 plt.ylabel("EM reading (ppm)", fontsize=20)
 #plt.title("GEM-2 Thickness Cheatsheet (Inphase 18325Hz)", fontsize=20)
 
@@ -43,7 +43,7 @@ for i in range(0,len(fnames)):
     date = fn.split('_')[3]
     date = datetime.strptime(date, '%Y%m%d')
     locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
-    date = datetime.strftime(date, '%B %d %Y')
+    date = datetime.strftime(date, '%b %d, %Y')
     print(date)
     
     # Read the yaml calibration file

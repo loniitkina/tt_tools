@@ -19,11 +19,14 @@ from scipy.signal import savgol_filter
 #20200328T112657_20200328T112719
 
 inpath='../data/TSX_Wenkai/classified_geotiffs/'
+inpath='../data/TSX_Wenkai/classified_geotiffs_new/'
 inpath_cls='../data/classes_tsx/'
 outpath='../plots_tsx/3x3km_revision/'
 
 dates=['20191115','20191215','20200108','20200112','20200213','20200317','20200328']
 dates=['20191115','20191215','20200112','20200213','20200317','20200328']   #for paper
+
+#dates=['20191115']  #test
 
 
 intensity_window=16; window_name='4x4';npixels=4
@@ -52,8 +55,6 @@ cx = fig2.add_subplot(111)
 
 
 class_cm = ListedColormap([
-    [0,0,0,0],
-    [0,0,0,0],
     [0/255,100/255,255/255,255/255],
     [0,0,0,0],
     [12/255,147/255,12/255,255/255],
@@ -62,7 +63,6 @@ class_cm = ListedColormap([
     [0,0,0,0],
     [200/255,0/255,0/255,255/255],
     [200/255,111/255,111/255,255/255]])
-
 
 for dt in dates:
     print(dt)
@@ -74,8 +74,36 @@ for dt in dates:
     #arr = band.ReadAsArray()
     #plt.imshow(arr)
     #plt.show()
-    ##exit()
-
+    #print(np.min(arr))
+    #print(np.max(arr))
+    #exit()
+    
+    #some colormap problems - dirty fix
+    if dt=='20191115' or dt=='20200328':
+        class_cm = ListedColormap([
+            [0/255,100/255,255/255,255/255],
+            [0,0,0,0],
+            [12/255,147/255,12/255,255/255],
+            [130/255, 204/255,133/255,255/255],
+            [255/255,255/255,0/255,255/255],
+            [0,0,0,0],
+            [200/255,0/255,0/255,255/255],
+            [200/255,111/255,111/255,255/255]])
+    else:
+        class_cm = ListedColormap([
+            [0,0,0,0],
+            [0,0,0,0],
+            [0/255,100/255,255/255,255/255],
+            [0,0,0,0],
+            [12/255,147/255,12/255,255/255],
+            [130/255, 204/255,133/255,255/255],
+            [255/255,255/255,0/255,255/255],
+            [0,0,0,0],
+            [200/255,0/255,0/255,255/255],
+            [200/255,111/255,111/255,255/255]])
+    
+    
+     
     #ref station for TXS:    
     if dt=='20191115':
         #20191115T040723_20191115T040745
@@ -147,6 +175,10 @@ for dt in dates:
     ds = gdal.Open(fn2, gdal.GA_ReadOnly)
     band = ds.GetRasterBand(1)
     arr2 = band.ReadAsArray()
+    
+    ##some reclassification for some dates
+    #if dt=='20191115':
+        #arr2 = np.where(arr2>10,10,arr2)
 
     #manual position corrections    
     if dt=='20191115':
@@ -358,6 +390,7 @@ for dt in dates:
     goodness1.append(good_data1/all_data*100)
     goodness2.append(good_data2/all_data*100)
 
+    #plt.show()
     fig1.savefig(outpath+outname,bbox_inches='tight')
     plt.close(fig1)
     

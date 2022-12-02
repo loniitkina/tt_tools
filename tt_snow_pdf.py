@@ -19,7 +19,7 @@ locs = ['runway','Nloop','Sloop','runway','special']
 dates= ['20200112','20200130','20200130','20200207','20200617']
 
 dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
-datel = [ datetime.strftime(x, '%B %d %Y') for x in dt ]
+datel = [ datetime.strftime(x, '%b %d, %Y') for x in dt ]
 
 cols = plt.cm.rainbow(np.linspace(0, 1, len(dates)))
 
@@ -92,7 +92,7 @@ for loc in locs:
         weights = np.ones_like(snod_syi) / (len(snod_syi))
         n, bins, patches = bx.hist(snod_syi, srbins, histtype='step', color='m', linewidth=4, alpha=.5, weights=weights,label='Initial SYI - '+datel[i])
         print(len(snod_syi))
-        exit()
+        #exit()
     
     else:
         #plot PDFs

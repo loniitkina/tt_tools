@@ -85,33 +85,33 @@ window=5
 #datel = ['2020/04/24']
 #title = "ECO Ridge Transect "
 
-##comparable loop transects
-#loc = 'Sloop'
+#comparable loop transects
+loc = 'Sloop'
 #dates = ['20191031']
 #dates = ['20191114']
 #dates = ['20191205']
 #dates = ['20200116']
-#dates = ['20200130']
+dates = ['20200130']
 #dates = ['20200220']
 #dates = ['20200305']
 #dates = ['20200330']
 ###dates=['20200507']
 #dates = ['20191031','20191114','20191205','20200116','20200130','20200220','20200305','20200330']   #use for gridded data!!!
-#title='g) Southern transect loop - '
+title='g) Sloop - '
 
-loc = 'Nloop'
-##dates = ['20191024']
-#dates = ['20191107']
-#dates = ['20191114']
-##dates = ['20191205']
-##dates = ['20200116']
-dates = ['20200130']
-dates = ['20200109']
-##dates = ['20200220']
-##dates = ['20200305']
-##dates = ['20200326']
-#dates = ['20191024','20191114','20191205','20200116','20200130','20200109','20200220','20200305','20200326']
-title='f) Northern transect loop - '
+#loc = 'Nloop'
+###dates = ['20191024']
+##dates = ['20191107']
+##dates = ['20191114']
+###dates = ['20191205']
+###dates = ['20200116']
+#dates = ['20200130']
+##dates = ['20200109']
+###dates = ['20200220']
+###dates = ['20200305']
+###dates = ['20200326']
+##dates = ['20191024','20191114','20191205','20200116','20200130','20200109','20200220','20200305','20200326']
+#title='f) Nloop - '
 
 #loc= 'snow1'
 ##dates = ['20200112']
@@ -122,26 +122,26 @@ title='f) Northern transect loop - '
 
 #loc= 'special'
 #dates = ['20200126']
-#title='d) Event transect - '
+#title='d) Event - '
 
-####this transect has a dis-continuity at ~350m
+#this transect has a dis-continuity at ~350m
 #loc = 'runway'
 #dates = ['20200207']
 ##dates = ['20200112']
 ##dates = ['20200112','20200207']
-#title='h) Runway transect - '
+#title='h) Runway - '
 
 #loc= 'special'
 #dates = ['20200107']
-#title='a) Dark Side FYI - '
+#title='a) Dark FYI - '
 
 #loc= 'special'
 #dates = ['20200115']
-#title='b) Dark Side SYI - '
+#title='b) Dark SYI - '
 
 #loc= 'special'
 #dates = ['20200123']
-#title='c) Long transect - '
+#title='c) Long - '
 
 ##leg 4 transect
 #loc= 'special'
@@ -210,7 +210,7 @@ dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
 
 import locale
 locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
-datel = [ datetime.strftime(x, '%B %d %Y') for x in dt ]
+datel = [ datetime.strftime(x, '%b, %d %Y') for x in dt ]
 print(datel)
 
 print(loc)
@@ -223,11 +223,11 @@ if len(dates) == 1:
 #MOSAiC
 inpath_table = '../data/MCS/MP/'
 #inpath_ridges = '../data/ridges/'
-#outpath = '../plots_revision/'
-outpath = '../plots_meltponds/'
+outpath = '../plots_revision/'
+#outpath = '../plots_meltponds/'
 #outpath = '../plots_ridges/'
 #outpath_cls = '../data/classes_tsx/'
-outpath_cls = '../plots_meltponds/'
+#outpath_cls = '../plots_meltponds/'
 inpath_grid = '../data/grids_AGU/'
 
 ##Nansen Legacy
@@ -380,21 +380,22 @@ for dd in range(0,len(dates)):
     #at all late summer dates: melt ponds FB=0, then plot blue water bellow, then ice if any (if ice negative, then zero)
     
     #there are invalid data left in data and coordinates - especially in recon
-    ii = np.ma.masked_invalid(ii)
-    si = np.ma.array(si,mask=ii.mask);si = si.compressed()
-    mi = np.ma.array(mi,mask=ii.mask);mi = mi.compressed()
-    mxx = np.ma.array(mxx,mask=ii.mask); mxx = mxx.compressed()
-    myy = np.ma.array(myy,mask=ii.mask); myy = myy.compressed()
-    
-    ii = ii.compressed()
-    
-    mxx = np.ma.masked_invalid(mxx)
-    si = np.ma.array(si,mask=mxx.mask);si = si.compressed()
-    mi = np.ma.array(mi,mask=mxx.mask);mi = mi.compressed()
-    ii = np.ma.array(ii,mask=mxx.mask); ii = ii.compressed()
-    myy = np.ma.array(myy,mask=mxx.mask); myy = myy.compressed()
-    
-    mxx = mxx.compressed()
+    if loc!='runway':   #but runway has a discontinuity
+        ii = np.ma.masked_invalid(ii)
+        si = np.ma.array(si,mask=ii.mask);si = si.compressed()
+        mi = np.ma.array(mi,mask=ii.mask);mi = mi.compressed()
+        mxx = np.ma.array(mxx,mask=ii.mask); mxx = mxx.compressed()
+        myy = np.ma.array(myy,mask=ii.mask); myy = myy.compressed()
+        
+        ii = ii.compressed()
+        
+        mxx = np.ma.masked_invalid(mxx)
+        si = np.ma.array(si,mask=mxx.mask);si = si.compressed()
+        mi = np.ma.array(mi,mask=mxx.mask);mi = mi.compressed()
+        ii = np.ma.array(ii,mask=mxx.mask); ii = ii.compressed()
+        myy = np.ma.array(myy,mask=mxx.mask); myy = myy.compressed()
+        
+        mxx = mxx.compressed()
     
     #get distances between fixed date MP points
     dx = mxx[1:]-mxx[:-1]
@@ -410,7 +411,7 @@ for dd in range(0,len(dates)):
     fig1.patch.set_facecolor('1')
     
     ax = fig1.add_subplot(111)
-    ax.set_xlabel('Length (m)', fontsize=25)
+    ax.set_xlabel('Distance along transect (m)', fontsize=25)
     ax.set_title(title+datel[dd], fontsize=30, loc='left')
     ax.set_ylabel('Distance from water surface (m)', fontsize=25)
     ax.tick_params(axis="x", labelsize=24)
@@ -497,41 +498,41 @@ for dd in range(0,len(dates)):
         ##mode==level ice thickness
         fbm = np.ones_like(fb)*mofb
         ax.plot(x,fbm-mo,c='purple',ls=':')
-        t = '$h_i$ level '+str(np.round(mo,2))
+        t = '$h_i$ level: '+str(np.round(mo,2))+' m'
         ax.text(10, mofb-mo+.1, t, ha='left', wrap=True, c='purple',size=24)
                 
         if loc== 'runway':
             mo=1.11
             ax.plot(x,fbm-mo,c='darkred',ls=':')
-            t = '$h_i$ level on 2020/01/12: '+str(mo)
-            ax.text(10, mofb-mo+.1, t, ha='left', wrap=True, c='darkred',size=24)
+            t = '$h_i$ level on Jan, 12: '+str(mo)+' m'
+            ax.text(150, mofb-mo+.1, t, ha='left', wrap=True, c='darkred',size=24)
             
         if loc== 'Nloop':
             mo=1.17
             ax.plot(x,fbm-mo,c='darkred',ls=':')
-            t = '$h_i$ level on 2020/01/09: '+str(mo)
+            t = '$h_i$ level on Jan, 9: '+str(mo)+' m'
             ax.text(300, mofb-mo+.1, t, ha='left', wrap=True, c='darkred',size=24)
             
             mo=1.35
-            ax.plot(x,fbm-mo,c='g',ls=':')
-            t = '$h_i$ level on 2020/02/20: '+str(mo)
-            ax.text(800, mofb-mo+.1, t, ha='left', wrap=True, c='g',size=24)            
+            ax.plot(x,fbm-mo,c='gold',ls=':')
+            t = '$h_i$ level on Feb, 20: '+str(mo)+' m'
+            ax.text(800, mofb-mo+.1, t, ha='left', wrap=True, c='gold',size=24)            
             
         if loc== 'Sloop':
             mo=1.11
             ax.plot(x,fbm-mo,c='darkred',ls=':')
-            t = '$h_i$ level on 2020/01/09: '+str(mo)
+            t = '$h_i$ level on Feb, 9: '+str(mo)+' m'
             ax.text(300, mofb-mo+.1, t, ha='left', wrap=True, c='darkred',size=24)
             
             mo=1.35
-            ax.plot(x,fbm-mo,c='g',ls=':')
-            t = '$h_i$ level on 2020/02/20: '+str(mo)
-            ax.text(800, mofb-mo+.1, t, ha='left', wrap=True, c='g',size=24)
+            ax.plot(x,fbm-mo,c='gold',ls=':')
+            t = '$h_i$ level on Feb, 20: '+str(mo)+' m'
+            ax.text(800, mofb-mo+.1, t, ha='left', wrap=True, c='gold',size=24)
             
         if loc== 'snow1':
             mo=0.99
             ax.plot(x,fbm-mo,c='darkred',ls=':')
-            t = 'level ice thickness on 2020/01/12: '+str(mo)
+            t = '$h_i$ level on Jan, 12: '+str(mo)+' m'
             ax.text(150, mofb-mo+.1, t, ha='left', wrap=True, c='darkred',size=24)
         
         #roughness
@@ -616,7 +617,7 @@ for dd in range(0,len(dates)):
     
 fig2 = plt.figure(figsize=(20,10))
 ax = fig2.add_subplot(111)
-ax.set_xlabel('Length (m)', fontsize=20)
+ax.set_xlabel('Distance along transect (m)', fontsize=20)
 ax.set_title(title+'winter 2019/2020', fontsize=25)
 ax.set_ylabel('Distance from water surface (m)', fontsize=20)
 ax.tick_params(axis="x", labelsize=14)
@@ -1023,7 +1024,7 @@ fig2.savefig(outpath+outname,bbox_inches='tight')
 #just snow
 fig3 = plt.figure(figsize=(20,5))
 ax = fig3.add_subplot(111)
-ax.set_xlabel('Length (m)', fontsize=20)
+ax.set_xlabel('Distance along transect (m)', fontsize=20)
 ax.set_title(title+datel[-1], fontsize=25)
 ax.set_ylabel('Distance from water surface (m)', fontsize=20)
 ax.tick_params(axis="x", labelsize=14)

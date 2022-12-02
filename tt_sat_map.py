@@ -327,21 +327,21 @@ if subset==False:
         #snow1, runway
         if date=='20200112':
             if loc=='snow1':
-                ax.plot(xx,yy,lw=6,label='snow1',c='gold')
+                ax.plot(xx,yy,lw=6,label='Snow1',c='gold')
             if loc=='runway':
-                ax.plot(xx,yy,lw=6,label='runway',c='deeppink')
+                ax.plot(xx,yy,lw=6,label='Runway',c='deeppink')
         #long
         if date=='20200123':
-            ax.plot(xx,yy,lw=6,label='long',c='c')
+            ax.plot(xx,yy,lw=6,label='Long',c='c')
         #event
         if date=='20200126' and loc=='special':
-            ax.plot(xx,yy,lw=6,label='event',c='darkred')
+            ax.plot(xx,yy,lw=6,label='Event',c='darkred')
         #dark side FYI
         if date=='20200107' and loc=='special':
-            ax.plot(xx,yy,lw=6,label='dark FYI',c='darkkhaki')
+            ax.plot(xx,yy,lw=6,label='Dark FYI',c='darkkhaki')
         #dark side SYI
         if date=='20200115' and loc=='special':
-            ax.plot(xx,yy,lw=6,label='dark SYI',c='b')
+            ax.plot(xx,yy,lw=6,label='Dark SYI',c='b')
         ##dranitsyn lead
         #if date=='20200226':
             #ax.plot(xx,yy,lw=6,label='dranitsyn',c='y')
@@ -353,7 +353,7 @@ if subset==False:
         #Allies Ridge
         if date=='20200228':
             if loc=='ridgeA1':
-                ax.plot(xx,yy,lw=6,label='ridge',c='limegreen')
+                ax.plot(xx,yy,lw=6,label='Ridge',c='limegreen')
             else:
                 ax.plot(xx,yy,lw=6,c='limegreen')
         #Fort Ridge
@@ -406,9 +406,11 @@ if subset==False:
         yy=np.ma.array(y_grid,mask=i_grid==0).compressed().flatten()
         
         if loc=='transect':
-            plt.plot(xx,yy,'o',ms=5,label=loc,c=cols[i]); i=i+1
-        else:
-            plt.plot(xx,yy,lw=6,label=loc,c=cols[i]); i=i+1
+            plt.plot(xx,yy,'o',ms=5,label='Transect',c=cols[i]); i=i+1
+        elif loc=='albedoLD':
+            plt.plot(xx,yy,lw=6,label='AlbedoLD',c=cols[i]); i=i+1
+        elif loc=='albedoRBB':
+            plt.plot(xx,yy,lw=6,label='AlbedoRBB',c=cols[i]); i=i+1    
         
         del xx,yy,x_grid,y_grid,i_grid
 

@@ -24,9 +24,9 @@ selection = ['20191031','20191107','20191114','20191205','20200102','20200109','
 #par+dia - parallel and diagonal
 #all - whole triangle on the level ice
 suff = '_all'
-suff = '_per'
-suff = '_par'
-suff = '_dia'
+#suff = '_per'
+#suff = '_par'
+#suff = '_dia'
 
 inf = inpath_grid+loc+'_'+stp+'m_'+method_gem2+ch_name+'_track2.npz'
 data = np.load(inf)
@@ -39,16 +39,16 @@ accit=[]
 fig1 = plt.figure(figsize=(18,5))
 fx = fig1.add_subplot(122)
 #fx.set_xlabel('Frequency ($m^{-1}$)', fontsize=20)
-fx.set_xlabel('Wavelenght (m)', fontsize=20)
-fx.set_ylabel('Fourier Power Spectrum', fontsize=20)
+fx.set_xlabel('Wavelength (m)', fontsize=20)
+fx.set_ylabel('Fourier power spectrum', fontsize=20)
 fx.tick_params(axis="x", labelsize=14)
 fx.tick_params(axis="y", labelsize=14)
 
 
 gx = fig1.add_subplot(121)
 #gx.set_xlabel('Frequency ($m^{-1}$)', fontsize=20)
-gx.set_xlabel('Wavelenght (m)', fontsize=20)
-gx.set_ylabel('Fourier Power Spectrum', fontsize=20)
+gx.set_xlabel('Wavelength (m)', fontsize=20)
+gx.set_ylabel('Fourier power spectrum', fontsize=20)
 gx.tick_params(axis="x", labelsize=14)
 gx.tick_params(axis="y", labelsize=14)
 
@@ -84,7 +84,7 @@ for dd in range(0,len(dates)-2):
     #get the date format that the publisher wants
     dt = datetime.strptime(date, '%Y%m%d')
     locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
-    datel = datetime.strftime(dt, '%B %d %Y')
+    datel = datetime.strftime(dt, '%b %d, %Y')
     print(datel)
     
     if date in selection:

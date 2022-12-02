@@ -18,32 +18,33 @@ polyorder=3
 window=231
 
 
-##location and dates - if gridded data is used these dates have to correspond to the dates in tt_grid_roll.py
-#loc = 'Sloop'
-#dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
-#title='Southern transect loop '
+#location and dates - if gridded data is used these dates have to correspond to the dates in tt_grid_roll.py
+loc = 'Sloop'
+dates = ['20191031','20191107','20191114','20191205','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
+title='Southern transect loop '
 
-#selection = ['20191031','20191107','20191114','20191205','20200102','20200109','20200130','20200220','20200227','20200305','20200330','20200406','20200426','20200507']  #best data
+selection = ['20191031','20191107','20191114','20191205','20200102','20200109','20200130','20200220','20200227','20200305','20200330','20200406','20200426','20200507']  #best data
+selection_meltpond=[]
 
 
-loc = 'Nloop'
-dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
+#loc = 'Nloop'
+#dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507']
 
 #selection=['20191024','20191128','20191205',  '20191219','20200102','20200109','20200130','20200220','20200227', '20200305','20200320','20200326','20200403','20200424','20200430','20200507']
 
 #same track all the time
-selection=['20191107','20191128','20191205',  '20191219','20200102','20200109','20200130','20200220','20200227', '20200305','20200320','20200326','20200403','20200424','20200430','20200507']
+#selection=['20191107','20191128','20191205',  '20191219','20200102','20200109','20200130','20200220','20200227', '20200305','20200320','20200326','20200403','20200424','20200430','20200507']
 
-selection_meltpond=['20200130']
+#selection_meltpond=['20200130']
 
 #loc= 'snow1'
 #dates = ['20191222','20200112','20200126','20200207']    #20200126 is reduced track (square!)
 #title='Snow1 transect '
 
-loc= 'runway'
-dates = ['20200112','20200207']
-title='Runway transect '
-selection=dates
+#loc= 'runway'
+#dates = ['20200112','20200207']
+#title='Runway transect '
+#selection=dates
 
 #loc= 'special'
 #dates = ['20200123']
@@ -76,8 +77,8 @@ inpath_grid = '../data/grids_AGU/'
 inpath_weather = '../data/weather/'
 inpath_ARM='../data/weather_ARM/'
 outpath = '../plots_revision/'
-outpath = '../plots_meltponds/'
-outpath = '../plots_sm/'
+#outpath = '../plots_meltponds/'
+#outpath = '../plots_sm/'
 outpath_data = '../data/MCS/MP/SnowModel_calval/'
 
 step = 2
@@ -96,7 +97,7 @@ else:
 dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
 import locale
 locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
-datel = [ datetime.strftime(x, '%B %d %Y') for x in dt ]
+datel = [ datetime.strftime(x, '%b %d, %Y') for x in dt ]
 print(datel)
 
 #what about working with some 'dune footprint' - similar to range in semi-variogram, typically 5-10
@@ -409,6 +410,14 @@ for dd in range(0,len(dates)):
                 mask_rubble = ~(mask_level & mask_ridge)
                 #for the meltpond paper (Thilke et al)
                 mask_deform = std<rubble
+                
+            #but not if the transect is deforming!
+            if loc=='Sloop':
+                mask_level = std>rubble
+                mask_ridge = (std<ridge) #| (itm<2.)
+                mask_rubble = ~(mask_level & mask_ridge)
+                #for the meltpond paper (Thilke et al)
+                mask_deform = std<rubble
             
             #give snow volume for these classes
             #level ice
@@ -712,7 +721,7 @@ with open(file_name, 'wb') as f:
     f.write(b'date,snow depth (m),snow depth std (m),ice thickness (m),ice thickness std (m),ice mode (m)\n')
     np.savetxt(f, table, fmt="%s", delimiter=",")
 ###******************************************************************************************************************************
-exit()
+#exit()
 
 std_list = np.array(std_list)
 
@@ -804,7 +813,7 @@ precip = np.array(precip,dtype=np.float)
 #plotting the time series
 
 #spacing between the box plots
-dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
+dt = [ datetime.strptime(x, '%Y%m%d') for x in selection ]
 dt_diff = [ (x-dt[0]).days for x in dt ]
 dt_diff_off1 = [ (x-dt[0]).days+2 for x in dt ]
 dt_diff_off2 = [ (x-dt[0]).days+4 for x in dt ]
@@ -834,9 +843,9 @@ cx[0].legend([bp1["boxes"][0], bp2["boxes"][0], bp3["boxes"][0]], ['level', 'rub
 cx[0].text(dt_diff[0]-25, 1, "a", ha="center", va="center", size=35)  #make simple figure annotation
 
 #surface type fractions
-cx[1].plot(dt_list,ts_level_frac,color='purple',ls='-',label='level')
-cx[1].plot(dt_list,ts_rubble_frac,color=colors[2],ls='-',label='rubble')
-cx[1].plot(dt_list,ts_ridge_frac,color=colors[4],ls='-',label='ridge')
+cx[1].plot(dt_list_s,ts_level_frac,color='purple',ls='-',label='level')
+cx[1].plot(dt_list_s,ts_rubble_frac,color=colors[2],ls='-',label='rubble')
+cx[1].plot(dt_list_s,ts_ridge_frac,color=colors[4],ls='-',label='ridge')
 cx[1].legend(fontsize=15,ncol=3)
 
 #correlations
@@ -845,10 +854,9 @@ cx[2].scatter(dt_list[:4],r2_ts[:4], s=150, facecolors='none', edgecolors='r')  
 cx[2].plot(dt_list_s,r2_ts_roughness,color='k',ls='--',label='dyn. driver')
 cx[2].legend(fontsize=15,ncol=2)
 
-
 #air temperature
 cx[3].text(mdates.date2num(start)-23, 5, "d", ha="center", va="center", size=35)  #make simple figure annotation
-cx[3].set_ylabel('Temperature (C)', fontsize=20)
+cx[3].set_ylabel('Temperature ($^\circ$C)', fontsize=20)
 cx[3].tick_params(axis="x", labelsize=14)
 cx[3].tick_params(axis="y", labelsize=14)
 cx[3].set_xlim(start,end)
@@ -857,13 +865,14 @@ cx[3].plot(date,temp,c='darkred')
 
 #wind speed and direction
 cx[4].text(mdates.date2num(start)-23, 15, "e", ha="center", va="center", size=35)  #make simple figure annotation
-cx[4].set_ylabel('Wind Speed (m/s)', fontsize=20)
+cx[4].set_ylabel('Wind speed (m s$^{-1}$)\n Snowfall (mm 3h$^{-1}$)', fontsize=20)
 cx[4].tick_params(axis="x", labelsize=14)
 cx[4].tick_params(axis="y", labelsize=14)
 cx[4].set_xlim(start,end)
 
 cs = cx[4].scatter(date,wind,c=windd,cmap=plt.cm.twilight)
-cb = plt.colorbar(cs,orientation='horizontal',aspect=80, fraction=.05, pad=.1)  # draw colorbar
+#colorbar
+cb = fig2.colorbar(cs,orientation='horizontal',aspect=80, fraction=.05, pad=.1, ax=cx[4])  # draw colorbar
 cb.set_label(label='Wind direction (deg.)',fontsize=15)
 
 #horizontal line for drifting snow limit (7.7m/s based on dry snow estimate of Li and Pomeroy, 1997)
@@ -912,7 +921,7 @@ ax.tick_params(axis="y", labelsize=14)
 ax.set_ylim(0,1)
 
 #spacing between the box plots
-dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
+dt = [ datetime.strptime(x, '%Y%m%d') for x in selection ]
 dt_diff = [ (x-dt[0]).days for x in dt ]
 dt_diff_off1 = [ (x-dt[0]).days+2 for x in dt ]
 dt_diff_off2 = [ (x-dt[0]).days+4 for x in dt ]
@@ -945,7 +954,7 @@ ax.set_xticks(dt_diff)
 fig5.autofmt_xdate()
 
 ax.legend([bp1["boxes"][0], bp2["boxes"][0], bp3["boxes"][0]], ['level ice', 'rubble ice', 'deformed ice'], loc='upper left', fontsize=20)
-outname_ts_type='ts_'+loc+'_'+'1m_gridded_roughness_type.png'
+outname_ts_type='ts_'+loc+'_'+'1m_gridded_roughness_type1.png'
 fig5.savefig(outpath+outname_ts_type,bbox_inches='tight')
 
 

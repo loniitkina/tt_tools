@@ -36,6 +36,7 @@ dt_start= datetime(2019,8,1)
 #locs=['Sloop','Nloop','runway','snow1']
 #locs = ['Nloop','Sloop','transect','ridge*','snow1','runway','albedoRBB','albedoLD','albedoK','kuka','ARIEL','special']
 locs = ['Nloop','Sloop','snow1','runway','transect','albedoRBB','albedoLD','albedoK','kuka','ARIEL','special','ridge*']
+locnames = ['Nloop','Sloop','Snow1','Runway','Transect','AlbedoRBB','AlbedoLD','AlbedoK','Kuka','Ariel','Special','Ridge']
 
 #colors matching the map
 #cols = ['salmon','purple','orange','limegreen','gold','deeppink','hotpink','cornflowerblue','m','k','r','c']
@@ -50,13 +51,13 @@ alp[2]=1    #snow1 is yellow, make it solid color
 
 
 outpath='../plots_revision/'
-outname='ts_comp_updt.png'
+outname='ts_comp_updt_revision2.png'
 
 inpath_mosaic='../data/MCS/MP/'
 i=0
 for loc in locs:
     print(loc)
-    fname=inpath_mosaic+'ts_'+loc+'_1m_gridded.csv' #this is filename mistake - these data are all 1m gridded!
+    fname=inpath_mosaic+'ts_'+loc+'_1m_gridded.csv' #produced by 
     print(fname)
     
     try:    #if exists
@@ -97,9 +98,9 @@ for loc in locs:
         #shift Sloop by 1 day so it not overlayed completly by Nloop
         if loc=='Sloop':
             dt_diff = [ x+1 for x in dt_diff ]
-            cx.errorbar(dt_diff,m_snow, std_snow, linestyle='None', marker=mrk[i],c=cols[i],label=loc,alpha=alp[i],ms=15)
+            cx.errorbar(dt_diff,m_snow, std_snow, linestyle='None', marker=mrk[i],c=cols[i],label=locnames[i],alpha=alp[i],ms=15)
         else:
-            cx.errorbar(dt_diff,m_snow, std_snow, linestyle='None', marker=mrk[i],c=cols[i],label=loc,alpha=alp[i],ms=15)
+            cx.errorbar(dt_diff,m_snow, std_snow, linestyle='None', marker=mrk[i],c=cols[i],label=locnames[i],alpha=alp[i],ms=15)
         
         
         #ice

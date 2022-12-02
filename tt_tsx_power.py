@@ -9,7 +9,7 @@ fig1 = plt.figure(figsize=(10,10))
 ax = fig1.add_subplot(111)
 
 #open file
-window_name='1x1'
+window_name='1x1'  #used in paper - gives largest sample
 #window_name='4x4'
 #window_name='7x7'
 #window_name='9x9'
@@ -20,7 +20,7 @@ lfyi = [255/255,255/255,0/255,255/255]
 dmyi = [200/255,0/255,0/255,255/255]
 vdmyi = [200/255,111/255,111/255,255/255]
 
-inpath = '../data/TSX_Wenkai/classified_geotiffs/'
+inpath = '../data/TSX_Wenkai/classified_geotiffs_new/'
 
 #for window_name in windows:
 fname = inpath+'scatter_data_'+window_name+'.csv'

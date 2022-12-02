@@ -13,7 +13,7 @@ from scipy.signal import savgol_filter
 
 #reference heading in Floenavi: 301.63560882616076
 
-inpath='../data/TSX_Wenkai/classified_geotiffs/'
+inpath='../data/TSX_Wenkai/classified_geotiffs_new/'
 inpath_cls='../data/classes_tsx/'
 outpath='../plots_tsx/3x3km_revision/'
 
@@ -26,7 +26,7 @@ intensity_window=81; window_name='9x9';npixels=9 #used in paper
 #intensity_window=16; window_name='4x4';npixels=4 #4x4
 #intensity_window=9; window_name='3x3';npixels=3 #3x3
 #intensity_window=4; window_name='2x2';npixels=2 #2x2 
-#intensity_window=1; window_name='1x1';npixels=1 #no averaging
+intensity_window=1; window_name='1x1';npixels=1 #no averaging  - for power curve in the paper
 polyorder = 3
 if npixels<3:
     polyorder = 2
