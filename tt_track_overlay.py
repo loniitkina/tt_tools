@@ -35,17 +35,17 @@ locs = ['special']
 #locs = ['Nloop','Sloop','snow1','runway','ridgeFR1','ridgeFR2','ridgeFR3','ridgeA1','ridgeA2','ridgeA3','ridgeD','ridgeE']
 #locs = ['transect']#,'albedoRBB','albedoLD']
 locs = ['albedoK','kuka','ARIEL','ridge','special']
-#locs= ['ridge']
+locs= ['ridgeA1','ridgeA2','ridgeA22','ridgeA3']
 #locs = ['ARIEL']
 #locs = ['transect']
-locs = ['albedoK']
+#locs = ['albedoK']
 
 #plot
 fig1 = plt.figure(figsize=(12,10))
 
 #all the files
 flist = glob(inpath+'*PS122-[1-5]?*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
-flist = glob(inpath+'*PS122-[5]?*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
+flist = glob(inpath+'*PS122-[4]?*/mosaic-*-*-gem2-*-track-icecs-xy.csv')
 flist.sort()
 
 dtot = 0
@@ -54,7 +54,7 @@ n_mp = 0
 mp_spacing=[]
 
 for i in range(0,len(flist)):
-    if flist[i] !=flist[0]: continue
+    #if flist[i] !=flist[0]: continue
     fname = flist[i]
     #print(fname)
     

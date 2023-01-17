@@ -9,7 +9,7 @@ from tt_func import *
 
 #time shift for NL was 9hours!
 
-leg = 0 #use zero for non-MOSAiC expeditions
+leg = 4 #use zero for non-MOSAiC expeditions
 ext = '.dat'
 
 #MOSAiC
@@ -20,10 +20,10 @@ path = '../data/MCS/MP/'
 flist = sorted(glob(path+'/*PS122-'+str(leg)+'*/magnaprobe-*'+ext))
 print(flist)
 
-#CIRFA2022
-path = '../data/CIRFA22/'
-flist = sorted(glob(path+'/**/magnaprobe-*'+ext))
-print(flist)
+##CIRFA2022
+#path = '../data/CIRFA22/'
+#flist = sorted(glob(path+'/**/magnaprobe-*'+ext))
+#print(flist)
 
 for i in flist:
     #open data file

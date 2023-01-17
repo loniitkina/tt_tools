@@ -41,7 +41,6 @@ dates = [['20191031','20191107','20191114','20191205',   '20191226','20200102','
 #['20200630']
 #]
 
-
 inpath_grid = '../data/grids_AGU/'
 outpath = '../plots_AGU/'
 outname='grid_method.png'

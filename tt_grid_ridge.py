@@ -7,6 +7,22 @@ import matplotlib.pyplot as plt
 
 #bad data following headers deleted in thickness and track files ahead of procesing here?
 
+#because of the calibration on the thin level ice, there will be lots of missing data (not possible to calibrate) in very thinck ridges (calibration on 1 me thick ice will not work for ridges thickner than 10 m)
+#as a solution we can use the nearest calibration (close in time, temperature, salinity) that will produce a lot of nans
+#then we use a distant calibration that has no nans (calibration on thick ice or melt period)
+#then we do a linear correlation between the derived thicknesses and fill in the nans
+
+#CHECK
+#the high frequnecies - that should be connected to porosity, have no missing values (not very thick layer)
+#the lower fequecies - that should be connected to the thickness, should stay stable in time
+
+#The precision of the total ridge thickness is questionable and likely at the range of 1 meter.
+#How stable is the high frequency quadrature and is it connected to ridge porosity?
+
+#OR
+#simply use April 10 calibration file - last cold calibration on very thick second year level ice.
+#Check if the high freq q channel makes sense, the total thickness is inaccurate anyway (footprint is 4xthickness)
+
 
 #grid parameters
 step = 1        #for ridges
@@ -17,11 +33,10 @@ method_mp = 'nearest'   #at dense grids every measurement should be used separat
 table_output=True
 
 #location - ridges
-#loc = 'ridgeFR1'    #installation (also very close to snow)
-#date = '20200108'
-#date = '20200119'
+loc = 'ridgeFR1'    #installation (also very close to snow)
+date = '20200108'
+date = '20200119'
 #date = '20200221'
-#date = '20200305'   #not a point measurement, use tt_grid.py
 
 
 #loc = 'ridgeFR2'    #coring
@@ -30,31 +45,33 @@ table_output=True
 #date = '20200221'
 
 
-loc = 'ridgeFR3'    #optics
-date = '20200131'   #only one GEM2 transect, but 9 holes drilled!!!
+#loc = 'ridgeFR3'    #optics
+#date = '20200131'   #only one GEM2 transect, but 9 holes drilled!!!
 
 #loc = 'ridgeA1'    #central
 #date = '20200117'                  #good data in all channels
 #date = '20200131'                #a lot of nans at the crest in all but highest channels
 #date = '20200228'               #full of nans except in the first channel and 63q
-
+#date = '20200628'
 
 #loc = 'ridgeA2'    #north
 #date = '20200212'
 #date = '20200228'
+#date = '20200628'
 
 
 #loc = 'ridgeA3'    #south
 #date = '20200212'
 #date = '20200228'
+#date = '20200628'
 
-#leg 4 Allie's Ridge
-loc = 'ridge'
-date = '20200628'
-date = '20200709' #MP and GEM-2 data quite shifted, bad coordinate match
-date = '20200713'   #GPS failure on two out of three GEM-lines
-date = '20200721'   #no MP data found
-date = '20200728'   #just one line, strange GEM-2 coordinates.
+##leg 4 Allie's Ridge
+#loc = 'ridge'
+#date = '20200628'   #not same frequnecies as on previous legs!!!
+#date = '20200709' #MP and GEM-2 data quite shifted, bad coordinate match
+#date = '20200713'   #GPS failure on two out of three GEM-lines
+#date = '20200721'   #no MP data found
+#date = '20200728'   #just one line, strange GEM-2 coordinates.
 
 
 
@@ -71,8 +88,8 @@ print(loc)
 print(date)
 print(date_gem2)
 
-outpath = '../plots_AGU/'
-outpath_grid = '../data/grids_AGU/'
+outpath = '../plots_ridges/'
+outpath_grid = '../data/grids_ridges/'
 
 #MP
 #inpath_snow = '../../../MOSAiC/leg2_ICE/transect/'
@@ -81,22 +98,23 @@ inpath_snow = '../data/MCS/MP/'
 #GEM-2
 #inpath_ice = '../../../MOSAiC/thickness_workspace/01-ice-thickness/'
 inpath_ice = '../data/MCS/GEM2_thickness/01-ice-thickness/'
+#inpath_ice = '../data/MCS/GEM2_thickness/09-ridges-recal/'
 
 #coordinates
 fname = glob(inpath_ice+date_gem2+'*/mosaic-*-*-gem2-*-track-icecs-xy.csv')[0]
-if date=='20200628':
-    fname = glob(inpath_ice+date_gem2+'*/mosaic-*-*-gem2-*-track-icecs-xy.csv')[1]
+#if date=='20200628':
+    #fname = glob(inpath_ice+date_gem2+'*/mosaic-*-*-gem2-*-track-icecs-xy.csv')[1]
 print(fname)
 
 xx,yy=ridge_xy(fname)   
 
 #ice thickness data
-fname = glob(inpath_ice+date_gem2+'*/mosaic-*-*-gem2-*-channel-thickness.csv')[0]
-if date=='20200628':
-    fname = glob(inpath_ice+date_gem2+'*/mosaic-*-*-gem2-*-channel-thickness.csv')[1]
-print(fname)
+fname_ice = glob(inpath_ice+date_gem2+'*/mosaic-*-*-gem2-*-channel-thickness.csv')[0]
+#if date=='20200628':
+    #fname_ice = glob(inpath_ice+date_gem2+'*/mosaic-*-*-gem2-*-channel-thickness.csv')[1]
+print(fname_ice)
 
-mit1,mit2,mit3,mit4,mit5,mit6,mit7,mit8,mit9,mit10=ridge_thick(fname)
+mit1,mit2,mit3,mit4,mit5,mit6,mit7,mit8,mit9,mit10=ridge_thick(fname_ice)
 
 #MP
 fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+'-track-icecs-xy_corr.csv')[0]
@@ -111,20 +129,25 @@ mxx = np.array(mxx,dtype=np.float)
 
 myy = getColumn(fname,4)
 myy = np.array(myy,dtype=np.float)
-    
-#get some meta data for the MP transect:
-dx = mxx[1:]-mxx[:-1]
-dy = myy[1:]-myy[:-1]
-d = np.sum(np.sqrt(dx**2+dy**2))
-print('transect length:')
-print(d)
-print('MP measurement spacing:')
-spacing = np.mean(np.sqrt(dx**2+dy**2))
-print(spacing)
 
-of = fname.split('track')[0]+'meta.txt'
-print(of)
-np.savetxt(of, (d,spacing))
+#ridge transects were taken along the tape with known spacing, 1m
+#the GPS coordinates have precision of about 2-5m and are worse
+#make sure that the lenght of coordinate vectors is same as originally
+print(len(mxx))
+print(len(myy))
+
+if np.abs(mxx[0]-mxx[-1])<1:
+    mxx[:] = np.mean(mxx)
+else:
+    mdx = np.round(np.abs(mxx[0]-mxx[-1])/len(mxx),2)
+    mxx[:] = np.arange(mxx[0],mxx[-1],mdx)[:len(mxx)]
+
+
+if np.abs(myy[0]-myy[-1])<1:
+    myy[:] = np.mean(myy)
+else:
+    mdy = np.abs(myy[0]-myy[-1])/len(myy)
+    myy[:] = np.arange(myy[0],myy[-1],mdy)[:len(myy)]
 
 #snow depth data
 fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+'.dat')[0]
@@ -231,11 +254,7 @@ if table_output==True:
     #write out the ice mass balance transect collocated tables
     
     #create output name
-    outname = fname.split('probe')[0]+'+gem2'+fname.split('probe')[1].split('.dat')[0]+'.csv'
-    
-    #if (date_gem2 == '20200223') or (date_gem2 == '20191226' and loc=='Nloop'):
-        #outname = fname.split('probe')[0]+'+gem2'+fname.split('probe')[1].split('.dat')[0]+'_ice_from_'+date_gem2+'.csv'
-
+    outname = fname_ice.split('-channel-')[0]+'+mp_'+loc+'.csv'
 
     tt_nn1 = np.zeros_like(sd_values)
     tt_nn2 = np.zeros_like(sd_values)
@@ -288,6 +307,6 @@ if table_output==True:
     print(outname)
     with open(outname, 'wb') as f:
         #header
-        f.write(b'Date/Time, Lon, Lat, Local X, Local Y, Snow Depth (m), Ice Thickness f1525Hz_hcp_i (m), Ice Thickness f1525Hz_hcp_q (m) Ice Thickness f5325Hz_hcp_i (m), Ice Thickness f5325Hz_hcp_q (m), Ice Thickness f18325Hz_hcp_i (m), Ice Thickness f18325Hz_hcp_q (m), Ice Thickness f63025Hz_hcp_i (m),Ice Thickness f63025Hz_hcp_q (m), Ice Thickness f93075Hz_hcp_i (m), Ice Thickness f93075Hz_hcp_q (m)\n')
+        f.write(b'Date/Time, Lon, Lat, Local X, Local Y, Snow Depth (m), Ice Thickness f1525Hz_hcp_i (m), Ice Thickness f1525Hz_hcp_q (m), Ice Thickness f5325Hz_hcp_i (m), Ice Thickness f5325Hz_hcp_q (m), Ice Thickness f18325Hz_hcp_i (m), Ice Thickness f18325Hz_hcp_q (m), Ice Thickness f63025Hz_hcp_i (m),Ice Thickness f63025Hz_hcp_q (m), Ice Thickness f93075Hz_hcp_i (m), Ice Thickness f93075Hz_hcp_q (m)\n')
         np.savetxt(f, table, fmt="%s", delimiter=",")
 

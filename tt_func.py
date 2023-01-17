@@ -248,13 +248,13 @@ def running_stats(x, n):            #n has to be dividable by 2!
         var = (sum2/n - mean**2)
         return (mean,var)
     
-
 def proj_sat(tif,lon0,lat0,head0,spacing=1,band=1,alos=False,ps_pos=False):
     ds = gdal.Open(tif, gdal.GA_ReadOnly) # Note GetRasterBand() takes band no. starting from 1 not 0
     band = ds.GetRasterBand(band)
     arr = band.ReadAsArray()
     #plt.imshow(arr)
     #plt.show()
+    #exit()
     
     #lat,lon projection
     outProj = Proj(init='epsg:4326')
@@ -307,10 +307,10 @@ def proj_sat(tif,lon0,lat0,head0,spacing=1,band=1,alos=False,ps_pos=False):
         crs.ImportFromWkt(ds.GetProjectionRef())
         inProj=crs.ExportToProj4()
         print(inProj)
-
+        
         #transform coordinates to lat,lon
         lon,lat = transform(inProj,outProj,posX, posY)
-        
+         
         del posX,posY
         gc.collect()
 
@@ -340,6 +340,79 @@ def proj_sat(tif,lon0,lat0,head0,spacing=1,band=1,alos=False,ps_pos=False):
         x=x+53
         y=y+3
 
+
+    print('rotate')
+    ##Rotate into reference system of base station
+    ##The heading offset is 90: to get from default positive x-axis to positive y-axis
+    x_temp, y_temp = x.copy(), y.copy()
+    #heading_radian = np.deg2rad(-1.0 * self.refstat.heading + self.base_heading + self.heading_offset_deg)
+    heading_radian = np.deg2rad(-1.0 * (head0-90))
+
+    rot_x = np.cos(heading_radian) * x_temp + np.sin(heading_radian) * y_temp
+    rot_y = -1.0 * np.sin(heading_radian) * x_temp + np.cos(heading_radian) * y_temp
+    
+    del x,y,x_temp,y_temp
+    gc.collect()
+   
+    return(arr,rot_x,rot_y)
+
+def proj_rov(tif,lon0,lat0,head0,lon_origin,lat_origin):
+    ds = gdal.Open(tif, gdal.GA_ReadOnly) # Note GetRasterBand() takes band no. starting from 1 not 0
+    band = ds.GetRasterBand(1)
+    arr = band.ReadAsArray()
+    #plt.imshow(arr)
+    #plt.show()
+    #exit()
+    
+    #lat,lon projection
+    outProj = Proj(init='epsg:4326')
+
+    #construct grid and calculate lat,lon
+    #get the geo transform matrix
+    xoffset, px_w, rot1, yoffset, rot2, px_h = ds.GetGeoTransform()
+    print(xoffset, px_w, rot1, yoffset, px_h, rot2)
+    
+    #degrees longitude are too large for 87N, adjust
+    px_w=px_w*18
+
+    #pixel coordinates
+    x, y = np.mgrid[0:ds.RasterXSize, 0:ds.RasterYSize]
+
+    # supposing x and y are your pixel coordinate this 
+    # is how to get the coordinate in space.
+    posX = px_w * x + rot1 * y + xoffset
+    posY = rot2 * x + px_h * y + yoffset
+
+    # shift to the center of the pixel
+    posX += px_w / 2.0
+    posY += px_h / 2.0
+
+    # get CRS from dataset 
+    crs = osr.SpatialReference()
+    crs.ImportFromWkt(ds.GetProjectionRef())
+    inProj=crs.ExportToProj4()
+    print(inProj)
+    
+    #transform coordinates to lat,lon
+    lon,lat = transform(inProj,outProj,posX, posY)
+
+    #shift to the drive hole origin
+    lon = lon+lon_origin-1
+    lat = lat+lat_origin-1
+        
+    del posX,posY
+    gc.collect()
+
+    #transform to the FloeNavi local coordinates
+    FloeNaviProj = Proj('+proj=stere +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 +ellps=WGS84'%(lat0,lon0))
+    x,y = transform(outProj,FloeNaviProj,lon,lat)
+    
+    del lon,lat
+    gc.collect()
+
+    #check orgin location - should be sub-meter away from 0,0
+    xref,yref = transform(outProj,FloeNaviProj,lon0,lat0)
+    print(xref,yref)
 
     print('rotate')
     ##Rotate into reference system of base station

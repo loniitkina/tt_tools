@@ -23,9 +23,6 @@ ext_mp='.dat'
 window = 5  #with spacing .2m is this 1m  ~MP spacing
 polyorder = 3
 
-##ridges with pulk
-#window = 3  #smoothing filter window for GEM-2 (with spacing .2m is this 60cm!)
-#polyorder = 0
 
 #show gridded data plot
 show=True
@@ -122,15 +119,13 @@ loc1=None
 
 #location - ridges
 #only for ridges that were surveyed with a pulk: othrwise use script tt_grid_ridge.py
-#loc = 'ridgeFR1'    #installation (also very close to snow)
-#dates = ['20200305']
+loc = 'ridgeFR1'    #installation (also very close to snow)
+dates = ['20200305']
 
-#loc = 'ridgeA1'    #
-#loc = 'ridgeA2'
-#loc = 'ridgeA3'
-#dates = ['20200410']
-#loc = 'ridge'
-#dates = ['20200628','20200728']
+loc = 'ridgeA1'    #
+loc = 'ridgeA2'
+loc = 'ridgeA3'
+dates = ['20200410']
 
 #loc = 'ridgeD'
 #date = '20200410'
@@ -173,14 +168,15 @@ loc1=None
 #loc='special'
 #dates = ['20200107','20200115','20200123','20200226','20200326','20200430','20200617','20200719','20200719','20200827','20200903','20200910','20200902','20200909','20200919']
 
-#loc = 'recon'   #has no MP data
+loc = 'recon'   #has no MP data
+dates = ['20200108']; inpath_ice = '../data/MCS/GEM2_thickness/09-ridges-recal/'   #road to Fort Ridge
 #dates = ['20200228']   #airport recon
 #dates = ['20200226']   #Darnitsyn Lead
-##dates = ['20200107']   #Dark site FYI
-##dates = ['20200126']   #lead Event
-#table_output=False  #not useful
-#step=5
-#limit = step*2            #no need to search far
+#dates = ['20200107']   #Dark site FYI
+#dates = ['20200126']   #lead Event
+table_output=True  #not useful
+step=5
+limit = step*2            #no need to search far
 
 #leg4
 #loc = 'transect'
@@ -259,22 +255,21 @@ loc1=None
 #loc = 'P7'
 #dates = ['20210513']
 
-#CIRFA cruise
+##CIRFA cruise
+#outpath = '../plots_cirfa22/'
+#outpath_grid = '../data/grids_cirfa22/'
 
-outpath = '../plots_cirfa22/'
-outpath_grid = '../data/grids_cirfa22/'
+##loc='Landfast_S'
+##dates=['20220427']
 
-#loc='Landfast_S'
-#dates=['20220427']
+#loc='Drift1'
+#dates=['20220505']
 
-loc='Drift1'
-dates=['20220505']
+#loc='Drift2'
+#dates=['20220507']
 
-loc='Drift2'
-dates=['20220507']
-
-inpath_ice = '../data/CIRFA22/'+loc+'/'
-inpath_snow = inpath_ice
+#inpath_ice = '../data/CIRFA22/'+loc+'/'
+#inpath_snow = inpath_ice
 
 for dd in range(0,len(dates)):
     date=dates[dd]
@@ -349,7 +344,11 @@ for dd in range(0,len(dates)):
             t5 = getColumn(fn,10)        #take 1.5KHz ip (10)
             t93 = getColumn(fn,14)         #take 63KHz ip (14)
 
-            
+        elif 'ridge' in loc:
+            t18 = getColumn(fn,8)        #take 5KHz ip (8)
+            t5 = getColumn(fn,10)        #take 18KHz ip (10)
+            t93 = getColumn(fn,15)         #take 93KHz q (15)
+
         else:
             t18 = getColumn(fn,12)        #take 18KHz ip (10)
             t5 = getColumn(fn,10)        #take 5KHz ip (8)
@@ -424,6 +423,35 @@ for dd in range(0,len(dates)):
         print('MP measurement spacing:')
         spacing = np.mean(np.sqrt(dx**2+dy**2))
         print(spacing)
+        
+        #make straight lines of pulk ridge transects
+        if 'ridge' in loc:
+            ##ridges with pulk
+            window = 3  #smoothing filter window for GEM-2 (with spacing .2m is this 60cm!)
+            polyorder = 0
+
+            #ridge transects were taken along a line with nominal spacing, 1m
+            #the GPS coordinates have precision of about 2-5m and are worse
+            #make sure that the lenght of coordinate vectors is same as originally
+            print(len(mxx))
+            print(len(myy))
+            
+            print((mxx))
+            print((myy))
+
+            if np.abs(mxx[0]-mxx[-1])<4:
+                mxx[:] = np.mean(mxx)
+            else:
+                mdx = np.round(np.abs(mxx[0]-mxx[-1])/len(mxx),2)
+                mxx[:] = np.arange(mxx[0],mxx[-1],mdx)[:len(mxx)]
+
+
+            if np.abs(myy[0]-myy[-1])<5:
+                myy[:] = np.mean(myy)
+            else:
+                mdy = np.abs(myy[0]-myy[-1])/len(myy)
+                myy[:] = np.arange(myy[0],myy[-1],mdy)[:len(myy)]
+
 
         if scale_limit==True:
             limit = spacing*2
