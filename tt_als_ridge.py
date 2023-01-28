@@ -338,7 +338,28 @@ plt.show()
 fig1.savefig(outpath_plots+outname,bbox_inches='tight')
 plt.close(fig1)
     
-            
+#prepare data for CVL - 3DVIZ            
+#transform all coordinates to lat,lon and store the data in text files
+from pyproj import Proj, transform
+
+#lat,lon projection
+outProj = Proj(init='epsg:4326')
+
+FloeNaviProj = Proj('+proj=stere +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 +ellps=WGS84'%(80,0))
+
+#transform to latlon-selected static position
+lon_als,lat_als = transform(FloeNaviProj,outProj,rot_x,rot_y)
+
+#write new csv file with all the ice mass balance variables
+tt = [lon_als,lat_als,rot_x,rot_y,data]
+table = list(zip(*tt))
+
+outname = outpath+'ALS_elevation_latlon.txt'
+print(outname)
+with open(outname, 'wb') as f:
+    #header
+    f.write(b'Lon, Lat, X, Y, Elevation (m)\n')
+    np.savetxt(f, table, fmt="%s", delimiter=",")
 
         
 

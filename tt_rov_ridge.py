@@ -11,47 +11,47 @@ outpath='../data/ridges/'
 outpath_plots='../plots_ridges/'
 
 #ROV multibeam data
-#tif='../data/MOSAiC_ROV_MB_PANGEA/PS122_2_19_27_20200107_ROV_MULTIBEAM_v1_raster.tiff'
-#outname='ROV_multibeam_transects_overview.png'
-#version='_ROV_20200107'
+tif='../data/MOSAiC_ROV_MB_PANGEA/PS122_2_19_27_20200107_ROV_MULTIBEAM_v1_raster.tiff'
+outname='ROV_multibeam_transects_overview.png'
+version='_ROV_20200107'
 #metadata:../data/MOSAiC_ROV_MB_PANGEA/MOSAiC_BEAST_Sea-ice_draft.tab 
-##start time:2020-01-07T06:45:00
-##end time:2020-01-07T13:14:00
-##refstation
-##reference heading in Floenavi: 301.63560882616076
-##2020-01-07 06:45:00,114.92158700136054,87.12092944920997,298.4116307624573,3.8752930801668546,1.6389446771711977
-##lon0=114.92158700136054
-##lat0=87.12092944920997
-##head0=298.4116307624573
-
+#start time:2020-01-07T06:45:00
+#end time:2020-01-07T13:14:00
+#refstation
+#reference heading in Floenavi: 301.63560882616076
+#2020-01-07 06:45:00,114.92158700136054,87.12092944920997,298.4116307624573,3.8752930801668546,1.6389446771711977
 #lon0=114.92158700136054
 #lat0=87.12092944920997
-#head0=298.68350213431756
-#head0=head0-63   #adjusted manually for rotation
-#lon_origin=114.933499
-#lat_origin=87.121199
-#x_offset=905+10
-#y_offset=-670-5
+#head0=298.4116307624573
 
-tif='../data/MOSAiC_ROV_MB_PANGEA/PS122_2_22_45_20200128_ROV_MULTIBEAM_v1_raster.tiff'
-outname='ROV_multibeam_transects_FR.png'
-version='_ROV_20200128'
-version='_ROV_20200128_match'
-#metadata:../data/MOSAiC_ROV_MB_PANGEA/MOSAiC_BEAST_Sea-ice_draft.tab 
-##start time:2020-01-28T06:48:00
-##end time:2020-01-28T10:56:00
-##refstation
-##reference heading in Floenavi: 301.63560882616076
-#2020-01-28 06:48:00,95.81595474392334,87.45167110623571,287.10251418256775,4.633817530252664,0.9073634721915533
+lon0=114.92158700136054
+lat0=87.12092944920997
+head0=298.68350213431756
+head0=head0-63   #adjusted manually for rotation
+lon_origin=114.933499
+lat_origin=87.121199
+x_offset=905+10
+y_offset=-670-5
 
-lon0=95.81595474392334
-lat0=87.45167110623571
-head0=287.10251418256775
-head0=head0-40-6+5   #adjusted manually for rotation
-lon_origin=95.828327
-lat_origin=87.452089
-x_offset=727+20-10-5+9+5-2
-y_offset=-520+80+5-40-10+5-7+40+4
+#tif='../data/MOSAiC_ROV_MB_PANGEA/PS122_2_22_45_20200128_ROV_MULTIBEAM_v1_raster.tiff'
+#outname='ROV_multibeam_transects_FR.png'
+#version='_ROV_20200128'
+#version='_ROV_20200128_match'
+##metadata:../data/MOSAiC_ROV_MB_PANGEA/MOSAiC_BEAST_Sea-ice_draft.tab 
+###start time:2020-01-28T06:48:00
+###end time:2020-01-28T10:56:00
+###refstation
+###reference heading in Floenavi: 301.63560882616076
+##2020-01-28 06:48:00,95.81595474392334,87.45167110623571,287.10251418256775,4.633817530252664,0.9073634721915533
+
+#lon0=95.81595474392334
+#lat0=87.45167110623571
+#head0=287.10251418256775
+#head0=head0-40-6+5   #adjusted manually for rotation
+#lon_origin=95.828327
+#lat_origin=87.452089
+#x_offset=727+20-10-5+9+5-2
+#y_offset=-520+80+5-40-10+5-7+40+4
 
 
 
@@ -314,6 +314,34 @@ for i in range(0,len(flist)):
         if date=='20191031':
             xx=xx+0
             yy=yy-5
+            
+            
+        #save these data for 3dVIZ
+        from pyproj import Proj, transform
+
+        #lat,lon projection
+        outProj = Proj(init='epsg:4326')
+
+        FloeNaviProj = Proj('+proj=stere +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 +ellps=WGS84'%(80,0))
+
+        #transform to latlon-selected static position
+        lon_als,lat_als = transform(FloeNaviProj,outProj,xx,yy)
+
+        #write new csv file with all the ice mass balance variables
+        tt = [lon_als,lat_als,xx,yy,data]
+        table = list(zip(*tt))
+
+        outname1 = outpath+'transect_latlon.txt'
+        print(outname1)
+        with open(outname1, 'wb') as f:
+            #header
+            f.write(b'Lon, Lat, X, Y, Total thickness (m)\n')
+            np.savetxt(f, table, fmt="%s", delimiter=",")
+
+        
+            
+            
+            
     
     ax.scatter(xx,yy,c=it,s=5,cmap=plt.cm.Reds,vmin=0,vmax=5)
 
@@ -364,6 +392,28 @@ fig1.savefig(outpath_plots+outname,bbox_inches='tight')
 plt.close(fig1)
     
             
+#prepare data for CVL - 3DVIZ            
+#transform all coordinates to lat,lon and store the data in text files
+from pyproj import Proj, transform
+
+#lat,lon projection
+outProj = Proj(init='epsg:4326')
+
+FloeNaviProj = Proj('+proj=stere +lat_0=%f +lon_0=%f +x_0=0 +y_0=0 +ellps=WGS84'%(80,0))
+
+#transform to latlon-selected static position
+lon_als,lat_als = transform(FloeNaviProj,outProj,rot_x,rot_y)
+
+#write new csv file with all the ice mass balance variables
+tt = [lon_als,lat_als,rot_x,rot_y,data]
+table = list(zip(*tt))
+
+outname = outpath+'ROV_draft_LR_latlon.txt'
+print(outname)
+with open(outname, 'wb') as f:
+    #header
+    f.write(b'Lon, Lat, X, Y, Draft (m)\n')
+    np.savetxt(f, table, fmt="%s", delimiter=",")
 
         
 
