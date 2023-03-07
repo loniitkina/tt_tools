@@ -213,7 +213,15 @@ loc='Sloop'
 #loc='runway'
 for i in ['level','rubble']:
     fname = inpath_table+'SnowModel_'+loc+'_'+i+'.csv'
-    fname = inpath_table+'SnowModel_'+loc+'_'+i+'_melt.csv'
+    #fname = inpath_table+'SnowModel_'+loc+'_'+i+'_melt.csv'
+    
+    #use means as they are plotted in Itkin et al, 2023
+    #fname = inpath_table+'ts_Nloop_1m_gridded.csv'
+    #fname = inpath_table+'ts_Nloop_1m_gridded_melt.csv' #add melt period data (copy from special on 17 June and transect of leg 4)
+    #fname = inpath_table+'ts_Sloop_1m_gridded_melt.csv'
+    #fname = inpath_table+'ts_runway_1m_gridded_melt.csv'
+    fname = inpath_table+'ts_Sloop_1m_gridded.csv'
+    
     print(fname)
 
     sloop_dates = getColumn(fname,0)

@@ -29,10 +29,10 @@ colors = plt.cm.rainbow(np.linspace(0, 1, len(locs)*len(types)))
 
 fig1 = plt.figure(figsize=(15,15))
 ax = fig1.add_subplot(211)
-ax.set_ylabel('Snow depth (m)',fontsize=20)
+ax.set_ylabel('Mean snow depth (m)',fontsize=20)
 
 bx = fig1.add_subplot(212)
-bx.set_ylabel('Ice thickness (m)',fontsize=20)
+bx.set_ylabel('Ice thickness mode (m)',fontsize=20)
 
 i=0
 for loc in locs:
@@ -48,45 +48,56 @@ for loc in locs:
         dates = getColumn(fname,0)
         dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
         snod = getColumn(fname,1);snod = np.array(snod,dtype=np.float)
-        it = getColumn(fname,3);it = np.array(it,dtype=np.float)
-
-        #add dark site coring data
-        if loc=='runway' and tt=='level':
-            fn='FYI_snow_clean.csv'
-            fname = glob(inpath_coring+fn)[0]
-            
-            #only take data until end of leg3 (pre-melt)
-            dates = getColumn(fname,10)[:-5]
-            dt_c = [ datetime.strptime(x, '%m/%d/%Y %H:%M') for x in dates ]
-            snod_c = getColumn(fname,1)[:-5];snod_c = np.array(snod_c,dtype=np.float)/100
-            it_c = getColumn(fname,13)[:-5];it_c = np.array(it_c,dtype=np.float)/100
-            
-            dt.extend(dt_c)
-            snod=np.append(snod,snod_c)
-            it=np.append(it,it_c)
-            
-        if loc=='Nloop' and tt=='level':
-            fn='SYI_snow_clean.csv'
-            fname = glob(inpath_coring+fn)[0]
-            
-            dates = getColumn(fname,10)[:-4]
-            dt_c = [ datetime.strptime(x, '%m/%d/%Y %H:%M') for x in dates ]
-            snod_c = getColumn(fname,1)[:-4];snod_c = np.array(snod_c,dtype=np.float)/100
-            it_c = getColumn(fname,13)[:-4];it_c = np.array(it_c,dtype=np.float)/100
-            
-            dt.extend(dt_c)
-            snod=np.append(snod,snod_c)
-            it=np.append(it,it_c)
+        snod_std = getColumn(fname,2);snod_std = np.array(snod_std,dtype=np.float)
+        it = getColumn(fname,5);it = np.array(it,dtype=np.float)
         
-        #add same start as level ice and same end as deformed Sloop
-        if loc=='runway' and tt=='deformed':
-            dt.append(datetime(2019,11,1))
-            snod=np.append(snod,.1)
-            it=np.append(it,.4)
+        #Sloop and Nloop are sampled on same days - as a bit of a shift to avoid overlay
+        if loc=='Sloop':
+            dt = [ x+timedelta(hours=12) for x in dt ]
+
+        ##add dark site coring data
+        #if loc=='runway' and tt=='level':
+            #fn='FYI_snow_clean.csv'
+            #fname = glob(inpath_coring+fn)[0]
             
-            dt.append(datetime(2020,5,7))
-            snod=np.append(snod,.32)
-            it=np.append(it,2)
+            ##only take data until end of leg3 (pre-melt)
+            #dates = getColumn(fname,10)[:-5]
+            #dt_c = [ datetime.strptime(x, '%m/%d/%Y %H:%M') for x in dates ]
+            #snod_c = getColumn(fname,1)[:-5];snod_c = np.array(snod_c,dtype=np.float)/100
+            #snod_c_std = np.zeros_like(snod_c)  #no standard deviation available
+            #it_c = getColumn(fname,13)[:-5];it_c = np.array(it_c,dtype=np.float)/100
+            
+            #dt.extend(dt_c)
+            #snod=np.append(snod,snod_c)
+            #snod_std=np.append(snod_std,snod_c_std)
+            #it=np.append(it,it_c)
+            
+        #if loc=='Nloop' and tt=='level':
+            #fn='SYI_snow_clean.csv'
+            #fname = glob(inpath_coring+fn)[0]
+            
+            #dates = getColumn(fname,10)[:-4]
+            #dt_c = [ datetime.strptime(x, '%m/%d/%Y %H:%M') for x in dates ]
+            #snod_c = getColumn(fname,1)[:-4];snod_c = np.array(snod_c,dtype=np.float)/100
+            #snod_c_std = np.zeros_like(snod_c)  #no standard deviation available
+            #it_c = getColumn(fname,13)[:-4];it_c = np.array(it_c,dtype=np.float)/100
+            
+            #dt.extend(dt_c)
+            #snod=np.append(snod,snod_c)
+            #snod_std=np.append(snod_std,snod_c_std)
+            #it=np.append(it,it_c)
+        
+        ##add same start as level ice and same end as deformed Sloop
+        #if loc=='runway' and tt=='deformed':
+            #dt.append(datetime(2019,11,1))
+            #snod=np.append(snod,.1)
+            #snod_std=np.append(snod_std,0)
+            #it=np.append(it,.4)
+            
+            #dt.append(datetime(2020,5,7))
+            #snod=np.append(snod,.32)
+            #snod_std=np.append(snod_std,0)
+            #it=np.append(it,2)
             
             
         
@@ -111,8 +122,12 @@ for loc in locs:
         else:
             ls=':'
             tt='def.'
-        ax.plot(dd, ymodel,ls=ls,alpha=.9,lw=3,label=loc+' '+tt,c=colors[i])
-        ax.plot(dt,snod,'x',c=colors[i])
+            
+            #move by a short time step to avoid overlay
+            dt = [ x+timedelta(hours=12) for x in dt ]
+            
+        #ax.plot(dd, ymodel,ls=ls,alpha=.9,lw=3,label=loc+' '+tt,c=colors[i])
+        ax.errorbar(dt,snod,snod_std,linestyle='None',c=colors[i], marker='x',label=loc+' '+tt)
 
         #fit the curve - ice
         x = mdates.date2num(dt)
@@ -124,14 +139,22 @@ for loc in locs:
 
 
         if tt=='level':
-            ls='-'
-        else:
-            ls=':'
-            tt='def.'
-        bx.plot(dd, ymodel,ls=ls,alpha=.9,lw=3,label=loc+' '+tt,c=colors[i])
-        bx.plot(dt,it,'x',c=colors[i])
+        #plot only modes for level ice
+            bx.plot(dt,it,'x',c=colors[i],label=loc+' '+tt)
 
         i=i+1
+
+#plot the transect leg 4 data
+inpath_table = '../data/MCS/MP/'
+fname = inpath_table+'ts_1m_gridded_melt.csv'
+
+dt = getColumn(fname,0); dt = [ datetime.strptime(dt[x], "%Y%m%d") for x in range(len(dt)) ]
+snod = getColumn(fname,1);snod = np.array(snod,dtype=np.float)
+snod_std = getColumn(fname,2);snod_std = np.array(snod_std,dtype=np.float)
+it = getColumn(fname,5);it = np.array(it,dtype=np.float)
+
+ax.errorbar(dt,snod,snod_std,linestyle='None',c='y', marker='x',label='melt period')
+bx.plot(dt,it,'x',c='y',label='melt period')
 
 #plot the coring data
 
@@ -187,18 +210,21 @@ start = datetime(2019,8,1)
 dt = [start + timedelta(hours=x*3) for x in range(numdays)]
 end = datetime(2020,8,1)
 
-ax.plot(dt,pp_cum09,c='k',ls='--',label='snowfall Sep')
-ax.plot(dt,pp_cum10,c='0.5',ls='--',label='snowfall Oct')
-ax.plot(dt,pp_cum11,c='0.75',ls='--',label='snowfall Nov')
+#ax.plot(dt,pp_cum09,c='k',ls='--',label='snowfall Sep SWE')
+#ax.plot(dt,pp_cum10,c='0.5',ls='--',label='snowfall Oct SWE')
+#ax.plot(dt,pp_cum11,c='0.75',ls='--',label='snowfall Nov SWE')
     
-ax.legend(ncol=2,fontsize=14)
-bx.legend(ncol=2,fontsize=14)
+ax.legend(ncol=5,fontsize=14,loc='upper left')
+bx.legend(ncol=3,fontsize=14)
 
 ax.tick_params(axis="x", labelsize=14)
 ax.tick_params(axis="y", labelsize=14)
 
 bx.tick_params(axis="x", labelsize=14)
 bx.tick_params(axis="y", labelsize=14)
+
+ax.set_ylim(0,.6)
+bx.set_ylim(0,2.6)
 
 #just winter = we have data
 ax.set_xlim(datetime(2019,10,15),datetime(2020,7,29))
@@ -218,6 +244,7 @@ fig1.savefig(outpath+'ts_ice_type_forSnowModel.png',bbox_inches='tight')
 
 #Paper/modeling work outline with a smarter assimilation/validation/budget procedure:
 #1: Do not use any correction of atmospheric data based on the transect data (no snow depth assimilation). The reanalysis is already bias corrected to observations from precipitation radar and met tower.
+#UPDATE: I treid to compare SWE in snow depth. The difference between KAZAR precip and snow depth is still unrealistically high. We could bias correct the precipitation by assimilating the best fit curve. The deviation from this curve measured by weekly transects can be then used for estimating D term. D is source in ridges and sink on level ice. We know from literature (Wagner et al) that all precip his high biased. This is mainly due to all the drifting snow and diamond dust. Maybe all we need to assimulate is one date at the end of the observations, 7 May! Use only Nloop because Sloop had a lead included into the last observations and is not representative.
 #2: Assimilate snow density from snow pits (polynomic fit). Use snow sublimation due to snow transport (wind speed and humidity). Do this for three starting dates: (approximately: Nloop=thick SYI from August on, Sloop=thin SYI with melt ponds from 1 October on, runway=FYI from 1 November on)
 #3: Run the SnowModel with these atmospheric forcing and snow density assimilated. We get 3 different mean snow depths time series over 3 ice types of different age (see previous point) in the CO. This should be (a bit) high-biased as we do not account for the snow removed into open leads and new ridges. In case it is low biased, we need to rethink the whole concept in the following points!
 #3a: In case this is very high biased and does not fit with our findings in the following steps (it does not fall somewhere between observed level and deformed ice snow depth), we can introduce a sink term for deformation here. This sink term represents the amount of snow removed into leads with open water and into fresh ridges. We can compare this sink to the total sea ice deformation time series that we already made from buoys (I think comparison should be enough - we dont need to use the deformation data directly, a simple linear correlation plot of smoothed deformation data would be great). A reasonable value for this could be ~10%. Because we can not imagine any other sink we take it into account and update the snow SWE/mass balance equation (from Liston et al, 2020, low resolution SnowModel-LG) that already includes a similar sink. This can be the improved 'D' term. In case such updated sink term is not needed, we also describe this as a finding in our paper. If we decide to use this sink, we need to re-run the model with the 'D term' removing some snow at each time step - in fact exactly like snow depth from observations was assimilated, except here we only take away, we dont add snow.

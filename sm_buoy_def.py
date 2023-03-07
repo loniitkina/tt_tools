@@ -334,9 +334,9 @@ wind = savgol_filter(wind, window, polyorder)
 #Plotting
 plt.plot(pdate,np.cumsum(precip),label='cumulative snowfall')
 #plt.plot(dt,td*100,label='total deformation')
-plt.plot(dt,np.cumsum(td)*5,label='cum total deformation*5')
-plt.plot(dt,np.cumsum(divergence)*10,label='cum divergence*10')
-plt.plot(dt,np.cumsum(convergence)*10,label='cum convergence*10')
+plt.plot(dt,np.cumsum(td)*2,label='cum total deformation*5')
+#plt.plot(dt,np.cumsum(divergence)*10,label='cum divergence*10')
+#plt.plot(dt,np.cumsum(convergence)*10,label='cum convergence*10')
 
 #plt.plot(dt,np.cumsum(convergence)-np.cumsum(divergence),label='cum div diff')
 
@@ -344,7 +344,7 @@ plt.plot(dt,np.cumsum(convergence)*10,label='cum convergence*10')
 
 plt.scatter(idate,swe,marker='x',c='r',label='SWE on level ice')
 
-plt.plot(wdate,wind*10,label='wind speed*10')
+plt.plot(wdate,wind*5,label='wind speed*10')
 
 plt.xlim(datetime(2019,10,1),datetime(2020,5,31))
 plt.legend()

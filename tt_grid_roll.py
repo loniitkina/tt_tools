@@ -33,6 +33,12 @@ dates = ['20200112','20200207']
 reference_date = '20200207'
 maxdist=25
 
+##-track-icecs-xy_corr.csv missing - not implemented yet
+#locs= 'transect'
+#reference_date = '20200630'
+#dates = ['20200617','20200630','20200704','20200706','20200710','20200714','20200725','20200726']
+#maxdist=25
+
 inpath_snow = '../data/MCS/MP/'
 inpath_grid = '../data/grids_AGU/'
 outpath = '../plots_AGU/'

@@ -14,6 +14,8 @@ outpath_plots='../plots_ridges/'
 #time: 20200121T103544-20200121T103614 to 20200121T121616-20200121T121646
 #tif='../data/ALS/20200121_als_merged_grid-stere.tiff'
 tif='../data/ALS/20200121_als_merged_grid-stere_crop.tiff'  #cropped in QGIS by Raster Clipper
+tif='../data/ALS/20200121_als_merged_grid-stere_crop_CO.tiff'  #cropped in QGIS by Raster Clipper - only CO, no Dark side
+tif='../data/ALS/20200121_als_merged_grid-stere_crop_Nloop.tiff'
 outname='ALS_20200121_ridge_transects_overview.png'
 #outname='ALS_20200121_ridge_transects_FR.png'
 #outname='ALS_20200121_ridge_transects_A.png'

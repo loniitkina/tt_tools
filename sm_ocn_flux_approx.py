@@ -20,7 +20,7 @@ flist=sorted(glob(inpath+'Heat_flux*'+'.csv'))
 fig1 = plt.figure(figsize=(15,8))
 ax = fig1.add_subplot(111)
 ax.set_ylabel('Ocean heat flux (W/m$^2$)',fontsize=20)
-ax.set_xlim(datetime(2019,10,1),datetime(2020,8,1))
+#ax.set_xlim(datetime(2019,10,1),datetime(2020,8,1))
 
 all_data=[]
 all_dt=[]
@@ -34,7 +34,7 @@ for fname in flist:
     fo = getColumn(fname,1,skipheader=1, delimiter=',');fo = np.array(fo,dtype=np.float)
     
     #the longest time series
-    if buoy_name=='2019T69':
+    if buoy_name=='0approx':
         plt.plot(dt,np.zeros_like(fo),'--k')
         dt_long=dt
 
@@ -68,7 +68,11 @@ ts = ts.interpolate()   #get rid of nans
 #get on 3h time scale (for the model)
 ts3h = ts.resample('3H').sum().asfreq('3H')
 #replace zeros by next value at observation
-ts3h = ts3h.replace(to_replace=0, method='bfill')
+#ts3h = ts3h.replace(to_replace=0, method='bfill')
+ts3h = ts3h.replace(0, np.nan)
+print(ts3h)
+
+ts3h = ts3h.interpolate()
 
 print(ts3h)
 
@@ -94,6 +98,9 @@ mean_best = np.mean(np.ma.masked_array(flux, m),axis=1)
 
 #keep all buoys but cap all heat fluxes at 20 W/m2
 mean_max20 = np.mean(np.ma.masked_array(flux, flux>20),axis=1)
+
+#only aprox. values
+flux_approx = flux[:,0]
 
 #this is a rigid toping and produces abrupt jumps, smoothing needs to be used
 #smoothing
@@ -133,7 +140,7 @@ ax.xaxis.set_minor_locator(MonthLocator())
 ax.xaxis.set_major_formatter(DateFormatter('%b %Y'))
 
 plt.show()
-fig1.savefig(outpath+'ts_ocean_heat_flux_forSnowModel1.png',bbox_inches='tight')
+fig1.savefig(outpath+'ts_ocean_heat_flux_forSnowModel_new.png',bbox_inches='tight')
 
 #save the data for SnowModel/HIGTSI
 year = [ datetime.strftime(x, "%Y") for x in dates ]
@@ -142,15 +149,15 @@ day = [ datetime.strftime(x, "%d") for x in dates ]
 hour = [ datetime.strftime(x, "%H") for x in dates ]
 
 #save the data in file
-file_name = inpath+'ocean_heat_flux_for_HIGTSI.csv'
+file_name = inpath+'ocean_heat_flux_for_HIGTSI_new.csv'
 print(file_name)
 
-tt = [year,month,day,hour,mean*-1, mean_best*-1, mean_max20*-1] #negative means downwards (from atmosphere to ocean)
+tt = [year,month,day,hour,flux_approx] #negative means downwards (from atmosphere to ocean)
 table = list(zip(*tt))
 
 with open(file_name, 'wb') as f:
     #header
-    f.write(b'year,month,day,hour, mean ocean heat flux (W/m2), mean ocean heat flux from selected buoys (W/m2), mean ocean heat flux topped at 20 and smoothed (W/m2)\n')
+    f.write(b'year,month,day,hour, approximation from Lei et al 2021 (W/m2)\n')
     np.savetxt(f, table, fmt="%s", delimiter=",")
 
 

@@ -1,63 +1,68 @@
+import csv
+import re
 import numpy as np
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 from tt_func import getColumn
 
-inpath='../data/SnowModel/seasonal_plot/'
+
+inpath='../data/SnowModel/final/'
 outpath='../plots_sm/'
 
-fname = inpath+'snod.dat'
-snod = getColumn(fname,1, delimiter=',')
-snod = np.array(snod,dtype=np.float)     
-snod = np.ma.array(snod,mask=snod==-9999)
+locs = ['Nloop','Sloop','Runwy']
 
-fname = inpath+'tice.dat'
-tice = getColumn(fname,1, delimiter=',')
-tice = np.array(tice,dtype=np.float)     
-tice = np.ma.array(tice,mask=tice==-9999)*-1
-
-fname = inpath+'snod_tice1_tice2_obs.dat'
-so = getColumn(fname,1, delimiter=',')
-so = np.array(so,dtype=np.float)     
-so = np.ma.array(so,mask=so==-9999)
-
-fname = inpath+'snod_tice1_tice2_obs.dat'
-io1 = getColumn(fname,2, delimiter=',')
-io1 = np.array(io1,dtype=np.float)     
-io1 = np.ma.array(io1,mask=io1==-9999)*-1
-
-fname = inpath+'snod_tice1_tice2_obs.dat'
-io2 = getColumn(fname,3, delimiter=',')
-io2 = np.array(io2,dtype=np.float)     
-io2 = np.ma.array(io2,mask=io2==-9999)*-1
-
-numdays=365
+numdays=366*8
 start = datetime(2019,8,1)
-dt = [start + timedelta(days=x) for x in range(numdays)]
+dt = [start + timedelta(hours=x*3) for x in range(numdays)]
+end = datetime(2020,8,1)
 
-fig1 = plt.figure(figsize=(10,10))
-ax = fig1.add_subplot(111)
+for loc in locs:
+    fname = inpath+'snow_tice_'+loc+'_2023_02_14.dat'
+    #iter,swed_mod1,swed_mod2,snod,sden,dyn_corr,tice,swed_obs,sden_obs,snod_obs,timo_obs
+    
+    results = csv.reader(open(fname))
+    #get rid of all multi-white spaces and split in those that remain
+    results_clean = [re.sub(" +", " ",row[0]) for row in results]
 
-ax.plot(dt,snod, lw=5, c='turquoise', label='SnowModel snow')
-ax.plot(dt,np.zeros_like(snod),':k')
-ax.plot(dt,tice, lw=5, c='cornflowerblue', label='SnowModel ice (HIGTSI)')
+    snod = [row.split(" ")[4] for row in results_clean]
+    snod = np.array(snod,dtype=np.float)     
+    snod = np.ma.array(snod,mask=snod==-9999)
+    
+    tice = [row.split(" ")[7] for row in results_clean]
+    tice = np.array(tice,dtype=np.float)     
+    tice = np.ma.array(tice,mask=tice==-9999)
+    
+    so = [row.split(" ")[10] for row in results_clean]
+    so = np.array(so,dtype=np.float)     
+    so = np.ma.array(so,mask=so==-9999)
+    
+    io = [row.split(" ")[11] for row in results_clean]
+    io = np.array(io,dtype=np.float)     
+    io = np.ma.array(io,mask=io==-9999)
+    
+    fig1 = plt.figure(figsize=(10,10))
+    ax = fig1.add_subplot(111)
 
-ax.plot(dt,so,'x', markeredgewidth=4, c='royalblue', ms=8, label='Transect snow')
-ax.plot(dt,io1,'x', markeredgewidth=4, c='purple', ms=8, label='Transect winter ice')
-ax.plot(dt,io2,'x', markeredgewidth=4, c= 'orange', ms=8, label='Transect summer ice')
+    ax.plot(dt,snod, lw=5, c='turquoise', label='SnowModel snow')
+    ax.plot(dt,np.zeros_like(snod),':k')
+    ax.plot(dt,tice, lw=5, c='cornflowerblue', label='HIGTSI ice')
 
-ax.legend(fontsize=20,loc='lower left')
+    ax.plot(dt,so,'x', markeredgewidth=4, c='royalblue', ms=8, label='Transect snow')
+    ax.plot(dt,io,'x', markeredgewidth=4, c='purple', ms=8, label='Transect winter ice')
+    
 
-ax.set_ylabel('Ice thickness/Snow depth (m)',fontsize=20) # Y axis data label
+    ax.legend(fontsize=18,loc='lower left')
 
-ax.set_xlim(datetime(2019,9,1),datetime(2020,7,29))
+    ax.set_ylabel('Ice thickness/Snow depth (m)',fontsize=20) # Y axis data label
 
-ax.tick_params(axis="x", labelsize=14)
-ax.tick_params(axis="y", labelsize=14)
+    ax.set_xlim(datetime(2019,9,1),datetime(2020,7,29))
 
-fig1.autofmt_xdate()
+    ax.tick_params(axis="x", labelsize=14)
+    ax.tick_params(axis="y", labelsize=14)
 
-fig1.savefig(outpath+'sm_season',bbox_inches='tight')
-plt.show()
+    fig1.autofmt_xdate()
+
+    fig1.savefig(outpath+'sm_season'+loc,bbox_inches='tight')
+    plt.show()
 
 

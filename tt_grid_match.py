@@ -41,12 +41,19 @@ dates = [['20191031','20191107','20191114','20191205',   '20191226','20200102','
 #['20200630']
 #]
 
+locs= ['transect']
+#selected reference date: 20200630
+#dates = ['20200617','20200627','20200629','20200630','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200719','20200720','20200725','20200726']
+dates = [['20200617','20200630','20200704','20200706','20200710','20200714','20200725','20200726']]
+
+
 inpath_grid = '../data/grids_AGU/'
 outpath = '../plots_AGU/'
-outname='grid_method.png'
+#outname='grid_method.png'
 #outname = 'grid_maps3.png'
 #outname = 'grid_maps_legs1-4.png'
 #outname2 = 'map_legs1-4.png'
+outname='grid_method_leg4.png'
 
 print(outpath+outname)
 
@@ -550,8 +557,8 @@ for ll in range(0,len(locs)):
                 i_grid2 = i_grid2+np.ma.masked_invalid(tmpi).filled(0)
             del tmpi
 
-        #if locs[ll]=='transect':
-                        
+        if locs[ll]=='transect':
+            ##collocation with CO1            
             ##rotate
             #if date == '20200630':
                 #i_grid = ndimage.rotate(i_grid, -40, reshape=False,order=0,mode='nearest')
@@ -561,8 +568,45 @@ for ll in range(0,len(locs)):
             #if date == '20200630':
                 #i_grid = np.append(i_grid[int(-1320/step):,:],i_grid[:int(-1320/step),:],axis=0)
                 #s_grid = np.append(s_grid[int(-1320/step):,:],s_grid[:int(-1320/step),:],axis=0)
+                
+            #rotate
+            if date == '20200617':
+                i_grid = ndimage.rotate(i_grid, -60, reshape=False,order=0,mode='nearest')
+                s_grid = ndimage.rotate(s_grid, -60, reshape=False,order=0,mode='nearest')
             
+            if date == '20200714':
+                i_grid = ndimage.rotate(i_grid, -10, reshape=False,order=0,mode='nearest')
+                s_grid = ndimage.rotate(s_grid, -10, reshape=False,order=0,mode='nearest')
             
+            if date == '20200725':
+                i_grid = ndimage.rotate(i_grid, -15, reshape=False,order=0,mode='nearest')
+                s_grid = ndimage.rotate(s_grid, -15, reshape=False,order=0,mode='nearest')
+            
+            #move along y axis
+            if date == '20200617':
+                i_grid = np.append(i_grid[:,int(-50/step):],i_grid[:,:int(-50/step)],axis=1)
+                s_grid = np.append(s_grid[:,int(-50/step):],s_grid[:,:int(-50/step)],axis=1)
+                
+            #if date == '20200714':
+                #i_grid = np.append(i_grid[:,int(10/step):],i_grid[:,:int(10/step)],axis=1)
+                #s_grid = np.append(s_grid[:,int(10/step):],s_grid[:,:int(10/step)],axis=1)
+            
+            #move along x axis
+            if date == '20200617':
+                i_grid = np.append(i_grid[int(-200/step):,:],i_grid[:int(-200/step),:],axis=0)
+                s_grid = np.append(s_grid[int(-200/step):,:],s_grid[:int(-200/step),:],axis=0)
+
+            if date == '20200710':
+                i_grid = np.append(i_grid[int(10/step):,:],i_grid[:int(10/step),:],axis=0)
+                s_grid = np.append(s_grid[int(10/step):,:],s_grid[:int(10/step),:],axis=0)
+            
+            #if date == '20200714':
+                #i_grid = np.append(i_grid[int(20/step):,:],i_grid[:int(20/step),:],axis=0)
+                #s_grid = np.append(s_grid[int(20/step):,:],s_grid[:int(20/step),:],axis=0)
+                
+            #if date == '20200724':
+                #i_grid = np.append(i_grid[int(-50/step):,:],i_grid[:int(-50/step),:],axis=0)
+                #s_grid = np.append(s_grid[int(-50/step):,:],s_grid[:int(-50/step),:],axis=0)    
         
         i_grid = np.ma.array(i_grid,mask=i_grid<0).filled(np.nan)
         s_grid = np.ma.array(s_grid,mask=s_grid<0).filled(np.nan)
@@ -625,6 +669,6 @@ for ll in range(0,len(locs)):
     del x_grid, y_grid, s_grid, i_grid
     del i_grid1, i_grid2, i_grid3
     
-#plt.show()    
-fig1.savefig(outpath+outname,bbox_inches='tight')
+plt.show()    
+#fig1.savefig(outpath+outname,bbox_inches='tight')
 #fig2.savefig(outpath+outname2,bbox_inches='tight')

@@ -189,7 +189,7 @@ mask = np.ones_like(fc, dtype=bool)
 fco = np.zeros_like(fc[:,0])
 for i in range(0,fc.shape[0]):
     mask[i,int(h_ice_sn_6h[i]):int(h_oc_ice_rl_6h[i])] = False
-    fco[i] = fc[i,np.int(h_oc_ice_rl_6h[i])+0]  #conductive heat flux 2 sensors above the interface, change sign to match the sign of the latent heat flux (provided by the ocean to melt the ice) #WARNING: changed to AT INTERFACE
+    fco[i] = fc[i,np.int(h_oc_ice_rl_6h[i])+2]  #conductive heat flux 2 sensors above the interface, change sign to match the sign of the latent heat flux (provided by the ocean to melt the ice) #WARNING: changed to AT INTERFACE
 fc_ice = np.ma.array(fc,mask=mask)
 
 
@@ -207,6 +207,7 @@ fl = smooth(fl,8,window='flat')           #smoothing with 2-day running window
 fco = smooth(fco,8,window='flat')  
 fo = fl+fco[1:]
 fo = fco[1:]    #just conductive heat fluxes (latent heat flux should be re-calculated from HIGTSI ice growth)
+
 
 #also extract the temperature at the interface (to check the departure from freezing point and compare to Katlein et al, 2020)
 
