@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 #grid parameters
 step = 2        #grid spacing in meters 
 step = 1        #for ridges
-#step = 5
+step = 5
 limit = step*2  #how far from MP coordinate to search 
 #limit = 5       #some equivalent to GEM-2 footprint or max thickness measured by GEM-2?
 scale_limit=False   #depending on the MP spatial resolution
@@ -26,7 +26,7 @@ polyorder = 3
 
 #show gridded data plot
 show=True
-#show=False
+show=False
 
 #make mp+gem2 table output
 table_output=True
@@ -168,15 +168,15 @@ dates = ['20200410']
 #loc='special'
 #dates = ['20200107','20200115','20200123','20200226','20200326','20200430','20200617','20200719','20200719','20200827','20200903','20200910','20200902','20200909','20200919']
 
-loc = 'recon'   #has no MP data
-dates = ['20200108']; inpath_ice = '../data/MCS/GEM2_thickness/09-ridges-recal/'   #road to Fort Ridge
+#loc = 'recon'   #has no MP data
+#dates = ['20200108']; inpath_ice = '../data/MCS/GEM2_thickness/09-ridges-recal/'   #road to Fort Ridge
 #dates = ['20200228']   #airport recon
 #dates = ['20200226']   #Darnitsyn Lead
 #dates = ['20200107']   #Dark site FYI
 #dates = ['20200126']   #lead Event
-table_output=True  #not useful
-step=5
-limit = step*2            #no need to search far
+#table_output=True  #not useful
+#step=5
+#limit = step*2            #no need to search far
 
 #leg4
 #loc = 'transect'
@@ -207,10 +207,13 @@ limit = step*2            #no need to search far
 #dates = ['20200627','20200628','20200629','20200630','20200702','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200713','20200714','20200716','20200719','20200720','20200721','20200723','20200725','20200726','20200727']
 #most useful selection
 #dates = ['20200717','20200627','20200629','20200630','20200702','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200713','20200714','20200719','20200720','20200721','20200723','20200725','20200726','20200727']
+#for Mara
+#dates = ['20200717']
 
 ##short transects of leg 4 and 5
-#loc = 'albedoLD'
-#dates = ['20200630','20200706','20200707','20200719','20200721','20200724','20200727']
+loc = 'albedoLD'
+dates = ['20200630','20200706','20200707','20200719','20200721','20200724','20200727']
+dates = ['20200706']
 
 #loc = 'albedoRBB'
 #dates = ['20200714','20200717','20200630','20200706','20200707','20200719','20200727']
@@ -326,7 +329,7 @@ for dd in range(0,len(dates)):
     yy_full  = np.array(yy,dtype=float)
         
     #ice thickness data
-    tt18 = []; tt5 = []; tt93 = []
+    tt18 = []; tt5 = []; tt93 = []; ts_gem=[]
     fname = glob(inpath_ice+date_gem2+'*/*-channel-thickness.csv')
     if outpath == '../plots_cirfa22/':
         fname = glob(inpath_ice+'*'+date_gem2+'*-channel-thickness.csv')
@@ -338,37 +341,45 @@ for dd in range(0,len(dates)):
             t18 = getColumn(fn,11)
             t5 = getColumn(fn,13)
             t93 = getColumn(fn,15)
+            ts = getColumn(fn,0)
             
         elif outpath == '../plots_cirfa22/':
             t18 = getColumn(fn,12)        #take 18KHz ip (12)
             t5 = getColumn(fn,10)        #take 1.5KHz ip (10)
             t93 = getColumn(fn,14)         #take 63KHz ip (14)
+            ts = getColumn(fn,0)
 
         elif 'ridge' in loc:
             t18 = getColumn(fn,8)        #take 5KHz ip (8)
             t5 = getColumn(fn,10)        #take 18KHz ip (10)
             t93 = getColumn(fn,15)         #take 93KHz q (15)
+            ts = getColumn(fn,0)
 
         else:
             t18 = getColumn(fn,12)        #take 18KHz ip (10)
             t5 = getColumn(fn,10)        #take 5KHz ip (8)
             t93 = getColumn(fn,14)         #take 93KHz ip (14) 
+            ts = getColumn(fn,0)
 
         tt18.extend(t18[1:-1])     #floenavi scripts looses coordinates at the start and end of the file
         tt5.extend(t5[1:-1])
         tt93.extend(t93[1:-1])
+        ts_gem.extend(ts[1:-1])
         
     tt18 = np.array(tt18,dtype=float)
     tt5 = np.array(tt5,dtype=float)
     tt93 = np.array(tt93,dtype=float)
     
-    #some nans in local coordinates
+    from datetime import datetime
+    ts_gem = [ datetime.strptime(ts_gem[x], "%Y-%m-%dT%H:%M:%S.%f") for x in range(len(ts_gem)) ]   #timestamp has milliseconds (some rows dont have it!)
+    #ts_gem = [ datetime.strptime(ts_gem[x], "%Y-%m-%dT%H:%M:%S") for x in range(len(ts_gem)) ]
+    ts_gem = np.array(ts_gem,dtype=np.datetime64)
     
     #run these through a running window smoothing filter - we can then easily use the nearest neighbor also for the GEM-2
     tt18 = savgol_filter(tt18, window, polyorder)
     tt5 = savgol_filter(tt5, window, polyorder)
     tt93 = savgol_filter(tt93, window, polyorder)
-
+    
     #MP
     #get magnaprobe track file
     if loc != 'recon':
@@ -630,29 +641,28 @@ for dd in range(0,len(dates)):
 
     for ch in range(0,len(channels)):
         print(ch_name[ch])
-        print(channels[ch])
+        #print(channels[ch])
         #get all original coordinates for each channel
         xx = xx_full.copy()
         yy = yy_full.copy()        
         
-        print(xx)
-        
         #there can be nans in the thickness data, fix this before we proceed
         tt = np.ma.masked_invalid(channels[ch])  
         
-        print(tt.shape)
-        print(xx.shape)
-        
-        
+        #time stamps should only be interpolated for one of the channels
         
         xx = xx[tt.mask == False]
         yy = yy[tt.mask == False]
+        if ch_name[ch] ==  '_18kHz':
+            ts_gem = ts_gem[tt.mask == False]
         tt = tt[tt.mask == False]
 
         #there can also be nans in position, fix this before we proceed
         xx = np.ma.masked_invalid(xx)
         yy = yy[xx.mask == False]
         tt = tt[xx.mask == False]
+        if ch_name[ch] ==  '_18kHz':
+            ts_gem = ts_gem[xx.mask == False]
         xx = xx[xx.mask == False]
 
         points = np.column_stack((xx,yy))
@@ -664,13 +674,13 @@ for dd in range(0,len(dates)):
 
         #keep the original grid for nn search later
         output_tt[ch] = grid_tt.copy()
-
+        
         #ensure that we have data for exactly same grid points
         data_mask = (np.isnan(grid_sd)) | (np.isnan(grid_tt)) | (mask_g == 1)
         grid_sd = np.ma.array(grid_sd,mask=data_mask).filled(np.nan)
         grid_tt = np.ma.array(grid_tt,mask=data_mask).filled(np.nan)
         grid_it = np.ma.array(grid_it,mask=data_mask).filled(np.nan)
-
+        
         if show==True:
             ##lets check how this looks like
             plt.subplot(221)
@@ -702,6 +712,12 @@ for dd in range(0,len(dates)):
         print(of)
         with open(of, 'wb') as f:
             np.savez(f, x = grid_x, y = grid_y, snow = grid_sd, tt = grid_tt, ice = grid_it)
+            
+        #do the same for the timestamp
+        if ch_name[ch] ==  '_18kHz':
+            values = ts_gem
+            grid_ts = griddata(points, values, (grid_x, grid_y), method=method_gem2)
+            output_ts = grid_ts.copy()
 
     ##########################################################################################################
     if table_output==True:
@@ -712,6 +728,8 @@ for dd in range(0,len(dates)):
             outname = inpath_snow+'recon/magna+gem2'+date+'_'+loc+'.csv'
         else:
             outname = fname.split('probe')[0]+'+gem2'+fname.split('probe')[1].split('.dat')[0]+'.csv'
+            #new version with GEM-2 timestamp
+            outname = fname.split('probe')[0]+'+gem2'+fname.split('probe')[1].split('.dat')[0]+'_GEM2_ts.csv'
         
         #sampling subsets
         if loc1=='Nloop_spine':
@@ -723,12 +741,14 @@ for dd in range(0,len(dates)):
         if (date_gem2 == '20191226' and loc=='Nloop'):
             outname = fname.split('probe')[0]+'+gem2'+fname.split('probe')[1].split('.dat')[0]+'_ice_from_'+date_gem2+'.csv'
 
+        #Nansen Legacy
         if 'P' in loc:
             outname = fname.split('probe-')[0]+'+gem2'+fname.split('probe-')[1].split('.dat')[0]+'.csv'
 
         tt_nn18 = np.zeros_like(sd_values)
         tt_nn5 = np.zeros_like(sd_values)
         tt_nn93 = np.zeros_like(sd_values)
+        ts_nngem2 = np.empty((sd_values.shape[0]),dtype='datetime64[s]')
         #find nearest tt and it values to original mp/sd points        
         for i in range(0,tt_nn18.shape[0]):
             dx = sd_points[:,0][i]-grid_x
@@ -738,14 +758,15 @@ for dd in range(0,len(dates)):
             
             #don take values too far away
             if np.min(dgf) > 4:
-                tt_nn18[i] = -999; tt_nn5[i] = -999; tt_nn93[i] = -999
+                tt_nn18[i] = -999; tt_nn5[i] = -999; tt_nn93[i] = -999; ts_nngem2[i] = np.datetime64('nat')
             else:
                 #find nearest tt and it value
                 nn = np.argmin(dgf)
                 tt_nn18[i] = output_tt[0].flatten()[nn]
                 tt_nn5[i] = output_tt[1].flatten()[nn]
-                tt_nn93[i] = output_tt[2].flatten()[nn]
-
+                tt_nn93[i] = output_tt[2].flatten()[nn]              
+                ts_nngem2[i] = np.datetime64(output_ts.flatten()[nn])
+                
                 #there can be nans...
                 #replace with mean in the closest n values
                 n=3
@@ -754,10 +775,12 @@ for dd in range(0,len(dates)):
                     tmp18 = output_tt[0].flatten()[nn]
                     tmp5 = output_tt[1].flatten()[nn]
                     tmp93 = output_tt[2].flatten()[nn]
+                    tmpts = output_ts.flatten()[nn]
 
                     tt_nn18[i] = np.mean(np.ma.masked_invalid(tmp18))
                     tt_nn5[i] = np.mean(np.ma.masked_invalid(tmp5))
                     tt_nn93[i] = np.mean(np.ma.masked_invalid(tmp93))
+                    ts_nngem2[i] = np.datetime64(tmpts[0]) #WARNING take the first value (and not the mean)
                     
                     n = n+1
         
@@ -765,6 +788,7 @@ for dd in range(0,len(dates)):
         tt_nn18 = np.ma.array(tt_nn18, mask=mask).compressed()
         tt_nn5 = np.ma.array(tt_nn5, mask=mask).compressed()
         tt_nn93 = np.ma.array(tt_nn93, mask=mask).compressed()
+        ts_nngem2 = np.ma.array(ts_nngem2, mask=mask).compressed()
         sd = np.ma.array(sd_values.data, mask=mask).compressed()    #there can be some masked values in here already...
         
         dt = np.ma.array(dt, mask=mask).compressed()
@@ -810,17 +834,21 @@ for dd in range(0,len(dates)):
             #winter legs get some dummy values
             mpd = np.ones_like(sd)*-1
             surface = np.ones_like(sd_values)
+
+        #convert back to milliseconds string
+        dt = ts_nngem2.astype('O')
+        ts_nngem2 = [ datetime.strftime(x, "%Y-%m-%dT%H:%M:%S.%f") for x in dt ]
             
         #write new csv file with all the ice mass balance variables
-        tt = [dt,lon,lat,sd_points0,sd_points1,sd,mpd,surface,it_nn18,it_nn5,it_nn93]
+        tt = [dt,lon,lat,sd_points0,sd_points1,sd,mpd,surface,it_nn18,it_nn5,it_nn93,ts_nngem2]
         table = list(zip(*tt))
 
         print(outname)
         with open(outname, 'wb') as f:
             #header
             if date=='20200206' or date=='20200406':
-                f.write(b'Date/Time, Lon, Lat, Local X, Local Y, Snow Depth (m), Melt Pond Depth (m), Surface Type, Ice Thickness 18kHz q (m), Ice Thickness 63kHz q (m), Ice Thickness 93kHz q (m)\n')
+                f.write(b'Date/Time, Lon, Lat, Local X, Local Y, Snow Depth (m), Melt Pond Depth (m), Surface Type, Ice Thickness 18kHz q (m), Ice Thickness 63kHz q (m), Ice Thickness 93kHz q (m), GEM2 timestamp\n')
             else:
-                f.write(b'Date/Time, Lon, Lat, Local X, Local Y, Snow Depth (m), Melt Pond Depth (m), Surface Type, Ice Thickness 18kHz ip (m), Ice Thickness 5kHz ip (m), Ice Thickness 93kHz ip (m)\n')
-            np.savetxt(f, table, fmt="%s", delimiter=",")
+                f.write(b'Date/Time, Lon, Lat, Local X, Local Y, Snow Depth (m), Melt Pond Depth (m), Surface Type, Ice Thickness 18kHz ip (m), Ice Thickness 5kHz ip (m), Ice Thickness 93kHz ip (m), GEM2 timestamp\n')
+            np.savetxt(f, table, fmt='%s', delimiter=",")
 
