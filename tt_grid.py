@@ -3,12 +3,13 @@ from glob import glob
 from tt_func import getColumn
 from scipy.signal import savgol_filter
 from scipy.interpolate import griddata
+from datetime import datetime
 import matplotlib.pyplot as plt
 
 #grid parameters
 step = 2        #grid spacing in meters 
 step = 1        #for ridges
-step = 5
+#step = 5
 limit = step*2  #how far from MP coordinate to search 
 #limit = 5       #some equivalent to GEM-2 footprint or max thickness measured by GEM-2?
 scale_limit=False   #depending on the MP spatial resolution
@@ -179,7 +180,7 @@ dates = ['20200410']
 #limit = step*2            #no need to search far
 
 #leg4
-#loc = 'transect'
+loc = 'transect'
 #date = '20200617'  #initial survey - MP track looks good and similar to transect, GEM-2 coordinates are messed up.
 #date = '20200627'  #only part
 #date = '20200628'  #tiny bit og GEM-2, same part of MP as day before
@@ -206,14 +207,14 @@ dates = ['20200410']
 #date = '20200727'  #partial (and likely wrong direction)
 #dates = ['20200627','20200628','20200629','20200630','20200702','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200713','20200714','20200716','20200719','20200720','20200721','20200723','20200725','20200726','20200727']
 #most useful selection
-#dates = ['20200717','20200627','20200629','20200630','20200702','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200713','20200714','20200719','20200720','20200721','20200723','20200725','20200726','20200727']
+dates = ['20200717','20200627','20200629','20200630','20200702','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200713','20200714','20200719','20200720','20200721','20200723','20200725','20200726','20200727']
 #for Mara
-#dates = ['20200717']
+#dates = ['20200627']
 
 ##short transects of leg 4 and 5
-loc = 'albedoLD'
-dates = ['20200630','20200706','20200707','20200719','20200721','20200724','20200727']
-dates = ['20200706']
+#loc = 'albedoLD'
+#dates = ['20200630','20200706','20200707','20200719','20200721','20200724','20200727']
+#dates = ['20200707']
 
 #loc = 'albedoRBB'
 #dates = ['20200714','20200717','20200630','20200706','20200707','20200719','20200727']
@@ -370,10 +371,17 @@ for dd in range(0,len(dates)):
     tt5 = np.array(tt5,dtype=float)
     tt93 = np.array(tt93,dtype=float)
     
-    from datetime import datetime
-    ts_gem = [ datetime.strptime(ts_gem[x], "%Y-%m-%dT%H:%M:%S.%f") for x in range(len(ts_gem)) ]   #timestamp has milliseconds (some rows dont have it!)
-    #ts_gem = [ datetime.strptime(ts_gem[x], "%Y-%m-%dT%H:%M:%S") for x in range(len(ts_gem)) ]
-    ts_gem = np.array(ts_gem,dtype=np.datetime64)
+    tmp=[]
+    for x in ts_gem:
+        try:
+            #timestamp has milliseconds
+            ttmp = datetime.strptime(x, "%Y-%m-%dT%H:%M:%S.%f")
+        except:
+            #but some rows dont have it and have a leading empty space instead
+            ttmp = datetime.strptime(x, "       %Y-%m-%dT%H:%M:%S")
+        tmp.append(ttmp)
+        
+    ts_gem = np.array(tmp,dtype=np.datetime64)
     
     #run these through a running window smoothing filter - we can then easily use the nearest neighbor also for the GEM-2
     tt18 = savgol_filter(tt18, window, polyorder)
@@ -748,7 +756,7 @@ for dd in range(0,len(dates)):
         tt_nn18 = np.zeros_like(sd_values)
         tt_nn5 = np.zeros_like(sd_values)
         tt_nn93 = np.zeros_like(sd_values)
-        ts_nngem2 = np.empty((sd_values.shape[0]),dtype='datetime64[s]')
+        ts_nngem2 = np.empty((sd_values.shape[0]),dtype='datetime64[ns]')
         #find nearest tt and it values to original mp/sd points        
         for i in range(0,tt_nn18.shape[0]):
             dx = sd_points[:,0][i]-grid_x
@@ -836,8 +844,13 @@ for dd in range(0,len(dates)):
             surface = np.ones_like(sd_values)
 
         #convert back to milliseconds string
-        dt = ts_nngem2.astype('O')
-        ts_nngem2 = [ datetime.strftime(x, "%Y-%m-%dT%H:%M:%S.%f") for x in dt ]
+        ##datetime only works to microseconds (ms) precision
+        #dt = ts_nngem2.astype('M8[ms]').astype('O')
+        #ts_nngem2 = [ datetime.strftime(x, "%Y-%m-%dT%H:%M:%S.%f") for x in dt ]
+        
+        #try pandas instead
+        import pandas as pd
+        ts_nngem2 = pd.to_datetime(ts_nngem2, format='%Y-%m-%dT%H:%M:%S.%f')
             
         #write new csv file with all the ice mass balance variables
         tt = [dt,lon,lat,sd_points0,sd_points1,sd,mpd,surface,it_nn18,it_nn5,it_nn93,ts_nngem2]
