@@ -29,11 +29,16 @@ date='20220505'
 station='Drift2'
 date='20220507'
 
+station='ridge_scouting'
+date='20230520'
+
 path = '../data/NansenLegacy/position/'
 
 path='../data/CIRFA22/'
 
-flist = glob(path+station+'/'+'garmin_transect_'+station+'*'+date+'.csv')
+path='../data/breathe/'
+
+flist = glob(path+station+'/'+'garmin_transect_*'+date+'.csv')
 
 print(flist)
 
