@@ -11,11 +11,10 @@ import gc
 #reference heading in Floenavi: 301.63560882616076
 #on 20/2/2020: 266.5130272362738 >> 40 deg difference!
 
-outpath='../plots_gridded/'
+outpath='../plots_sm/'
 
 #RS-2 scene for 31 Dec 2019, 03:35:02 UTC
 tif='../data/RS-2_Wenkai/RS2_20191231_033502_0004_FQ20W_HHVVHVVH_SLC_783865_1107_32077288_HV.tif'
-outname='RS2_20191231_map_buoys.png'
 alos=False
 
 #ref station:
@@ -48,8 +47,8 @@ cb = plt.colorbar(CS1)  # draw colorbar
 cb.set_label(label='Intensity (dB)',fontsize=20)
 
 #limit the region
-ax.set_xlim(-10000,10000)
-ax.set_ylim(-10000,10000)
+ax.set_xlim(-6000,4000)
+ax.set_ylim(-6000,6000)
 
 #larger ticks
 ax.tick_params(axis="x", labelsize=18)
@@ -60,6 +59,21 @@ gc.collect()
             
 #buoy locations at the end of the winter
 fnames = sorted(glob('../data/mosaic_buoy_data/selection/*_locs.csv'))
+outname='RS2_20191231_map_buoys_all.png'
+
+inpath = '../data/mosaic_buoy_data/selection/'
+fnames = glob(inpath+'2019P103*_locs.csv')+\
+    glob(inpath+'2019P193*_locs.csv')+\
+    glob(inpath+'2019P195*_locs.csv')+\
+    glob(inpath+'2019P204*_locs.csv')
+outname='RS2_20191231_map_buoys4.png'
+
+#fnames = glob(inpath+'2019P158*_locs.csv')+\
+    #glob(inpath+'2019P201*_locs.csv')+\
+    #glob(inpath+'2019P204*_locs.csv')+\
+    #glob(inpath+'2019P193*_locs.csv')
+#outname='RS2_20191231_map_buoys4a.png'
+
 colors = plt.cm.jet(np.linspace(0, 1, len(fnames)))
 
 #ref station:
@@ -100,4 +114,5 @@ for i in range(0,len(fnames)):
 
 ax.legend()
 
+plt.show()
 fig1.savefig(outpath+outname,bbox_inches='tight')

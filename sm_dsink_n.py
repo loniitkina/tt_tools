@@ -11,16 +11,17 @@ from scipy.stats import linregress
 
 #TO DO: add precipitation rate
 #TO DO: compare to snow mass balance terms in SnowModel
-#TO DO: add all ice age locations: Nloop, Sloop, Runway
+
 
 #whenever there is strong deformation, strong wind and no large precipitation we have an increase
 #if strong deformation, but also precipitation, we get a net increase
 
-loc = 'Nloop'
-loc = 'Sloop'
-loc = 'Runwy'
+#if we only do this calculation for level ice (Nlooplevel), we only get erosion (negative sinks), but then the correlation is not significant.
 
 locs = ['Nloop','Sloop','Runwy']
+treat=['normal','level','level_low']
+treat='level'
+treat='normal'
 
 #for the scatter plot
 x=[]
@@ -36,11 +37,11 @@ for loc in locs:
     ax = fig1.add_subplot(111)
 
     #observations
-    inpath_table = '../data/MCS/MP/'
-    fname = inpath_table+'ts_'+loc+'_1m_gridded_swe.csv'    #all obs
-    fname = inpath_table+'ts_'+loc+'_1m_gridded_swe_period.csv'    #end of deformation periods
-
-
+    inpath_table = '../data/MCS/MP/SnowModel_calval/'
+    fname = inpath_table+'ts_'+loc+'_1m_gridded_swe_normal.csv'    #all obs (but no melt)
+    
+    #if loc=='Nloop':
+        #fname = inpath_table+'ts_'+loc+'_1m_gridded_swe_normal_periods.csv'    #selection of dates based on Sloop
 
     obs_swe = getColumn(fname,9); obs_swe = np.array(obs_swe,dtype=np.float)
 
@@ -51,49 +52,13 @@ for loc in locs:
 
     ax.plot(obs_dates,obs_swe,'x', markeredgewidth=4, c='royalblue', ms=8, label='observations')
 
-
-    ##simulations
-    #inpath='../data/SnowModel/'
-    #outpath='../plots_sm/'
-
-    #fname = inpath+'swed_'+loc+'.dat'
-    #swed = getColumn(fname,2, delimiter=',')
-    #swed = np.array(swed,dtype=np.float)     
-    #swed = np.ma.array(swed,mask=swed==-9999)
-
-    #numdays=365*8
-    #start = datetime(2019,8,1)
-    #dt = [start + timedelta(hours=x*3) for x in range(numdays)]
-
-    #ax.plot(dt,swed[7:], lw=1, c='r', label='SnowModel snow wrong time axis')
-
-
-
-
-
-    #inpath='../data/g/'
-    #outpath='../plots_sm/'
-
-    #fname = inpath+'swed_'+loc+'.dat'
-    #swed = getColumn(fname,2, delimiter=',')
-    #swed = np.array(swed,dtype=np.float) 
-    #swed = np.ma.array(swed,mask=swed==-9999)
-
-    #numdays=366*8
-    #start = datetime(2019,8,1)
-    #dt = [start + timedelta(hours=x*3) for x in range(numdays)]
-
-    #swed = np.append([0],swed)
-    #ax.plot(dt,swed, lw=3, c='k', label='SnowModel snow')
-    #ax.plot(dt,np.zeros_like(swed),':k')
-
-    #ax.plot(dt,swed, lw=1, c='k', label='old SnowModel snow')
-
-
-
+    #simulations
     fname = inpath+'swed_'+loc+'.dat'
     fname = inpath+'snow_tice_'+loc+'_2023_02_14.dat'
     fname = inpath+'snow_tice_'+loc+'_2023_06_02.dat'
+    #fname = inpath+'snow_tice_'+loc+'_2023_06_15_test4.dat'
+    #fname = inpath+'snow_tice_'+loc+'_2023_06_15_test4.dat' #level low, tuned
+    
     #iter,swed_mod1,swed_mod2,snod,sden,dyn_corr,tice,swed_obs,sden_obs,snod_obs,timo_obs
 
     results = csv.reader(open(fname))
@@ -103,28 +68,31 @@ for loc in locs:
     swed = [row.split(" ")[2] for row in results_clean]
     swed = np.array(swed,dtype=np.float)     
     swed = np.ma.array(swed,mask=swed==-9999)
+    
+    swed2 = [row.split(" ")[3] for row in results_clean]
+    swed2 = np.array(swed2,dtype=np.float)     
+    swed2 = np.ma.array(swed2,mask=swed2==-9999)
 
     ds = [row.split(" ")[6] for row in results_clean]
     ds = np.array(ds,dtype=np.float)     
     ds = np.ma.array(ds,mask=ds==-9999)
-
-
-    #swed = getColumn(fname,2, delimiter=',')
-    #swed = np.array(swed,dtype=np.float)     
-    #swed = np.ma.array(swed,mask=swed==-9999)
+    
+    swed_o = [row.split(" ")[8] for row in results_clean]
+    swed_o = np.array(swed_o,dtype=np.float)     
+    swed_o = np.ma.array(swed_o,mask=swed_o==-9999)
 
     numdays=366*8
     start = datetime(2019,8,1)
     dt = [start + timedelta(hours=x*3) for x in range(numdays)]
     end = datetime(2020,8,1)
 
-
-
-    ax.plot(dt,swed, lw=3, c='k', label='model')
+    ax.plot(dt,swed, lw=1, c='k',ls='--', label='SnowModel no $D$')
+    ax.plot(dt,swed2, lw=2, c='k', label='SnowModel with $D$')
     #ax.plot(dt,ds, c='k', label='SnowModel d-sink')
     #ax.plot(dt,np.cumsum(ds), c='g', label='SnowModel d-sink cumsum')
     ax.plot(dt,np.zeros_like(swed),':k')
-
+    
+    ax.plot(dt[-450:],swed_o[-450:],'x',c='grey',label='observations melt', ms=8, markeredgewidth=4)
 
     #get wind speed
     inpath_wind='../data/SnowModel/'
@@ -147,8 +115,16 @@ for loc in locs:
     #get deformation
     inpath_buoys = '../data/mosaic_buoy_data/selection/'
     fname = inpath_buoys+'Deformation_3hr.csv'
+    #fname = inpath_buoys+'Deformation_3hr_alternative.csv'
 
+    #total deformation
     td = getColumn(fname,7); td = np.array(td,dtype=np.float)
+    
+    #divergence
+    #td = getColumn(fname,6); td = np.array(td,dtype=np.float)
+    
+    #area change rate
+    #td = getColumn(fname,5); td = np.array(td,dtype=np.float)
 
     year = np.array(getColumn(fname,0),dtype=int)
     month = np.array(getColumn(fname,1),dtype=int)
@@ -208,11 +184,6 @@ for loc in locs:
     td3h = sums.td.values
 
     #same for precip
-    pos = {'td': td}
-    df = pd.DataFrame(data=pos,index=td_dates)
-    sums = df.resample('3H').sum().asfreq('3H')
-    td3h = sums.td.values
-
     pp = np.append([0], pp)
     pp = np.append(pp, [0])
     pp_dates = np.append([dt[0]], pp_dates)
@@ -281,10 +252,10 @@ for loc in locs:
     dpc = np.ma.array(dpc,mask=mask[1:])
 
     dsc_m = dsc.compressed()
-    ddc_m = ddc.compressed() *-1    #multiply by one, so that we get a positive change wnen increase
-    dwc_m = dwc.compressed()
+    ddc_m = ddc.compressed() *-1    #multiply by one, so that we get a positive change when increase
+    dwc_m = dwc.compressed() *-1    #multiply by one, so that we get a positive change when increase
     dfc_m = dfc.compressed()
-    dpc_m = dpc.compressed()
+    dpc_m = dpc.compressed() *-1    #multiply by one, so that we get a positive change when increase
     dt_m = np.ma.array(dt[:],mask=mask).compressed()
 
     #dsc_m = np.append([0],dsc_m[:-1])
@@ -292,9 +263,12 @@ for loc in locs:
     #all sinks
     mask = (dsc_m > 0.1)
     #only large sinks and large deformation
-    #mask = (ddc_m/100 > -.021) | (np.abs(dsc_m) < 0.002)
-    
-
+    #mask = (ddc_m/100 > .021) | (np.abs(dsc_m) < 0.002)
+    #mask = (np.abs(dsc_m) < 0.004)
+    #mask = (ddc_m/100 < .02)
+    #mask = (dpc_m < 0.03)   #small precipitation
+    #mask = (dwc_m/20000 < 0.01)   #low wind
+    #mask = (dwc_m/20000 < 0.001) #| (dpc_m < 0.01) | (np.abs(dsc_m) < 0.001) | (ddc_m/100 < .01)
 
 
     dsc_m = np.ma.array(dsc_m, mask=mask).compressed()
@@ -307,16 +281,18 @@ for loc in locs:
 
     #scale some values
     ax.plot(dt_m,dsc_m,'x', markeredgewidth=6, c='gold', ms=8, label=r'$\frac{dD}{dt}$')
+    #ax.plot(dt_m,dpc_m,'x', markeredgewidth=6, c='pink', ms=8, label='precip')
+    #ax.plot(dt_m,dwc_m/20000,'x', markeredgewidth=4, c='r', ms=8, label='dt cum wind > 5m/s')
     #ax.plot(dt[1:],dwc/20000,'x', markeredgewidth=4, c='r', ms=8, label='dt cum wind > 5m/s')
-    ax.plot(dt,td3h_cum/1000, c='purple', label=r'$\sum_{i=1}^k \epsilon_{total}$')
+    #ax.plot(dt,td3h_cum/1000, c='purple', label=r'$\sum_{i=1}^k \epsilon_{total}$')
     #ax.plot(dt,d_sink, c='gold', label='residual')
-    ax.plot(dt_m,ddc_m/100,'x', markeredgewidth=3, c='purple', ms=8, label=r'$\frac{d\sum_{i=1}^k \epsilon_{total}}{dt}$')
+    ax.plot(dt_m,ddc_m/100,'x', markeredgewidth=3, c='purple', ms=8, label=r'$\frac{d \epsilon_{TOT}}{dt}$') #r'$\frac{d\sum_{i=1}^k \epsilon_{TOT}}{dt}$'
     #ax.plot(dt,dc/100,'x', markeredgewidth=3, c='purple', ms=1, label='test')
     #ax.plot(dt[1:],dfc,'x', markeredgewidth=4, c='b', ms=8, label='dt cum swe')
     #ax.plot(dt[1:],dpc,'x', markeredgewidth=4, c='g', ms=8, label='dt cum swe precip')
 
     #finalize the plot
-    ax.legend(fontsize=18,loc='upper left',ncol=2)
+    ax.legend(fontsize=20,loc='upper left',ncol=1)
 
     ax.set_ylabel('SWE (m)',fontsize=20) # Y axis data label
 
@@ -326,6 +302,29 @@ for loc in locs:
 
     ax.tick_params(axis="x", labelsize=14)
     ax.tick_params(axis="y", labelsize=14)
+    
+    
+    ##periods
+    #ax.axvspan(datetime(2019,10,10), datetime(2019,10,16),color='pink',alpha=.2)
+    #ax.axvspan(datetime(2019,10,16), datetime(2019,11,1),color='royalblue',alpha=.2)
+    #ax.axvspan(datetime(2019,11,1), datetime(2019,11,15),color='pink',alpha=.2)
+    #ax.axvspan(datetime(2019,11,15), datetime(2019,12,12),color='royalblue',alpha=.2)
+    #ax.axvspan(datetime(2019,12,12), datetime(2019,12,29),color='pink',alpha=.2)
+    #ax.axvspan(datetime(2019,12,29), datetime(2020,1,20),color='royalblue',alpha=.2)
+    #ax.axvspan(datetime(2020,1,20), datetime(2020,1,31),color='pink',alpha=.2)
+    #ax.axvspan(datetime(2020,1,31), datetime(2020,2,15),color='royalblue',alpha=.2)
+    #ax.axvspan(datetime(2020,2,15), datetime(2020,3,4),color='pink',alpha=.2)
+    #ax.axvspan(datetime(2020,3,4), datetime(2020,3,10),color='royalblue',alpha=.2)
+    #ax.axvspan(datetime(2020,3,10), datetime(2020,4,6),color='pink',alpha=.2)
+    #ax.axvspan(datetime(2020,4,6), datetime(2020,4,26),color='royalblue',alpha=.2)
+    #ax.axvspan(datetime(2020,4,26), datetime(2020,5,3),color='pink',alpha=.2)
+    #ax.axvspan(datetime(2020,4,26), datetime(2020,5,12),color='pink',alpha=.2)
+
+    #large sinks and sources/leads/ridges
+    #ax.axvspan(datetime(2019,10,10), datetime(2019,10,16),color='pink',alpha=.2)
+    ax.axvspan(datetime(2019,10,16), datetime(2019,11,1),color='royalblue',alpha=.2)    #Fort Ridge formation
+    ax.axvspan(datetime(2019,11,14), datetime(2019,12,5),color='gold',alpha=.2)         #November shear zone
+    ax.axvspan(datetime(2020,3,15), datetime(2020,4,30),color='limegreen',alpha=.1)     #March-April deformation
 
     plt.grid()
 
@@ -352,9 +351,16 @@ for loc in locs:
 
     #bx.plot(dsc_m,bp_mark,'x',c='b')
 
-    x.extend(np.abs(dsc_m)[1:])   #exclude the first one, not a real deformation period (several periods)
-    #x.extend(dsc_m[1:])
-    y.extend((ddc_m/100)[1:])
+    #snow sink
+    y.extend(np.abs(dsc_m)[1:])   #exclude the first one, not a real deformation period (several periods)
+    #y.extend(dsc_m[1:])
+    
+    #deformation
+    x.extend((ddc_m/100)[1:])
+    #y.extend((ddc_m/100)[1:])
+    
+    #wind
+    #x.extend((dwc_m/10000)[1:])
 
 #fit the curve
 #r2 estimates
@@ -377,7 +383,7 @@ from sklearn.metrics import r2_score
 r2 = r2_score(y, predict(x))
 print('R2: ',r2)
 
-x_lin_reg = np.arange(0, .025,.001)
+x_lin_reg = np.arange(0, .08,.001)
 y_lin_reg = predict(x_lin_reg)
 
 print(x_lin_reg)
@@ -395,13 +401,18 @@ if pvalue < 0.01:   #significant at 99%
     #cx[2].scatter(dt,r2,marker='x',c='k',s=70)
     print('significant!')
 
-bx.text(0, .09, '$R^2$= '+str(np.round(r2,2)), ha="left", va="center", size=20)
-bx.text(0, .095, '$N$= '+str(np.round(len(x),2)), ha="left", va="center", size=20)
-bx.text(0, .085, '$p$= '+str(np.round(pvalue,3)), ha="left", va="center", size=20)
+#for just Nloop
+bx.text(0, .012, '$R^2$= '+str(np.round(r2,2)), ha="left", va="center", size=20)
+bx.text(0, .011, '$N$= '+str(np.round(len(x),2)), ha="left", va="center", size=20)
+bx.text(0, .010, '$p$= '+str(np.round(pvalue,5)), ha="left", va="center", size=20)  
+
+#bx.text(0, .014, '$R^2$= '+str(np.round(r2,2)), ha="left", va="center", size=20)
+#bx.text(0, .013, '$N$= '+str(np.round(len(x),2)), ha="left", va="center", size=20)
+#bx.text(0, .012, '$p$= '+str(np.round(pvalue,5)), ha="left", va="center", size=20)
 
 
-bx.set_xlabel(r'$\frac{dD}{dt}$',fontsize=20)
-bx.set_ylabel(r'$\frac{d\sum_{i=1}^k \epsilon_{total}}{dt}$',fontsize=20)
+bx.set_ylabel(r'$|\frac{dD}{dt}|$',fontsize=20)
+bx.set_xlabel(r'$\frac{d\epsilon_{TOT}}{dt}$',fontsize=20)   #r'$\frac{d\sum_{i=1}^k \epsilon_{total}}{dt}$'
 #bx.legend()
 plt.show()
 fig2.savefig(outpath+'sm_dsink_scatter_all'+loc,bbox_inches='tight')

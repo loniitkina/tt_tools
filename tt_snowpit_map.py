@@ -11,7 +11,7 @@ outpath='../plots_sm/'
 
 #RS-2 scene for 31 Dec 2019, 03:35:02 UTC
 tif='../data/RS-2_Wenkai/RS2_20191231_033502_0004_FQ20W_HHVVHVVH_SLC_783865_1107_32077288_HV.tif'
-outname='RS2_20191231_map_snowpits_selection1.png'
+outname='RS2_20191231_map_snowpits_selection2.png'
 alos=False
 
 #ref station:
@@ -51,7 +51,6 @@ ax.tick_params(axis="y", labelsize=18)
 
 del arr, rot_x, rot_y
 gc.collect()
-
 
 #Transects
 inpath_table = '../data/MCS/MP/'
@@ -134,16 +133,19 @@ del xx,yy,x_grid,y_grid,i_grid
 
 #snow pit locations
 print('*************************************************************************snowpit locations')
-fnames = glob('../data/snowpits_wagner/swe_smpdensity_leg1_leg3_archive/plotting/swe_smp_k2020_*.csv')
-selection = ['snow1-A1','snow1-A3','snow1-A5','runway1','RS-transect-north','snow1-transect']
-cols = ['salmon','purple','gold','cornflowerblue','c','limegreen','salmon','deeppink','gold','salmon','purple','gold']
+#groups of repeated snowpits by SWE probe, density cutter and SMP
+selection=['Nloop','snow1','snow2','snow3','runway1','DS-coring-FYI','DS-coring-SYI','L','FR','DR','RS','radiation','optics','SYI','stakes1']
 
-#selected snow density values from SWE probe, density cutter and SMP
-selection=['snow1','snow2','snow3','runway1','ds','L','DR','FR','RS3','Nloop']
-colors = plt.cm.jet(np.linspace(0, 1, len(selection)))
+labels = ['Nloop','Snow 1','Snow 2','Snow 3','Runway','Dark Site FYI','Dark Site SYI','L-sites','Fort Ridge','Davids Ridge','RS sites','Radiation','Optics','Allies Ridge','Stakes 1']
+
+markers = ['o','o','o','o','o','o','o','o','X','X','X','X','X','X','X','X']
+sizes = [8,8,8,8,8,8,8,8,10,10,10,10,10,10,10,10]
+colors = ['salmon','purple','m','cornflowerblue','gold','teal','limegreen','deeppink','darkred','darkorange','r','b','y','g','c']
 
 #deformation leg 3
 deformation_start=datetime(2020,3,10)
+
+
 
 for j in range(0,len(selection)):
     snowpit_group=selection[j]
@@ -151,7 +153,7 @@ for j in range(0,len(selection)):
     
     ##SMP and SWE cylinder bulk density
     fnames = sorted(glob('../data/snowpits_wagner/swe_smpdensity_leg1_leg3_archive/metdata_and_plot_qc/swe_smp_k2020_'+snowpit_group+'*.csv')+glob('../data/snowpits_amy/metadata_SWE_'+snowpit_group+'*.csv'))
-    ##just SMP
+    ##just SMP - SWE cyclinder GPS positions are very bad!
     fnames = sorted(glob('../data/snowpits_wagner/swe_smpdensity_leg1_leg3_archive/metdata_and_plot_qc/swe_smp_k2020_'+snowpit_group+'*.csv'))
     #just SWE cylinder
     #fnames = sorted(glob('../data/snowpits_amy/metadata_SWE_'+snowpit_group+'*.csv'))
@@ -160,6 +162,7 @@ for j in range(0,len(selection)):
         fname = fnames[i]
         snowpit = fname.split('_')[-1].split('.csv')[0]
         print(snowpit)
+        print(fname)
         
         x = getColumn(fname,6)
         x = np.array(x,dtype=np.float)
@@ -171,51 +174,57 @@ for j in range(0,len(selection)):
 
         #some coordinates are off (deformation, bad GPS etc)
         badcoords = ( (snowpit_group=='snow1')& ( np.array(dt,dtype=np.datetime64)<np.datetime64(datetime(2019,12,1))) |
+                      (snowpit_group=='snow1')& ( np.array(dt,dtype=np.datetime64)>np.datetime64(deformation_start)) |
                       (snowpit_group=='snow2')& ( np.array(dt,dtype=np.datetime64)<np.datetime64(datetime(2019,12,1))) |
                       (snowpit_group=='snow3')& ( np.array(dt,dtype=np.datetime64)<np.datetime64(datetime(2019,12,1))) |
                       (snowpit=='snow1-transect')& ( np.array(dt,dtype=np.datetime64)>np.datetime64(datetime(2020,1,1))) |
-                      (snowpit=='Nloop')& ( np.array(dt,dtype=np.datetime64)<np.datetime64(datetime(2019,12,1)))
-                      
-                
+                      (snowpit=='Nloop')& ( np.array(dt,dtype=np.datetime64)<np.datetime64(datetime(2019,12,1))) |
+                      (snowpit_group=='RS')& ( np.array(dt,dtype=np.datetime64)>np.datetime64(deformation_start))         
             )
         
-        timemask = (np.array(dt,dtype=np.datetime64)<np.datetime64(deformation_start))
-        
         #keep this
-        mask=((x>-2000)&(x<2000)&(timemask)&~(badcoords)) | ((x>-2000)&(x<2000)&(snowpit_group=='DR'))
+        mask=((x>-2000)&(x<2000)&~(badcoords))
         
         #Nloop snow pits are right on top of the transect, do some offset in y direction
         if snowpit=='Nloop':
-            y = y+15
+            y = y+20
+            
+        if snowpit=='stakes1':
+            y = y+70
+        
+        if snowpit=='snow2-A12-transect':
+            y = y+100
+            
+        if snowpit=='radiation-stn':
+            y = y+40    
         
         #plotting
         if i==0:
-            if snowpit_group=='snow1':
-                label='Snow 1'
-            elif snowpit_group=='snow2':
-                label='Snow 2'
-            elif snowpit_group=='snow3':
-                label='Snow 3'    
-            elif snowpit_group=='FR':
-                label='Fort Ridge' 
-            elif snowpit_group=='DR':
-                label='Davids Ridge'    
-            elif snowpit_group=='RS3':
-                label='RS Site 3'    
-            elif snowpit_group=='ds':
-                label='Dark Site'
-            elif snowpit_group=='runway1':
-                label='Runway'    
-            else:
-                label=snowpit_group
+            label=labels[j]
                 
             if snowpit_group=='L':  #not on map
-                ax.plot(x[mask],y[mask],'X',ms=5,c=colors[j])
+                ax.plot(x[mask],y[mask],markers[j],ms=sizes[j],c=colors[j],markeredgecolor='w')
             else:
-                ax.plot(x[mask],y[mask],'X',ms=5,c=colors[j],label=label)
+                ax.plot(x[mask],y[mask],markers[j],ms=sizes[j],c=colors[j],label=label,markeredgecolor='w')
             
         else:
-            ax.plot(x[mask],y[mask],'X',ms=5,c=colors[j])
+            ax.plot(x[mask],y[mask],markers[j],ms=sizes[j],c=colors[j],markeredgecolor='w')
+    
+    #add manually some snow pits that have bad GPS coordinates
+    if snowpit_group=='SYI':
+        y = [-200,-205]
+        x = [850,860]
+        ax.plot(x,y,'X',ms=sizes[j],c='g',label=labels[j],markeredgecolor='w')
+        
+    if snowpit_group=='DS-coring-SYI':
+        y = [-250,-255]
+        x = [1650,1660]
+        ax.plot(x,y,'o',ms=sizes[j],c='limegreen',label=labels[j],markeredgecolor='w')
+            
+    if snowpit_group=='DS-coring-FYI':
+        y = [-600,-605]
+        x = [1350,1360]
+        ax.plot(x,y,'o',ms=sizes[j],c='teal',label=labels[j],markeredgecolor='w')        
         
 ax.legend(ncol=3,fontsize=14,loc='upper right')
 

@@ -257,12 +257,15 @@ dates = ['20191024','20191031','20191107','20191114','20191121','20191128','2019
 #loc = 'P7'
 #dates = ['20210513']
 
-##CIRFA cruise
-#outpath = '../plots_cirfa22/'
-#outpath_grid = '../data/grids_cirfa22/'
+#CIRFA cruise
+outpath = '../plots_cirfa22/'
+outpath_grid = '../data/grids_cirfa22/'
 
 ##loc='Landfast_S'
 ##dates=['20220427']
+
+loc='Landfast_M'
+dates=['20220501']
 
 #loc='Drift1'
 #dates=['20220505']

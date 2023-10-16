@@ -23,11 +23,28 @@ flist = glob(inpath+'2019P103*_locs.csv')+\
     glob(inpath+'2019P201*_locs.csv')+\
     glob(inpath+'2019P204*_locs.csv')
 
-#just best 4 bouys
+#just best 4 bouys (distance 4-5km from PS)
 flist = glob(inpath+'2019P103*_locs.csv')+\
     glob(inpath+'2019P193*_locs.csv')+\
     glob(inpath+'2019P195*_locs.csv')+\
     glob(inpath+'2019P204*_locs.csv')
+
+##alternative 4 bouys (variable distance 1-5km from PS)
+#flist = glob(inpath+'2019P158*_locs.csv')+\
+    #glob(inpath+'2019P201*_locs.csv')+\
+    #glob(inpath+'2019P204*_locs.csv')+\
+    #glob(inpath+'2019P193*_locs.csv')
+
+#flist = glob(inpath+'2019P103*_locs.csv')+\
+    #glob(inpath+'2019P193*_locs.csv')+\
+    #glob(inpath+'2019P195*_locs.csv')+\
+    #glob(inpath+'2019P204*_locs.csv')+\
+    #glob(inpath+'2019P158*_locs.csv')
+
+#flist = glob(inpath+'2019P103*_locs.csv')+\
+    #glob(inpath+'2019P193*_locs.csv')+\
+    #glob(inpath+'2019P201*_locs.csv')+\
+    #glob(inpath+'2019P204*_locs.csv')
 
 print(flist)
 
@@ -285,6 +302,7 @@ table = list(zip(*tt))
 
 #save output
 outfile = inpath+'Deformation_3hr.csv'
+#outfile = inpath+'Deformation_3hr_alternative.csv'
 print(outfile)
 
 with open(outfile, 'wb') as f:

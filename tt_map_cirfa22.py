@@ -106,6 +106,9 @@ with rasterio.open(fn1) as src:
     crs = osr.SpatialReference()
     crs.ImportFromWkt(ds.GetProjectionRef())
     inProj=crs.ExportToProj4()
+    
+    print(inProj)
+    exit()
 
     #lat,lon projection
     outProj = Proj(init='epsg:4326')

@@ -16,6 +16,8 @@ melt=datetime(2020,6,1)
 
 flist=sorted(glob(inpath+'Heat_flux*'+'.csv'))
 
+#Salganik et al. (2023) estimated an ocean heat flux increase from 16 to 44 W m−2 from July 9 to July 29 
+#using level ice temperatures and bottom melt rates in the Central Observatory.
 
 fig1 = plt.figure(figsize=(15,8))
 ax = fig1.add_subplot(111)
@@ -34,12 +36,13 @@ for fname in flist:
     fo = getColumn(fname,1,skipheader=1, delimiter=',');fo = np.array(fo,dtype=np.float)
     
     #the longest time series
-    if buoy_name=='0approx':
+    #if buoy_name=='0approx':
+    if buoy_name=='1approx':   
         plt.plot(dt,np.zeros_like(fo),'--k')
         dt_long=dt
 
     
-    mask=(np.abs(fo)>250) | ((np.abs(fo)>40) & (np.array(dt)>melt))
+    mask=(np.abs(fo)>250) | ((np.abs(fo)>45) & (np.array(dt)>melt))
     dtm=np.ma.array(dt,mask=mask).compressed()
     fom=np.ma.array(fo,mask=mask).compressed()
     
@@ -101,6 +104,7 @@ mean_max20 = np.mean(np.ma.masked_array(flux, flux>20),axis=1)
 
 #only aprox. values
 flux_approx = flux[:,0]
+flux_approx = flux[:,1]
 
 #this is a rigid toping and produces abrupt jumps, smoothing needs to be used
 #smoothing
@@ -140,7 +144,8 @@ ax.xaxis.set_minor_locator(MonthLocator())
 ax.xaxis.set_major_formatter(DateFormatter('%b %Y'))
 
 plt.show()
-fig1.savefig(outpath+'ts_ocean_heat_flux_forSnowModel_new.png',bbox_inches='tight')
+#fig1.savefig(outpath+'ts_ocean_heat_flux_forSnowModel_new.png',bbox_inches='tight')
+fig1.savefig(outpath+'ts_ocean_heat_flux_forSnowModel_LS.png',bbox_inches='tight')
 
 #save the data for SnowModel/HIGTSI
 year = [ datetime.strftime(x, "%Y") for x in dates ]
@@ -149,7 +154,8 @@ day = [ datetime.strftime(x, "%d") for x in dates ]
 hour = [ datetime.strftime(x, "%H") for x in dates ]
 
 #save the data in file
-file_name = inpath+'ocean_heat_flux_for_HIGTSI_new.csv'
+#file_name = inpath+'ocean_heat_flux_for_HIGTSI_new.csv'
+file_name = inpath+'ocean_heat_flux_for_HIGTSI_LS.csv'
 print(file_name)
 
 tt = [year,month,day,hour,flux_approx] #negative means downwards (from atmosphere to ocean)
@@ -157,7 +163,8 @@ table = list(zip(*tt))
 
 with open(file_name, 'wb') as f:
     #header
-    f.write(b'year,month,day,hour, approximation from Lei et al 2021 (W/m2)\n')
+    #f.write(b'year,month,day,hour, approximation from Lei et al 2021 (W/m2)\n')
+    f.write(b'year,month,day,hour, approximation from Lei/Salganik (W/m2)\n')
     np.savetxt(f, table, fmt="%s", delimiter=",")
 
 

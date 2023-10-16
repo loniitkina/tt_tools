@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
-from datetime import datetime
+from datetime import datetime, date
 from glob import glob
 from tt_func import getColumn, polymodel
 import pandas as pd
@@ -9,54 +9,85 @@ import matplotlib.dates as mdates
 from matplotlib.dates import MonthLocator, DateFormatter
 import locale
 
-#only print error to standard oputput (ignore warnings)
-from matplotlib.axes._axes import _log as matplotlib_axes_logger
-matplotlib_axes_logger.setLevel('ERROR')
+#The transect input for this script is produced by two separate scripts: 
+#tt_pdf_plot.py: This gives mean and mode values for combined transect line and also for the level and deformed ice
+#in Itkin et al, 2023 the level ice values for Sloop are calculated form the gridded colocated data for the Sloop.
+#The summer data is not collocted (no FloeNavi and lots of rotations), so we used a more simple level ice definition:
+#sea ice thickness mode +-10cm
 
+#give some time limit the snow pit density data - during summer site slection is not representative, all pits are in the ridges
+timelimit=datetime(2020,6,1,0,0,0)
+
+period=False #weather and deformation periods - this is only used in post-procesing of results
+
+#pick which sampling method
+method='all'
+#method='swe'
+
+#by turning this on this script produces reduced snow cover (by one standard deviation)
+treat=['normal','level','level_low']
 
 outpath='../plots_sm/'
-inpath_table = '../data/MCS/MP/'
+inpath_table = '../data/MCS/MP/SnowModel_calval/'
 
-#selected snow density values from SWE probe, density cutter and SMP
-selection=['snow1','snow2','snow3','runway1','ds','L','DR','FR','RS3','Nloop']
+#groups of repeated snowpits by SWE probe, density cutter and SMP
+selection=['Nloop','snow1','snow2','snow3','runway1','DS-coring-FYI','DS-coring-SYI','L','FR','DR','RS','radiation','optics','SYI','stakes1']
+#selection=['Nloop','snow1','snow2','snow3','runway1','DS-coring-FYI','DS-coring-SYI','L','FR','DR','RS','radiation']
+#selection=['Nloop','snow1','snow2','snow3','runway1','DS-coring-FYI','DS-coring-SYI','L','FR','DR','RS']
 
-##snow1 only (the most frequent and longest sampled site)
-#selection=['snow1']
+#SMP values
+#A5* was merged into A5 file
+#RS-transect-north measurements that were flagged in meta-file were removed
 
-##ridges only
-#selection=['DR','FR']
+labels = ['Nloop','Snow 1','Snow 2','Snow 3','Runway','Dark Site FYI','Dark Site SYI','L-sites','Fort Ridge','Davids Ridge','RS sites','Radiation','Optics','Allies Ridge','Stakes 1']
 
-melt=datetime(2020,6,1)
+#labels = ['Nloop','Runway','Stakes 1','MetCity']
 
-colors = plt.cm.jet(np.linspace(0, 1, len(selection)))
+markers = ['o','o','o','o','o','o','o','o','v','v','v','v','v','v','v','v']
+colors = ['salmon','purple','fuchsia','cornflowerblue','gold','teal','limegreen','deeppink','darkred','darkorange','r','b','y','g','c','purple']
 
 #start a figure
 fig1 = plt.figure(figsize=(15,8))
 ax = fig1.add_subplot(111)
 
-swe_list=[]
 bulk_list=[]
 date_list=[]
+
+bulk_list_smp=[]
+date_list_smp=[]
+
+bulk_list_swe=[]
+date_list_swe=[]
+
+bulk_list_cutter=[]
+date_list_cutter=[]
 
 all_xd=[]
 all_rho=[]
 
+smp_count=0
+cutter_count=0
+swe_count=0
+
 for j in range(0,len(selection)):
     snowpit_group=selection[j]
-    print(snowpit_group,'****************************************************************************************')
-    
-    ##SMP and SWE cylinder bulk density
+    snowpit_group_label=labels[j]
+    print(snowpit_group,'**********************************************************')
+
+    #SMP and SWE cylinder bulk density
     fnames = sorted(glob('../data/snowpits_wagner/swe_smpdensity_leg1_leg3_archive/metdata_and_plot_qc/swe_smp_k2020_'+snowpit_group+'*.csv')+glob('../data/snowpits_amy/metadata_SWE_'+snowpit_group+'*.csv'))
-    ##just SMP
-    #fnames = sorted(glob('../data/snowpits_wagner/swe_smpdensity_leg1_leg3_archive/metdata_and_plot_qc/swe_smp_k2020_'+snowpit_group+'*.csv'))
-    #just SWE cylinder
-    #fnames = sorted(glob('../data/snowpits_amy/metadata_SWE_'+snowpit_group+'*.csv'))
-    for i in range(0,len(fnames)):
     
+    #fnames = sorted(glob('../data/snowpits_amy/metadata_SWE_'+snowpit_group+'*.csv'))
+
+    group=[]
+    group_d=[]
+    dates_g=[]
+
+    for i in range(0,len(fnames)):
         fname = fnames[i]
         snowpit = fname.split('_')[-1].split('.csv')[0]
+
         print(snowpit)
-        
         #Date/time,doid,z [m],SWE [mm],LAT,LON,x,y,bulk snow density [kg/m3]
         dt = getColumn(fname,0)
         date = [ datetime.strptime(dt[x], "%Y-%m-%d %H:%M:%S") for x in range(len(dt)) ]
@@ -75,11 +106,7 @@ for j in range(0,len(selection)):
         y = np.array(y,dtype=np.float)
         rho_s = getColumn(fname,8)
         rho_s = np.array(rho_s,dtype=np.float)
-        
-        #individual SWE measurements
-        ax.scatter(date,rho_s,marker='x',c='.5')
 
-        #SMP has typically 5 measurements for each snow pit - and up to 25 in transects
         #make daily means
         snow = {'depth': snod,
                 'swe': swe,
@@ -91,7 +118,11 @@ for j in range(0,len(selection)):
 
         df = pd.DataFrame(data=snow,index=date)
         means = df.groupby(pd.Grouper(freq='1D')).mean()
-                
+        
+        #keep values
+        #print(means.index.values)
+        #print(means.depth.values)
+        
         snod_m = np.ma.masked_invalid(means.depth.values)
         
         dates_m = np.ma.array(means.index.values,mask=snod_m.mask).compressed()
@@ -103,166 +134,199 @@ for j in range(0,len(selection)):
         y_m = np.ma.array(means.y.values,mask=snod_m.mask).compressed()
         snod_m = snod_m.compressed()
         
-        #plotting
-        if i==0:
-            if snowpit_group=='snow1':
-                label='Snow 1'
-            elif snowpit_group=='snow2':
-                label='Snow 2'
-            elif snowpit_group=='snow3':
-                label='Snow 3'    
-            elif snowpit_group=='FR':
-                label='Fort Ridge' 
-            elif snowpit_group=='DR':
-                label='Davids Ridge'    
-            elif snowpit_group=='RS3':
-                label='RS Site 3'    
-            elif snowpit_group=='L':
-                label='L-Sites'
-            elif snowpit_group=='ds':
-                label='Dark Site'
-            elif snowpit_group=='runway1':
-                label='Runway'    
-            else:
-                label=snowpit_group
-            ax.scatter(dates_m,rho_s_m,marker='s',c=colors[j],label=label)
-            
-        else:
-            ax.scatter(dates_m,rho_s_m,marker='s',c=colors[j])
-            
-        
-        #plot circles to show snow depth
-        ax.scatter(dates_m,rho_s_m,marker='o',s=snod_m*700, facecolors='none', edgecolors='k')
-
         #convert to datetime
-        dates_s_m = dates_m.astype('M8[D]').astype('O')
+        dates_m = dates_m.astype('M8[D]').astype('O')
         
-        #store for the curve
-        bulk_list.extend(rho_s_m)
-        date_list.extend(dates_s_m)
+        group.extend(rho_s_m)
+        dates_g.extend(dates_m)
+        #print(dates_m)
+        group_d.extend(snod_m*700)
         
-        #get density cutter values (if they exist)
-        #this will give some cloud of all values (visualization on the plot)
-        fcs = sorted(glob('../data/snowpits_amy/metadata_DensityCutter_'+snowpit+'*.csv'))
-        if len(fcs)>0:
-            fc=fcs[0]
-            print(fc)
-            
-            #Date/time,doid,z top [m], z bottom [m],snow density [kg/m3],LAT,LON,x,y
-            dtc = getColumn(fc,0)
-            dtc = [ datetime.strptime(dtc[x], "%Y-%m-%d %H:%M:%S") for x in range(len(dtc)) ]
-                        
-            rho = getColumn(fc,4)
+        if fname.split('/')[2] == 'snowpits_wagner':
+            smp_count=smp_count+len(rho_s_m)
+            bulk_list_smp.extend(rho_s_m)
+            date_list_smp.extend(dates_m)
+        else:
+            swe_count=swe_count+len(rho_s_m)
+            bulk_list_swe.extend(rho_s_m)
+            date_list_swe.extend(dates_m)
+    
+        #get density cutter values
+        fcs = sorted(glob('../data/snowpits_wagner/swe_smpdensity_leg1_leg3_archive/cutter/cutter_*'+snowpit+'*.csv'))
+        #print(fcs)
+    
+        for fc in fcs:
+            #print(fc)
+            dtc = fc.split('_')[6]
+            dtc = datetime.strptime(dtc, "%Y%m%d")
+
+            rho = getColumn(fc,6)
             rho = np.array(rho,dtype=np.float)
-
-            ax.scatter(dtc,rho,marker='.',c='.75')
-                        
-            #estimate SWE from density cutter too
-            h_s = getColumn(fc,2)
-            h_s = np.array(h_s,dtype=np.float)
             
-            h_e = getColumn(fc,3)
-            h_e = np.array(h_e,dtype=np.float)
-
-            #make daily groups
-            snow = {'h_s': h_s,
-                    'h_e': h_e,
-                    'density': rho}
-
-            df = pd.DataFrame(data=snow,index=dtc)
-            days = df.groupby(pd.Grouper(freq='1D'))
+            h_start = getColumn(fc,4)
+            h_start = np.array(h_start,dtype=np.float) /100
             
-            for dd in days:
-                if len(dd[1]['h_s']) > 0:
-                    #print(dd)
-                    
-                    h_start = dd[1]['h_s'].values
-                    h_end = dd[1]['h_e'].values
-                    rho = dd[1]['density'].values
-                    
-                    dt_pit = dd[1]['density'].index[0]
+            h_end = getColumn(fc,5)
+            h_end = np.array(h_end,dtype=np.float) /100
+            
+            #sometimes there is only top layer sampled - throw those snow pits away
+            #here we set this value high - we use as many data points as possible (they fit the curve well)
+            if h_end[-1] < 0.25:    
                 
-                    #sometimes there is only top layer sampled - throw those snow pits away
-                    #here we set this value high - we use as many data points as possible
-                    if h_end[-1] < 0.25:    
-                        
-                        #check how much we are missing and assign SWE to the lowest part (same as layer above)
-                        if h_end[-1] > 0:
-                            rest= rho[-1]/1000 *h_end[-1]
-                        else:
-                            rest=0
+                #check how much we are missing and assign SWE to the lowest part (same as layer above)
+                if h_end[-1] > 0:
+                    rest= rho[-1]/1000 *h_end[-1]
+                else:
+                    rest=0
 
-                        #snow depth is the top of the first density measurements
-                        snod = h_start[0]
-                        
-                        #check that tops of the consecutive density measuremnts are always 3cm appart
-                        #zero thickness will remove all double measurements
-                        layer = h_start[0:]-np.append(h_start[1:],h_end[-1])
-                        #print(layer)
-                                        
-                        #remove unrealistic snow densities > 550 (melting layer, 450 is the densest wind slab)
-                        #all our snow pits are from winter, so 450 is set as upper limit
-                        rho = np.ma.array(rho,mask=rho>450)
-                                        
-                        #replace those masked values by mean for the snow pit
-                        mean_rho = np.mean(rho)
-                        rho=rho.filled(fill_value=mean_rho)
-                        
-                        ##before December there was no such wind slab, so we can lower this limit to 400
-                        #if dtc < datetime(2019,12,1):
-                            ##print('early winter')
-                            #rho = np.ma.array(rho,mask=rho>400)
-                            #mean_rho = np.mean(rho)
-                            #rho=rho.filled(fill_value=mean_rho)
-                        
-                        #calculate SWE
-                        swe = np.sum( rho/1000 *layer  ) + rest
-                        
-                        #calculate bulk density
-                        bulk = (swe/snod)*1000
-                        
-                        xd = [ dtc for x in range(len(rho)) ]
-                        #ax.scatter(xd,rho,marker='.',c=colors[i])
-                        
-                        all_xd.extend(xd)
-                        all_rho.extend(rho)
-                        
-                        #plot bulk density
-                        ax.scatter(dt_pit,bulk,marker='d',c=colors[j])
+                #snow depth is the top of the first density measurements
+                snod = h_start[0]
+                
+                #check that tops of the consecutive density measuremnts are always 3cm appart
+                #zero thickness will remove all double measurements
+                layer = h_start[0:]-np.append(h_start[1:],h_end[-1])
+                #print(layer)
+                                
+                #remove unrealistic snow densities > 550 (melting layer, 450 is the densest wind slab)
+                #all our snow pits are from winter, so 450 is set as upper limit
+                rho = np.ma.array(rho,mask=rho>450)
+                                
+                #replace those masked values by mean for the snow pit
+                mean_rho = np.mean(rho)
+                rho=rho.filled(fill_value=450)
+                
+                #before December there was no such wind slab, so we can lower this limit to 400
+                if dtc < datetime(2019,12,1):
+                    #print('early winter')
+                    rho = np.ma.array(rho,mask=rho>400)
+                    mean_rho = np.mean(rho)
+                    rho=rho.filled(fill_value=400)
+                    
+                #print(rho)
+                
+                #calculate SWE
+                swe = np.sum( rho/1000 *layer  ) + rest
+                
+                #calculate bulk density
+                bulk = (swe/snod)*1000
+                print(bulk)
+                
+                xd = [ dtc for x in range(len(rho)) ]
+                #ax.scatter(xd,rho,marker='.',c=colors[i])
+                
+                all_xd.extend(xd)
+                all_rho.extend(rho)
+                
+                #save bulk density for curve fitting
+                group.append(bulk)
+                dates_g.append(dtc)
+                group_d.append(snod*700)
+                
+                bulk_list_cutter.append(bulk)
+                date_list_cutter.append(dtc)
+                
+                cutter_count=cutter_count+1
 
-                        #plot circles to show snow depth
-                        ax.scatter(dt_pit,bulk,marker='o',s=snod*700, facecolors='none', edgecolors='k')
-                        
-                        ##save SWE and bulk density for curve fitting
-                        swe_list.append(swe)
-                        bulk_list.append(bulk)
-                        date_list.append(dt_pit)
-
+            else:
+                print('lower part of pit missing: ', h_end[-1])
+            
+    #limit to the winter
+    print(timelimit)
+    dates_g = np.array(dates_g,dtype=np.datetime64)
+    #print(dates_gg)
+    try:
+        mask = dates_g > timelimit
+        dates_g = np.ma.array(dates_g,mask=mask).compressed()
+        group = np.ma.array(group,mask=mask).compressed()
+        group_d = np.ma.array(group_d,mask=mask).compressed()
+    except: #some snow pits have only few measurements and cause problems - they are just winter anyway
+        print('problems in: ',snowpit_group_label)
+        
+    
+   
+    
+    ax.scatter(dates_g,group,marker=markers[j],c=colors[j],label=snowpit_group_label)
+    
+    #plot circles to show snow depth
+    ax.scatter(dates_g,group,marker='o',s=group_d, facecolors='none', edgecolors='k')
+    
+    #store for the curve
+    bulk_list.extend(group)
+    date_list.extend(dates_g.tolist())
+            
+            
+#all cutter values inside the pits
+ax.scatter(all_xd,all_rho,marker='.',c='.75')
+ax.set_ylim(min(all_rho),max(all_rho))
+#ax.set_ylim(50,500)
+       
 #fit the curve
-#dont use any values from the melt period
-mask=np.array(date_list,dtype=np.datetime64)>np.datetime64(melt)
-date_list = np.ma.array(date_list).compressed()
-bulk_list = np.ma.array(bulk_list).compressed()
 
 x = mdates.date2num(date_list) #convert time tuples to numbers
 y = bulk_list
-model = np.polyfit(x, y, 1) #decide here the curve-order
-predict = np.poly1d(model)
 
-xmodel = np.arange(min(x),max(x),1) #convert numbers to dates for plotting
+order_color=['darkred','b','r','y','g']
+for i in range(1,2):
+    print('order: ',i)
+    model = np.polyfit(x, y, i) #decide here the curve-order
+    predict = np.poly1d(model)
+
+    xmodel = np.arange(min(x),max(x),1) #convert numbers to dates for plotting
+    dd = mdates.num2date(xmodel)
+    ymodel = predict(xmodel)
+
+    ax.plot(dd, ymodel, color=order_color[i-1],ls=':',alpha=.9,lw=3,label='all')#,label=i)
+    
+    #print(dd)
+    #print(ymodel)
+    plt.grid()
+    
+    print('counts')
+    print('smp: ',smp_count)
+    print('SWE: ',swe_count)
+    print('cutter: ',cutter_count)
+    #ax.text()
+
+#individual methods
+#cutter
+x = mdates.date2num(date_list_cutter)
+y = bulk_list_cutter
+model = np.polyfit(x, y, 1)
+predict_cutter = np.poly1d(model)
+xmodel = np.arange(min(x),max(x),1)
 dd = mdates.num2date(xmodel)
-ymodel = predict(xmodel)
+ymodel = predict_cutter(xmodel)
+ax.plot(dd, ymodel, color='y',ls=':',alpha=.9,lw=3,label='cutter')
+ax.scatter(date_list_cutter,bulk_list_cutter,marker='.',c='w',s=10)
 
-ax.plot(dd, ymodel, color='darkred',ls=':',alpha=.9,lw=3)
+#SMP
+x = mdates.date2num(date_list_smp)
+y = bulk_list_smp
+model = np.polyfit(x, y, 1)
+predict_smp = np.poly1d(model)
+xmodel = np.arange(min(x),max(x),1)
+dd = mdates.num2date(xmodel)
+ymodel = predict_smp(xmodel)
+ax.plot(dd, ymodel, color='g',ls=':',alpha=.9,lw=3,label='SMP')
+
+#SWE
+x = mdates.date2num(date_list_swe)
+y = bulk_list_swe
+model = np.polyfit(x, y, 1)
+predict_swe = np.poly1d(model)
+xmodel = np.arange(min(x),max(x),1)
+dd = mdates.num2date(xmodel)
+ymodel = predict_swe(xmodel)
+ax.plot(dd, ymodel, color='b',ls=':',alpha=.9,lw=3,label='cylinder')
+ax.scatter(date_list_swe,bulk_list_swe,marker='x',c='k',s=20)
 
 #add 20% above and bellow lines
-ax.plot(dd, ymodel+(.2*ymodel), color='.8',ls='--',alpha=.9,lw=3)
-ax.plot(dd, ymodel-(.2*ymodel), color='.8',ls='--',alpha=.9,lw=3)
+ax.plot(dd, ymodel+(.2*ymodel), color='.9',ls='--',alpha=.9,lw=3)
+ax.plot(dd, ymodel-(.2*ymodel), color='.9',ls='--',alpha=.9,lw=3)
 
-
-legend1=ax.legend(ncol=5,fontsize=14)
-ax.set_ylim(0,450)
-ax.set_xlim(datetime(2019,10,20),melt)
+legend1=ax.legend(ncol=5,fontsize=14, loc='lower right')
+#ax.set_ylim(0,450)
+ax.set_xlim(datetime(2019,10,20),datetime(2020,5,15))
 ax.set_ylabel('Snow density (kg/m$^3$)',fontsize=20)
 ax.tick_params(axis="x", labelsize=14)
 ax.tick_params(axis="y", labelsize=14)
@@ -280,61 +344,83 @@ legend_sizes = legend_values*700
 legend_sizes_sqrt = np.sqrt(legend_sizes)
 
 elements = [plt.Line2D([0], [0], color='none', marker="o", markerfacecolor=None, markeredgecolor='k', markersize=s) for s in legend_sizes_sqrt]
-legend2 = ax.legend(elements, [f" {p:.1f} m" for p in legend_values], loc='lower right', title="Snow depth")
+legend2 = ax.legend(elements, [f" {p:.1f} m" for p in legend_values], loc='upper left', title="Snow depth",fontsize=14,title_fontsize='x-large')
 ax.add_artist(legend2)
 
 #keep the first legend
 plt.gca().add_artist(legend1)
 
 plt.show()
-fig1.savefig(outpath+'bulk_density_curve1.png',bbox_inches='tight')
-exit()
+fig1.savefig(outpath+'bulk_density_curve3.png')
+#exit()
 
+if method=='swe':
+    predict=predict_swe
 
 #open the transect data
 loc='Sloop'
-#loc='Nloop'
+loc='Nloop'
 #loc='runway'
-for i in ['level','rubble']:
-    fname = inpath_table+'SnowModel_'+loc+'_'+i+'.csv'
-    fname = inpath_table+'SnowModel_'+loc+'_'+i+'_melt.csv'
+#loc='runwayup'
+#loc='runwaydown'
+for i in treat:
+    #use means as they are plotted in Itkin et al, 2023
+    #melt data is added from 'special' on 17 June and 'transect' of leg 4
+    fname = inpath_table+'ts_'+loc+'_1m_gridded_melt.csv'
+    if period:
+        fname = inpath_table+'ts_'+loc+'_1m_gridded_period.csv'
     print(fname)
 
-    sloop_dates = getColumn(fname,0)
-    sloop_si = getColumn(fname,1)
-    sloop_si = np.array(sloop_si,dtype=np.float)
-    sloop_sid = getColumn(fname,2)
-    sloop_it = getColumn(fname,3)
-    sloop_itd = getColumn(fname,4)
-    sloop_itm = getColumn(fname,5)
+    #read snow depth mean, level ice or get reduced level ice snow depth, depending on the 'treat'
+    if i=='normal':
+        sn=1;snd=2
+    elif i=='level':
+        sn=6;snd=7
+    elif i=='level_low':
+        sn=6;snd=7
+
+    loc_dates = getColumn(fname,0)
+    loc_si = getColumn(fname,sn)
+    loc_si = np.array(loc_si,dtype=np.float)
+    loc_sid = getColumn(fname,snd)
+    loc_it = getColumn(fname,3)
+    loc_itd = getColumn(fname,4)
+    loc_itm = getColumn(fname,5)
 
     #extract the bulk density for the dates when we have the transects:
-    sloop_dates = [ datetime.strptime(x, "%Y%m%d") for x in sloop_dates ]
-    print(sloop_dates)
-    x = mdates.date2num(sloop_dates)
-    sloop_rho = predict(x)
-    print(sloop_rho)
+    loc_dates = [ datetime.strptime(x, "%Y%m%d") for x in loc_dates ]
+    #print(loc_dates)
+    x = mdates.date2num(loc_dates)
+    loc_rho = predict(x)
+    print(loc_rho)
 
     #set 550 density (saturated/melting snow) for all summer data
-    for x in range(0,len(sloop_dates)):
-        if sloop_dates[x] > datetime(2020,6,1):
-            sloop_rho[x] = 550
-            
+    for x in range(0,len(loc_dates)):
+        if loc_dates[x] > datetime(2020,6,1):
+            loc_rho[x] = 550
+    
+    if i=='level_low':
+        loc_sid = np.array(loc_sid,dtype=np.float)
+        #prepare a file with snowdepth and SWE reduced by 1SD
+        loc_si = loc_si - loc_sid
+        
+        #check that there are no negative values
+        loc_si = np.where(loc_si<0,0,loc_si)
 
     #calculate SWE for those dates
-    sloop_swe = sloop_rho/1000 *sloop_si
-    print(sloop_swe)
-
+    loc_swe = loc_rho/1000 *loc_si
+    #print(loc_swe)
+    
     #prepare output for SnowModel
-    year = [ datetime.strftime(x, "%Y") for x in sloop_dates ]
-    month = [ datetime.strftime(x, "%m") for x in sloop_dates ]
-    day = [ datetime.strftime(x, "%d") for x in sloop_dates ]
+    year = [ datetime.strftime(x, "%Y") for x in loc_dates ]
+    month = [ datetime.strftime(x, "%m") for x in loc_dates ]
+    day = [ datetime.strftime(x, "%d") for x in loc_dates ]
 
     #save the data in files
-    file_name = fname.split('.csv')[0]+'_swe.csv'
+    file_name = fname.split('.csv')[0]+'_swe_'+i+'_111.csv'
     print(file_name)
 
-    tt = [year,month,day,sloop_si,sloop_sid,sloop_it,sloop_itd,sloop_itm,sloop_rho,sloop_swe]
+    tt = [year,month,day,loc_si,loc_sid,loc_it,loc_itd,loc_itm,loc_rho,loc_swe]
     table = list(zip(*tt))
 
     with open(file_name, 'wb') as f:
@@ -342,4 +428,12 @@ for i in ['level','rubble']:
         f.write(b'year,month,day,snow depth (m),snow depth std (m),ice thickness (m),ice thickness std (m), ice thickness mode (m), snow density (kg/m3), SWE (m)\n')
         np.savetxt(f, table, fmt="%s", delimiter=",")
         
-        
+    #also calculate the snow thermal conductivity, following macfarnale et al, 2023
+    #rks = (2.62e-6 * sden ** 2) + (1.54e-33 * sden) + 3.04e-2
+    rks = (2.62e-6 * loc_rho ** 2) + (1.54e-33 * loc_rho) + 3.04e-2
+    
+    print('snow thermal conductivity')
+    print(rks)
+    
+
+

@@ -5,8 +5,9 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
 ts=True
-pdf=False
+pdf=True
 rates=True
+period=True #just take observations at the end of deformation/weather periods
 
 ##grid spacing
 #stp = '5m'
@@ -17,6 +18,7 @@ inpath_grid = '../data/grids/'
 inpath_grid = '../data/grids_AGU/'
 inpath_table = '../data/MCS/MP/'
 outpath = '../plots_AGU/'
+outpath = '../data/MCS/MP/SnowModel_calval/'
 
 
 ##two dates
@@ -36,15 +38,33 @@ outpath = '../plots_AGU/'
 #outname = 'pdf_'+loc+'_platelet.png'
 #outname = 'pdf_'+loc+'_gnss.png'
 
+#weather periods:
+#for ip in range(0,6):
+    #ax[ip].axvspan(datetime(2019,10,10), datetime(2019,11,13),color='pink',alpha=.3)
+    #ax[ip].axvspan(datetime(2019,11,13), datetime(2019,12,12),color='royalblue',alpha=.2)
+    #ax[ip].axvspan(datetime(2019,12,12), datetime(2020,1,30),color='pink',alpha=.3)
+    #ax[ip].axvspan(datetime(2020,1,30), datetime(2020,2,20),color='royalblue',alpha=.2)
+    #ax[ip].axvspan(datetime(2020,2,20), datetime(2020,3,15),color='pink',alpha=.3)
+    #ax[ip].axvspan(datetime(2020,3,15), datetime(2020,4,15),color='royalblue',alpha=.2)
+    #ax[ip].axvspan(datetime(2020,4,15), datetime(2020,5,2),color='pink',alpha=.3)
+    #ax[ip].axvspan(datetime(2020,5,2), datetime(2020,5,12),color='royalblue',alpha=.2)
+#also leave in the first date as it will be masked out!
+
 #select location
 loc = 'Nloop'
 title='Northern transect loop'
-dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191205',  '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227', '20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507'] 
+dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191205', '20191219','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200320','20200326','20200403','20200416','20200424','20200430','20200507'] 
+if period:
+    dates =['20191031','20191114','20191205','20191226','20200116','20200130','20200206','20200227','20200305','20200403','20200424','20200507'] 
+    dates =['20191031','20191114','20191205','20191226','20200116','20200130','20200206','20200227','20200305','20200403','20200424','20200430','20200507'] 
+    dates =['20191031','20191114','20191219','20200130','20200220','20200320','20200430','20200507'] 
 
-
-#loc = 'Sloop'
-#title='Southern transect loop'
-#dates = ['20191031','20191107','20191114','20191205',   '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
+loc = 'Sloop'
+title='Southern transect loop'
+dates = ['20191031','20191107','20191114','20191205', '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
+if period:
+    dates =['20191031','20191114','20191205','20191226','20200116','20200130','20200206','20200227','20200305','20200406','20200426','20200507']
+    dates = ['20191031','20191114','20191226','20200130','20200220','20200330','20200426','20200507']
 
 
 #loc = 'snow1'
@@ -54,8 +74,19 @@ dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191
 #loc = 'runway'
 #title='Runway Transect'
 #dates = ['20200112','20200119','20200207']
+#if period:
+    #dates = ['20200112','20200119','20200207']
 
-##leg4
+#separate up and down side of the runway
+#loc = 'runwayup'
+#title='Runway Transect'
+#dates = ['20200112','20200119','20200207']
+
+#loc = 'runwaydown'
+#title='Runway Transect'
+#dates = ['20200112','20200119','20200207']
+
+###leg4
 #loc = 'transect'
 #title = 'Leg 4 Transect '
 ###all data
@@ -84,10 +115,10 @@ dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191
 
 
 
-loc='special'
-title = 'Special Transects '
-#dates = ['20200107','20200115','20200123','20200226','20200326','20200403','20200430','20200617','20200719','20200719','20200709','20200827','20200903','20200910','20200902','20200909','20200919']
-dates = ['20200107','20200115','20200123','20200226','20200326','20200430','20200617','20200719','20200719','20200824','20200827','20200903','20200910','20200902','20200909','20200919']
+#loc='special'
+#title = 'Special Transects '
+##dates = ['20200107','20200115','20200123','20200226','20200326','20200403','20200430','20200617','20200719','20200719','20200709','20200827','20200903','20200910','20200902','20200909','20200919']
+#dates = ['20200107','20200115','20200123','20200226','20200326','20200430','20200617','20200719','20200719','20200824','20200827','20200903','20200910','20200902','20200909','20200919']
 
 
 combo=False
@@ -112,7 +143,9 @@ outname = 'pdf_'+loc+'_ice.png'
 #outname_ts_type = 'ts_'+loc+'_'+stp+'_type.png'
 
 outname_ts = 'ts_'+loc+'_'+'1m_gridded_it1.png'
-file_ts = inpath_table+'ts_'+loc+'_'+'1m_gridded.csv'
+file_ts = outpath+'ts_'+loc+'_'+'1m_gridded.csv'
+if period:
+    file_ts = outpath+'ts_'+loc+'_'+'1m_gridded_period.csv'
 outname_ts_type = 'ts_'+loc+'_'+'1m_gridded_it_type.png'
 
 ##events (selected dates from leg 1-3)
@@ -140,7 +173,7 @@ if combo==True:
     #print(colors)
     
     
-#datel=dates
+datel=dates
 #outname = 'pdf_'+loc+'_events.png'
 
 
@@ -216,6 +249,9 @@ ts_ice_std=[]
 #level and deformed ice
 ts_snow_l=[]
 ts_snow_d=[]
+ts_snow_l_std=[]
+ts_snow_d_std=[]
+
 
 i=0
 for date in dates:
@@ -310,7 +346,7 @@ for date in dates:
         ##exit()
     
     #means and modes
-    mn = np.mean(np.ma.masked_invalid(snod).compressed())#.compressed()
+    mn = np.mean(np.ma.masked_invalid(snod).compressed())
     print(mn)
     print(np.std(snod))
     #mni = np.mean(it)
@@ -349,6 +385,8 @@ for date in dates:
         #separate deformed and level ice based on the mode
         #use this to separate the snow depth
         level_ice = (it>mo-.1) & (it<mo+.1)
+        if loc=='runway':
+            level_ice = (it>mo-.15) & (it<mo+.15)
         deformed_ice = (it>mo+.25)
         
         #level_ice = (it<2)
@@ -386,8 +424,11 @@ for date in dates:
         level_snow = np.ma.compressed(level_snow)
         def_snow = np.ma.compressed(def_snow)
 
-        ts_snow_l.append(level_snow)
-        ts_snow_d.append(def_snow)
+        ts_snow_l.append(np.mean(level_snow))
+        ts_snow_d.append(np.mean(def_snow))
+        
+        ts_snow_l_std.append(np.std(level_snow))
+        ts_snow_d_std.append(np.std(def_snow))
 
         i = i+1
     
@@ -403,13 +444,13 @@ if pdf==True:
 if ts==True:
     if combo==False:    #dont do this for combo as it will just double the information
         #time series text file exports
-        tt = [dates,ts_snow_m,ts_snow_std,ts_ice_m,ts_ice_std,ts_mo]
+        tt = [dates,ts_snow_m,ts_snow_std,ts_ice_m,ts_ice_std,ts_mo,ts_snow_l,ts_snow_l_std,ts_snow_d,ts_snow_d_std]
         table = list(zip(*tt))
 
         print(file_ts)
         with open(file_ts, 'wb') as f:
             #header
-            f.write(b'Date/Time, snow depth mean, snow depth SD, ice thickness mean, ice thickness SD, ice thickness mode\n')
+            f.write(b'Date/Time, snow depth mean, snow depth SD, ice thickness mean, ice thickness SD, ice thickness mode, snow depth on level ice (mode+-10cm), snow depth on level ice STD, snow depth in deformed ice, snow depth on deformed ice STD\n')
             np.savetxt(f, table, fmt="%s", delimiter=",")
 
     

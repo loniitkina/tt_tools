@@ -5,11 +5,11 @@ import matplotlib.pyplot as plt
 from tt_func import getColumn
 from datetime import datetime, timedelta
 
-inpath='../data/SnowModel/'
+#a script to plot all the forcing: weather and sea ice deformation
+
 inpath='../data/SnowModel/final/'
 outpath='../plots_sm/'
 
-fname = inpath+'final_10m_3hrly_met_forcing.dat'
 fname = inpath+'final_10m_3hrly_met_2023_02_14.dat'
 print(fname)
 
@@ -100,7 +100,7 @@ end = datetime(2020,8,1)
 
 #ocean heat fluxes
 inpath = '../data/IMB_Lei_PANGAEA/'
-fname = inpath+'ocean_heat_flux_for_HIGTSI_new.csv'
+fname = inpath+'ocean_heat_flux_for_HIGTSI_LS.csv'
 
 fo = getColumn(fname,4); fo = np.array(fo,dtype=np.float)
 fo = np.ma.array(fo,mask=fo==-9999)
@@ -111,13 +111,42 @@ day = np.array(getColumn(fname,2),dtype=int)
 hour = np.array(getColumn(fname,3),dtype=int)
 fo_dt = [ datetime(year[x],month[x],day[x],hour[x]) for x in range(0,len(year)) ]
 
+#deformation
+inpath_buoys = '../data/mosaic_buoy_data/selection/'
+fname = inpath_buoys+'Deformation_3hr.csv'
+
+#total deformation
+td = getColumn(fname,7); td = np.array(td,dtype=np.float)
+
+year = np.array(getColumn(fname,0),dtype=int)
+month = np.array(getColumn(fname,1),dtype=int)
+day = np.array(getColumn(fname,2),dtype=int)
+#td_dates = [ datetime(year[x],month[x],day[x]) for x in range(0,len(year)) ]
+#include 3-hour time lag for deformation (buoys show deformation for past hour)
+td_dt = [ datetime(year[x],month[x],day[x])+ timedelta(hours=3) for x in range(0,len(year)) ] 
+
 #Plotting the time series
-fig1, ax = plt.subplots(5, 1,gridspec_kw={'height_ratios': [1,.5,.5,1,.3]},figsize=(10,15))
+fig1, ax = plt.subplots(5, 1,gridspec_kw={'height_ratios': [1,1,1,1,1.5]},figsize=(10,40))
+
+#wind speed and direction
+ax[4].set_ylabel('Wind Speed (m/s)', fontsize=10)
+ax[4].tick_params(axis="x", labelsize=10)
+ax[4].tick_params(axis="y", labelsize=10)
+ax[4].set_xlim(start,end)
+
+cs = ax[4].scatter(dt,ws_model,c='k',s=3)
+cs = ax[4].scatter(dt,ws,c=wd,cmap=plt.cm.twilight)
+cb = plt.colorbar(cs,orientation='horizontal',aspect=100, fraction=.1, pad=.2)  # draw colorbar
+cb.set_label(label='Wind dir. (deg.)', fontsize=10)
+
+#horizontal line for drifting snow limit (7.7m/s based on dry snow estimate of Li and Pomeroy, 1997)
+driftsnow=np.ones_like(ws_model)*7.7
+ax[4].plot(dt,driftsnow,c='k')
 
 #air temperature
-ax[0].set_ylabel('T$_{air}$ ($^\circ$C)', fontsize=15)
-ax[0].tick_params(axis="x", labelsize=12)
-ax[0].tick_params(axis="y", labelsize=12)
+ax[0].set_ylabel('T$_{air}$ ($^\circ$C)', fontsize=10)
+ax[0].tick_params(axis="x", labelsize=10)
+ax[0].tick_params(axis="y", labelsize=10)
 ax[0].set_xlim(start,end)
 
 ax[0].plot(dt,tair_model,c='k')
@@ -126,49 +155,63 @@ zeros=np.zeros_like(tair_model)
 ax[0].plot(dt,zeros,c='k')
 
 #relative humidity
-ax[1].set_ylabel('$\Phi_{air}$ (%)', fontsize=15)
-ax[1].tick_params(axis="x", labelsize=12)
-ax[1].tick_params(axis="y", labelsize=12)
+ax[1].set_ylabel('$\Phi_{air}$ (%)', fontsize=10)
+ax[1].tick_params(axis="x", labelsize=10)
+ax[1].tick_params(axis="y", labelsize=10)
 ax[1].set_xlim(start,end)
 
 ax[1].plot(dt,rh_model,c='k')
 ax[1].plot(dt,rh,c='teal')
 
 #precipitation
-ax[2].set_ylabel('Precipitation (mm/3h)', fontsize=15)
-ax[2].tick_params(axis="x", labelsize=12)
-ax[2].tick_params(axis="y", labelsize=12)
+ax[2].set_ylabel('Precip. (mm/3h)', fontsize=10)
+ax[2].tick_params(axis="x", labelsize=10)
+ax[2].tick_params(axis="y", labelsize=10)
 ax[2].set_xlim(start,end)
 
 ax[2].plot(dt,pp_model,'*',c='k')
 ax[2].plot(dt,pp,'*',c='royalblue')
 
 ax1 = ax[2].twinx()
-ax1.set_ylabel('Cum. Precipitation (m)', fontsize=15)
+ax1.set_ylabel('Cum. Precip. (m)', fontsize=10)
 ax1.plot(dt,pp_cum,c='b')
 #ax1.plot(dt,pp_cum_model,c='k')
 
-#wind speed and direction
-ax[3].set_ylabel('Wind Speed (m/s)', fontsize=15)
-ax[3].tick_params(axis="x", labelsize=12)
-ax[3].tick_params(axis="y", labelsize=12)
+ax0 = ax[0].twinx()
+ax0.set_ylabel('F$_{ocean}$ (W/m$^2$)', fontsize=10)
+ax0.tick_params(axis="x", labelsize=10)
+ax0.tick_params(axis="y", labelsize=10)
+ax0.set_xlim(start,end)
+
+ax0.plot(fo_dt,fo,c='cornflowerblue',lw=2)
+
+ax[3].set_ylabel('$\epsilon_{TOT}$ (s$^{-1}$)', fontsize=10)
+ax[3].tick_params(axis="x", labelsize=10)
+ax[3].tick_params(axis="y", labelsize=10)
 ax[3].set_xlim(start,end)
 
-cs = ax[3].scatter(dt,ws_model,c='k',s=3)
-cs = ax[3].scatter(dt,ws,c=wd,cmap=plt.cm.twilight)
-cb = plt.colorbar(cs,orientation='horizontal',aspect=80, fraction=.05, pad=.2)  # draw colorbar
-cb.set_label(label='Wind direction (deg.)',fontsize=15)
+ax[3].plot(td_dt,td,c='purple')
 
-#horizontal line for drifting snow limit (7.7m/s based on dry snow estimate of Li and Pomeroy, 1997)
-driftsnow=np.ones_like(ws_model)*7.7
-ax[3].plot(dt,driftsnow,c='k')
+ax3 = ax[3].twinx()
+ax3.set_ylabel(' Cum. $\epsilon_{TOT}$ (s$^{-1}$)', fontsize=10)
+ax3.tick_params(axis="x", labelsize=10)
+ax3.tick_params(axis="y", labelsize=10)
+ax3.plot(td_dt,np.cumsum(td),c='k')
 
-ax[4].set_ylabel('F$_{ocean}$ (W/m$^2$)', fontsize=15)
-ax[4].tick_params(axis="x", labelsize=12)
-ax[4].tick_params(axis="y", labelsize=12)
-ax[4].set_xlim(start,end)
 
-ax[4].plot(fo_dt,fo,c='royalblue')
+#major storms and deformation events with snowfall (beginning of deformation):
+#13.11.2019
+#12.12 (no storm, just deformation)
+#30.1.2020
+#20.2.2020 (no deformation, just wind and snowfall)
+#15.3.2020 (same as above, but deformation before and after)
+#15.4.2020
+#2.5.2020
+for ip in range(0,5):
+    ax[ip].axvspan(datetime(2019,10,16), datetime(2019,11,1),color='royalblue',alpha=.2)    #Fort Ridge formation
+    ax[ip].axvspan(datetime(2019,11,14), datetime(2019,12,5),color='gold',alpha=.2)         #November shear zone
+    ax[ip].axvspan(datetime(2020,3,15), datetime(2020,4,30),color='limegreen',alpha=.1)     #March-April deformation
+
 
 #dates for the publisher
 from matplotlib.dates import MonthLocator, DateFormatter
@@ -187,5 +230,5 @@ ax[2].xaxis.set_major_formatter(DateFormatter('%b %Y'))
 ax[3].xaxis.set_minor_locator(MonthLocator())
 ax[3].xaxis.set_major_formatter(DateFormatter('%b %Y'))
 
-#plt.show()
-fig1.savefig(outpath+'sm_weather.png',bbox_inches='tight')
+plt.show()
+fig1.savefig(outpath+'sm_weather1.png',bbox_inches='tight')
