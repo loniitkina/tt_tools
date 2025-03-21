@@ -22,13 +22,13 @@ period=False #weather and deformation periods - this is only used in post-proces
 
 #pick which sampling method
 method='all'
-#method='swe'
+#method='swe'   #just the SWE cylinder for the bulk density
 
 #by turning this on this script produces reduced snow cover (by one standard deviation)
 treat=['normal','level','level_low']
 
 outpath='../plots_sm/'
-inpath_table = '../data/MCS/MP/SnowModel_calval/'
+inpath_table = '../data/MCS/MP/SnowModel_calval/'   #these data is created by tt_pdf_plot.py
 
 #groups of repeated snowpits by SWE probe, density cutter and SMP
 selection=['Nloop','snow1','snow2','snow3','runway1','DS-coring-FYI','DS-coring-SYI','L','FR','DR','RS','radiation','optics','SYI','stakes1']
@@ -47,7 +47,7 @@ markers = ['o','o','o','o','o','o','o','o','v','v','v','v','v','v','v','v']
 colors = ['salmon','purple','fuchsia','cornflowerblue','gold','teal','limegreen','deeppink','darkred','darkorange','r','b','y','g','c','purple']
 
 #start a figure
-fig1 = plt.figure(figsize=(15,8))
+fig1 = plt.figure(figsize=(15,11))
 ax = fig1.add_subplot(111)
 
 bulk_list=[]
@@ -262,30 +262,40 @@ ax.set_ylim(min(all_rho),max(all_rho))
        
 #fit the curve
 
-x = mdates.date2num(date_list) #convert time tuples to numbers
+x = mdates.date2num(date_list) #convert time tuples to numbers, Number of days since the epoch. See get_epoch for the epoch, which can be changed by rcParams["date.epoch"] (default: '1970-01-01T00:00:00') 
 y = bulk_list
+
+#This is the first snow pit observation, subtract to get the coefficient right
+date_subtract = mdates.date2num(datetime(2019,10,25))
+x = x - date_subtract
 
 order_color=['darkred','b','r','y','g']
 for i in range(1,2):
     print('order: ',i)
-    model = np.polyfit(x, y, i) #decide here the curve-order
-    predict = np.poly1d(model)
+    model_all = np.polyfit(x, y, i) #decide here the curve-order
+    predict = np.poly1d(model_all)
 
     xmodel = np.arange(min(x),max(x),1) #convert numbers to dates for plotting
-    dd = mdates.num2date(xmodel)
-    ymodel = predict(xmodel)
+    dd_all = mdates.num2date(xmodel + date_subtract)
+    ymodel_all = predict(xmodel)
 
-    ax.plot(dd, ymodel, color=order_color[i-1],ls=':',alpha=.9,lw=3,label='all')#,label=i)
+    ax.plot(dd_all, ymodel_all, color=order_color[i-1],ls='--',alpha=.9,lw=3,label='all',zorder=0)#,label=i)
     
     #print(dd)
     #print(ymodel)
-    plt.grid()
+    #plt.grid()
     
     print('counts')
     print('smp: ',smp_count)
     print('SWE: ',swe_count)
     print('cutter: ',cutter_count)
-    #ax.text()
+    
+    #get the model formula written out
+    print('coefficients: ', model_all)
+    ss = np.round(model_all[0],2)
+    ii = model_all[1]
+    ax.text(datetime(2019,11,20),430,r"$\rho_s = %r x + %i \frac{kg}{m^3}$" %(ss,ii), fontsize=18)
+    ax.text(datetime(2019,11,20),410,r"$N = %i$" %(smp_count+swe_count+cutter_count), fontsize=18)
 
 #individual methods
 #cutter
@@ -296,7 +306,7 @@ predict_cutter = np.poly1d(model)
 xmodel = np.arange(min(x),max(x),1)
 dd = mdates.num2date(xmodel)
 ymodel = predict_cutter(xmodel)
-ax.plot(dd, ymodel, color='y',ls=':',alpha=.9,lw=3,label='cutter')
+ax.plot(dd, ymodel, color='y',ls=':',alpha=.9,lw=3,label='cutter',zorder=0)
 ax.scatter(date_list_cutter,bulk_list_cutter,marker='.',c='w',s=10)
 
 #SMP
@@ -307,7 +317,7 @@ predict_smp = np.poly1d(model)
 xmodel = np.arange(min(x),max(x),1)
 dd = mdates.num2date(xmodel)
 ymodel = predict_smp(xmodel)
-ax.plot(dd, ymodel, color='g',ls=':',alpha=.9,lw=3,label='SMP')
+ax.plot(dd, ymodel, color='g',ls=':',alpha=.9,lw=3,label='SMP',zorder=0)
 
 #SWE
 x = mdates.date2num(date_list_swe)
@@ -317,17 +327,17 @@ predict_swe = np.poly1d(model)
 xmodel = np.arange(min(x),max(x),1)
 dd = mdates.num2date(xmodel)
 ymodel = predict_swe(xmodel)
-ax.plot(dd, ymodel, color='b',ls=':',alpha=.9,lw=3,label='cylinder')
+ax.plot(dd, ymodel, color='b',ls=':',alpha=.9,lw=3,label='cylinder',zorder=0)
 ax.scatter(date_list_swe,bulk_list_swe,marker='x',c='k',s=20)
 
 #add 20% above and bellow lines
-ax.plot(dd, ymodel+(.2*ymodel), color='.9',ls='--',alpha=.9,lw=3)
-ax.plot(dd, ymodel-(.2*ymodel), color='.9',ls='--',alpha=.9,lw=3)
+ax.plot(dd_all, ymodel_all+(.2*ymodel_all), color='.75',ls='--',alpha=1,lw=3,zorder=0)
+ax.plot(dd_all, ymodel_all-(.2*ymodel_all), color='.75',ls='--',alpha=1,lw=3,zorder=0)
 
 legend1=ax.legend(ncol=5,fontsize=14, loc='lower right')
 #ax.set_ylim(0,450)
 ax.set_xlim(datetime(2019,10,20),datetime(2020,5,15))
-ax.set_ylabel('Snow density (kg/m$^3$)',fontsize=20)
+ax.set_ylabel(r'Snow density ($\frac{kg}{m^3}$)',fontsize=20)
 ax.tick_params(axis="x", labelsize=14)
 ax.tick_params(axis="y", labelsize=14)
 
@@ -350,9 +360,10 @@ ax.add_artist(legend2)
 #keep the first legend
 plt.gca().add_artist(legend1)
 
-plt.show()
-fig1.savefig(outpath+'bulk_density_curve3.png')
-#exit()
+#plt.show()
+fig1.savefig(outpath+'bulk_density_curve4.png')
+#plt.show()
+exit()
 
 if method=='swe':
     predict=predict_swe
@@ -366,7 +377,9 @@ loc='Nloop'
 for i in treat:
     #use means as they are plotted in Itkin et al, 2023
     #melt data is added from 'special' on 17 June and 'transect' of leg 4
+    #files created in tt_pdf_plot.py
     fname = inpath_table+'ts_'+loc+'_1m_gridded_melt.csv'
+    fname = inpath_table+'ts_'+loc+'_1m_gridded_melt_new.csv'
     if period:
         fname = inpath_table+'ts_'+loc+'_1m_gridded_period.csv'
     print(fname)
@@ -417,7 +430,7 @@ for i in treat:
     day = [ datetime.strftime(x, "%d") for x in loc_dates ]
 
     #save the data in files
-    file_name = fname.split('.csv')[0]+'_swe_'+i+'_111.csv'
+    file_name = fname.split('.csv')[0]+'_swe_'+i+'.csv'
     print(file_name)
 
     tt = [year,month,day,loc_si,loc_sid,loc_it,loc_itd,loc_itm,loc_rho,loc_swe]

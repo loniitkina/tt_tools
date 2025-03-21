@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 ts=True
 pdf=True
 rates=True
-period=True #just take observations at the end of deformation/weather periods
+period=False #just take observations at the end of deformation/weather periods
 
 ##grid spacing
 #stp = '5m'
@@ -59,12 +59,12 @@ if period:
     dates =['20191031','20191114','20191205','20191226','20200116','20200130','20200206','20200227','20200305','20200403','20200424','20200430','20200507'] 
     dates =['20191031','20191114','20191219','20200130','20200220','20200320','20200430','20200507'] 
 
-loc = 'Sloop'
-title='Southern transect loop'
-dates = ['20191031','20191107','20191114','20191205', '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
-if period:
-    dates =['20191031','20191114','20191205','20191226','20200116','20200130','20200206','20200227','20200305','20200406','20200426','20200507']
-    dates = ['20191031','20191114','20191226','20200130','20200220','20200330','20200426','20200507']
+#loc = 'Sloop'
+#title='Southern transect loop'
+#dates = ['20191031','20191107','20191114','20191205', '20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
+#if period:
+    #dates =['20191031','20191114','20191205','20191226','20200116','20200130','20200206','20200227','20200305','20200406','20200426','20200507']
+    #dates = ['20191031','20191114','20191226','20200130','20200220','20200330','20200426','20200507']
 
 
 #loc = 'snow1'
@@ -143,7 +143,7 @@ outname = 'pdf_'+loc+'_ice.png'
 #outname_ts_type = 'ts_'+loc+'_'+stp+'_type.png'
 
 outname_ts = 'ts_'+loc+'_'+'1m_gridded_it1.png'
-file_ts = outpath+'ts_'+loc+'_'+'1m_gridded.csv'
+file_ts = outpath+'ts_'+loc+'_'+'1m_gridded_new.csv'
 if period:
     file_ts = outpath+'ts_'+loc+'_'+'1m_gridded_period.csv'
 outname_ts_type = 'ts_'+loc+'_'+'1m_gridded_it_type.png'
@@ -359,6 +359,17 @@ for date in dates:
     mm1 = np.argmax(hist[0])
     mo = (hist[1][mm] + hist[1][mm+1])/2           #take mean of the bin for the mode value
     print(mo)
+    
+    if loc=='Nloop':           #this transect has very little level ice and modes were sometimes determiend by fitting a lient to a profile plot
+        if date=='20191024': mo=.57
+        if date=='20191031': mo=.63
+        if date=='20191107': mo=.75
+        if date=='20191114': mo=.75
+        if date=='20191121': mo=.81
+        if date=='20191128': mo=.7
+        if date=='20191205': mo=.75
+        if date=='20200220': mo=1.35
+        if date=='20200507': mo=1.77
     
     if pdf==True:
         ##plot PDFs

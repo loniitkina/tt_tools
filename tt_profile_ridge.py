@@ -66,12 +66,10 @@ import matplotlib.pyplot as plt
 
 #TO DO NEXT: 
 #add snow transects: some plot of mean snow depth in the ridges compared to level ice/transect paper/level ice in Nloop?
-#add all channels to the pulk transects
 #large draft footprints should be close to GEM total thickness - do they correspond to 4x thickness?
 #use 2 SD to show the 90% percentils. Also check if the distributions are normal. Box plots? Maybe do this for FR2, our best matched transect.
 #correlation of total thickness from transects and ROV-ALS for Nloop and roads
-#estimates of total volume vs. consolidated volume for these transects
-#time series of consolidated vs non-consolidated ice in Nloop and Sloop
+#make bulk statistics on consolidation, sail height and sail to keel ratio for all these detailed profiles
 
 
 #check the IMB data for consolidation and keel melt (Salganik and some temperature profiles - when are the temperatures at freezing T)
@@ -86,10 +84,9 @@ import matplotlib.pyplot as plt
 
 #MOSAiC
 inpath = '../data/ridges/'
-#inpath_table = '../data/MCS/MP/'
 inpath_table = '../data/MCS/GEM2_thickness/09-ridges-recal/'
 outpath = '../plots_ridges/'
-inpath_grid = '../data/grids_AGU/'
+#outpath = '../plots_ridges_test/'
 
 #elevation from ALS 
 als_elev=True
@@ -99,46 +96,63 @@ als_elev=True
 ##dates = ['20200108','20200119','20200221']#,'20200305'] #GEM-2 was not used on 20200119
 #dates = ['20200108','20200221']
 #start = [0,1]
-#elev_bias = [0.3,0.2,0.2]  #manual adjustment to have freeboard measurements for drill holes at about zero elevation
+#elev_bias = [0.3,0.2,]  #manual adjustment to have freeboard measurements for drill holes at about zero elevation
 #title = 'Fort Ridge Installation Transect '
+#startx = [8,8]
+#endx = [45,45]
 
 #loc = 'ridgeFR2'    #coring
 #dates = ['20200110','20200212','20200221'] #GEM-2 was not used on 20200221
-#dates = ['20200110','20200212','20200305']
+#dates = ['20200110','20200212','20200305']  #Looks like Robert did the coring transect by mistake
 #start = [0,0,6]
 #elev_bias = [0.2,0.2,0.2]  #manual adjustment to have freeboard measurements for drill holes at about zero elevation
 #title = 'Fort Ridge Coring Transect '
+#startx = [28,28,28]
+#endx = [69,69,69]
 
-#loc = 'ridgeFR3'
-#dates = ['20200131']
-#start = [0]
-#elev_bias = [0.2]
-#title = 'Fort Ridge Optics Transect '
+loc = 'ridgeFR3'
+dates = ['20200131']
+start = [0]
+elev_bias = [0.2]
+title = 'Fort Ridge Optics Transect '
+startx = [10]
+endx = [30]
 
-#loc = 'ridgeA1'    #central
-#dates = ['20200117','20200131','20200228','20200410','20200628']
-##dates = ['20200117','20200131','20200228','20200628']
-#start = [0,-4,-8,0,0]   #some transect lines were extended X meters over the Nloop/road
-#elev_bias = [.5,-.5,-.5,-.5,-.5]   #not important as we dont have draft data here
-#title = "Alli's Ridge Central Transect "
+loc = 'ridgeA1'    #central
+dates = ['20200117','20200131','20200228','20200410','20200628']
+#dates = ['20200117','20200131','20200228','20200628']
+start = [0,-4,-8,0,0]   #some transect lines were extended X meters over the Nloop/road
+elev_bias = [.5,-.5,-.5,-.5,-.5]   #not important as we dont have draft data here
+title = "Alli's Ridge Central Transect "
+startx = [0,0,0,0,0]
+endx = [43,43,43,43,43]
 
 loc = 'ridgeA2'    #north
 dates = ['20200212','20200228','20200410','20200628']
 #dates = ['20200212','20200228','20200628']
 start = [0,-3,10,13]
-elev_bias = [0,0,0,0]
+elev_bias = [.5,0,0,0]
 title = "Alli's Ridge North Transect "
+startx = [13,13,13,13]
+endx = [51,51,51,51]
 
 loc = 'ridgeA3'    #south
 dates = ['20200212','20200228','20200410','20200628']
 #dates = ['20200212','20200228','20200628']
 start = [0,-4,3,3]
+elev_bias = [.5,0,0,0]
 title = "Alli's Ridge South Transect "
+startx = [3,3,3,3]
+endx = [47,47,47,47]
+
 
 #loc = 'ridgeD'  #David's Ridge
 #dates = ['20200410','20200416','20200424','20200430','20200507']
 #start = [0,0,0,0,0]
 #title = "David's Ridge Transect "
+#startx = [0,0,0,0,0]
+#endx = [22,22,22,22,22]
+
 
 #loc = 'ridgeE'  #ECO Ridge (lead?)
 #dates = ['20200424']
@@ -152,11 +166,12 @@ dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
 import locale
 locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 datel = [ datetime.strftime(x, '%b, %d %Y') for x in dt ]
-print(datel)
+#print(datel)
 
 colors = plt.cm.Blues(np.linspace(0, 1, 5))    
 
 fb_list=[]
+fb_hs_list=[]
 draft_list=[]
 draft_m_list=[]
 draft_std_list=[]
@@ -165,6 +180,8 @@ ii_list=[]
 ic_list=[]
 x_list=[]
 listlen=[]
+modes_list=[]
+si_mo_list=[]
 
 for dd in range(0,len(dates)):
     date = dates[dd]
@@ -174,13 +191,15 @@ for dd in range(0,len(dates)):
     
     ##fname = glob(inpath_table+'*/magna+gem2*'+date+'*'+loc+'.csv')[0]
     try:
+        #print(inpath_table+date+'/mosaic-*-gem2-*'+loc+'.csv')
         fname = glob(inpath_table+date+'/mosaic-*-gem2-*'+loc+'.csv')[0]
     except:
         try:
             fname = glob('../data/MCS/GEM2_thickness/01-ice-thickness/'+date+'*/mosaic-*-gem2-*'+loc+'.csv')[0]
         except:
             #pulk transects    
-            fname = glob('../data/MCS/MP/*/magna+gem2*'+date+'*'+loc+'.csv')[0]
+            #fname = glob('../data/MCS/MP/*/magna+gem2*'+date+'*'+loc+'.csv')[0]
+            fname = glob('../data/ridges_multif/mosaic_gem-2+mp_'+date+'_'+loc+'_2.csv')[0]
 
     print(fname)
 
@@ -189,61 +208,101 @@ for dd in range(0,len(dates)):
     snod = getColumn(fname,5);si = np.array(snod,dtype=np.float)  #snow depth
     
     #pulk (leg 3) and point transects
-    if date in pulk_transects:
-        it3 = getColumn(fname,8);it3 = np.array(it3,dtype=np.float)#5kHz_hcp_i
-        it5 = getColumn(fname,9);it5 = np.array(it5,dtype=np.float)#18kHz_hcp_i
-        it10 = getColumn(fname,10);it10 = np.array(it10,dtype=np.float)#f93075Hz_hcp_q
+    #if date in pulk_transects:
+        #it3 = getColumn(fname,8);it3 = np.array(it3,dtype=np.float)#5kHz_hcp_i
+        #it5 = getColumn(fname,9);it5 = np.array(it5,dtype=np.float)#18kHz_hcp_i
+        #it10 = getColumn(fname,10);it10 = np.array(it10,dtype=np.float)#f93075Hz_hcp_q
             
-        #select the channel for the total thickness
-        itt=it3
+        ##select the channel for the total thickness
+        #ii=it3
         
-        #or take mean of both (mask nans)
-        itt = np.empty((2,len(it3)))
-        itt[0,:]=it3
-        itt[1,:]=it5
-        itt = np.mean(np.ma.masked_invalid(itt),axis=0)
+        ##or take mean of both (mask nans)
+        #ii = np.empty((2,len(it3)))
+        #ii[0,:]=it3
+        #ii[1,:]=it5
+        #ii = np.mean(np.ma.masked_invalid(ii),axis=0)
 
         
-        #select the channel for the consolidated layer thickness
-        itc=it10
+        ##select the channel for the consolidated layer thickness
+        #cc=np.ma.masked_invalid(it10)
         
         
         
-    else:
-        #Date,Lon,Lat,X,Y,Snow,f1525Hz_hcp_i,f1525Hz_hcp_q,f5325Hz_hcp_i,f5325Hz_hcp_q,18325Hz_hcp_i,f18325Hz_hcp_q,f63025Hz_hcp_i,f63025Hz_hcp_q,f93075Hz_hcp_i,f93075Hz_hcp_q
-        it1 = getColumn(fname,6);it1 = np.array(it1,dtype=np.float)
-        it2 = getColumn(fname,7);it2 = np.array(it2,dtype=np.float)
-        it3 = getColumn(fname,8);it3 = np.array(it3,dtype=np.float)
-        it4 = getColumn(fname,9);it4 = np.array(it4,dtype=np.float)
-        it5 = getColumn(fname,10);it5 = np.array(it5,dtype=np.float)      #closer to real thickness, but still influenced by consolidation (has detection limit)
-        it6 = getColumn(fname,11);it6 = np.array(it6,dtype=np.float)      #consolidation can be seen in column 13 (63kHz q) and 15 (93kHz q)
-        it7 = getColumn(fname,12);it7 = np.array(it7,dtype=np.float)
-        it8 = getColumn(fname,13);it8 = np.array(it8,dtype=np.float)
-        it9 = getColumn(fname,14);it9 = np.array(it9,dtype=np.float)
-        it10 = getColumn(fname,15);it10 = np.array(it10,dtype=np.float)
-        
-        #select the channel for the total thickness
-        #itt=it5 #18kHz - like for level ice, transect paper
-        #itt=it3 #stable channel that works good for all profiles (expect FR3)
-        itt=it3
-        
-        #or take mean of both (mask nans)
-        itt = np.empty((3,len(it3)))
-        itt[0,:]=it3
-        itt[1,:]=it5
-        itt[2,:]=it1
-        itt = np.mean(np.ma.masked_invalid(itt),axis=0)
-        
-        #select the channel for the consolidated layer thickness
-        itc=it10
-        #itc=it7
-        
-        #or mean of all high quadrature channels
-        itc = np.empty((3,len(it3)))
-        itc[0,:]=it6
-        itc[1,:]=it8
-        itc[2,:]=it10
-        itc = np.mean(np.ma.masked_invalid(itc),axis=0)
+    #else:
+    #Date,Lon,Lat,X,Y,Snow,f1525Hz_hcp_i,f1525Hz_hcp_q,f5325Hz_hcp_i,f5325Hz_hcp_q,18325Hz_hcp_i,f18325Hz_hcp_q,f63025Hz_hcp_i,f63025Hz_hcp_q,f93075Hz_hcp_i,f93075Hz_hcp_q
+    it1 = getColumn(fname,6);it1 = np.array(it1,dtype=np.float)
+    it2 = getColumn(fname,7);it2 = np.array(it2,dtype=np.float)
+    it3 = getColumn(fname,8);it3 = np.array(it3,dtype=np.float)
+    it4 = getColumn(fname,9);it4 = np.array(it4,dtype=np.float)
+    it5 = getColumn(fname,10);it5 = np.array(it5,dtype=np.float)      #closer to real thickness, but still influenced by consolidation (has detection limit)
+    it6 = getColumn(fname,11);it6 = np.array(it6,dtype=np.float)      #consolidation can be seen in column 13 (63kHz q) and 15 (93kHz q)
+    it7 = getColumn(fname,12);it7 = np.array(it7,dtype=np.float)
+    it8 = getColumn(fname,13);it8 = np.array(it8,dtype=np.float)
+    it9 = getColumn(fname,14);it9 = np.array(it9,dtype=np.float)
+    it10 = getColumn(fname,15);it10 = np.array(it10,dtype=np.float)
+    
+    ##select the channel for the total thickness
+    ##ii=it5 #18kHz - like for level ice, transect paper
+    ##ii=it3 #stable channel that works good for all profiles (expect FR3)
+    #ii=it3
+    
+    ##or take mean of both (mask nans)
+    #ii = np.empty((3,len(it3)))
+    #ii[0,:]=it3
+    #ii[1,:]=it5
+    #ii[2,:]=it1
+    #ii = np.mean(np.ma.masked_invalid(ii),axis=0)
+    
+    ##select the channel for the consolidated layer thickness
+    ##or mean of all high quadrature channels
+    #cc = np.empty((3,len(it3)))
+    #cc[0,:]=it6
+    #cc[1,:]=it8
+    #cc[2,:]=it10
+    #cc = np.mean(np.ma.masked_invalid(cc),axis=0)
+    
+    #ice thickness
+    ii = np.empty((3,len(it3)))
+    ii[0,:]=np.nan_to_num(it3, nan=-9999)
+    ii[1,:]=np.nan_to_num(it5, nan=-9999)
+    ii[2,:]=np.nan_to_num(it1, nan=-9999)
+    ii = np.mean(np.ma.array(ii,mask=ii<0),axis=0)
+            
+    #consolidated layer thickness
+    cc = np.empty((3,len(it3)))
+    cc[0,:]=np.nan_to_num(it6, nan=-9999)
+    cc[1,:]=np.nan_to_num(it8, nan=-9999)
+    cc[2,:]=np.nan_to_num(it10, nan=-9999)
+    cc = np.mean(np.ma.array(cc,mask=cc<0),axis=0)
+    
+    #find mode of thickness = level ice thickness
+    irbins = np.arange(0,10,.06)
+    ii_pos = np.ma.array(ii,mask=ii==0);ii_pos=ii_pos.compressed()  #take only non-zero (not detected as negative) values
+    hist = np.histogram(ii_pos,bins=irbins)
+    srt = np.argsort(hist[0])                           #indexes that would sort the array
+    mm = srt[-1]                                        #same as: np.argmax(hist[0])
+    mm1 = np.argmax(hist[0])
+    mo = (hist[1][mm] + hist[1][mm+1])/2 
+    print('mode: ',mo)
+    #some ridges have very little ice, use max 1.7m thickness to contrain to level ice 
+    #long transcts never have modal thickness over 1.7m
+    mo_limit=1.7
+    if loc=='ridgeA1':
+        mo_limit=3
+    if loc=='ridgeA2':
+        mo_limit=4.5
+    if loc=='ridgeA3':
+        mo_limit=3    
+    if mo > mo_limit:
+        mo = np.mean(np.ma.array(ii_pos,mask=ii_pos>mo_limit))
+        print('mode: ',mo)
+    
+    modes_list.append(mo)
+    
+    #snow depth on level ice 
+    mask=ii>mo+.1
+    si_mo = np.mean(np.ma.array(si,mask=mask))
+    si_mo_list.append(si_mo)
     
     #plot
     fig1 = plt.figure(figsize=(20,10))
@@ -262,13 +321,14 @@ for dd in range(0,len(dates)):
     #surface elevation - determine just for the first of the repeated transects
     if date==dates[0]:
         #hydrostatic equilibrium with mean snow density and sea ice density
-        rho_i = 882
+        rho_i = 882 #assuming 10% air content in the bulk of the ridge = 30% of the sail (level ice density 882). This corresponds well with total macroporosity from drillings 20-30%
         rho_w = 1025
         rho_s = 313
 
         #following Forsstrom et al, 2011, Annals of Glaciology
         #fb = (ii - si * (rho_s/(rho_w-rho_i))) * (rho_w-rho_i)/rho_w
-        fb = (itt * (rho_w-rho_i)/rho_w ) - (si * rho_s/rho_w)
+        fb = (ii * (rho_w-rho_i)/rho_w ) - (si * rho_s/rho_w)
+        fb_hs = fb
 
         #ALS elevation
         if als_elev:
@@ -406,29 +466,29 @@ for dd in range(0,len(dates)):
     #plot
     ax.plot(x,fb,label='ice surface Jan, 21 2020',c='k',ls=':')
     ax.fill_between(x, fb, fb+si,alpha=1, color=colors[1], label='snow')
-    ax.fill_between(x, fb, fb-itc,alpha=1, color=colors[2], label='consolidated ice')
-    ax.fill_between(x, fb, fb-itt,alpha=.3, color=colors[-1], label='max ice')
+    ax.fill_between(x, fb, fb-cc,alpha=1, color=colors[2], label='consolidated ice')
+    ax.fill_between(x, fb, fb-ii,alpha=.3, color=colors[-1], label='max ice')
     if loc=='ridgeFR1' or loc=='ridgeFR2' or loc=='ridgeFR3':
         ax.plot(x,draft,label='draft Jan, 28 2020',c='purple',ls=':',lw=1)
         ax.errorbar(x,draft_m,draft_std,label='mean draft Jan, 28 2020',c='purple',ls=':',lw=3)
     
     #if point transects (not pulk - leg 3)
-    if date not in pulk_transects:
-        ax.plot(x, fb-it1,'--w', label='1.5kHz i')
-        ax.plot(x, fb-it2,'0.9',ls='--')
-        ax.plot(x, fb-it3,'b',ls='--', label='5kHz i')
-        ax.plot(x, fb-it4,'0.7',ls='--')
-        ax.plot(x, fb-it5,'g',ls='--', label='18kHz i')
-        ax.plot(x, fb-it6,'0.5',ls='--')
-        ax.plot(x, fb-it7,'r',ls='--', label='60kHz i')
-        ax.plot(x, fb-it8,'0.3',ls='--')
-        ax.plot(x, fb-it9,'y',ls='--', label='98kHz i')
-        ax.plot(x, fb-it10,'--k', label='98kHz q')
+    #if date not in pulk_transects:
+    ax.plot(x, fb-it1,'--w', label='1.5kHz')
+    ax.plot(x, fb-it2,'w',ls=':')
+    ax.plot(x, fb-it3,'b',ls='--', label='5kHz')
+    ax.plot(x, fb-it4,'b',ls=':')
+    ax.plot(x, fb-it5,'g',ls='--', label='18kHz')
+    ax.plot(x, fb-it6,'g',ls=':')
+    ax.plot(x, fb-it7,'r',ls='--', label='60kHz')
+    ax.plot(x, fb-it8,'r',ls=':')
+    ax.plot(x, fb-it9,'y',ls='--', label='98kHz')
+    ax.plot(x, fb-it10,'y',ls=':')
         
-    else:
-        ax.plot(x, fb-it3,'b',ls='--', label='5kHz i')
-        ax.plot(x, fb-it5,'g',ls='--', label='18kHz i')
-        ax.plot(x, fb-it10,'--k', label='98kHz q')
+    #else:
+        #ax.plot(x, fb-it3,'b',ls='--', label='5kHz i')
+        #ax.plot(x, fb-it5,'g',ls='--', label='18kHz i')
+        #ax.plot(x, fb-it10,'--k', label='98kHz q')
 
     ax.set_ylim(-12,3)
     
@@ -440,8 +500,9 @@ for dd in range(0,len(dates)):
 
     #save all these data and try to overlay them in a multi-profile plot
     fb_list.append(fb)
-    ii_list.append(itt)
-    ic_list.append(itc)
+    fb_hs_list.append(fb_hs)
+    ii_list.append(ii)
+    ic_list.append(cc)
     si_list.append(si)
     x_list.append(x)
     listlen.append(len(x))
@@ -450,8 +511,6 @@ for dd in range(0,len(dates)):
         draft_list.append(draft)
         draft_m_list.append(draft_m)
         draft_std_list.append(draft_std)
-
-
 
 fig2 = plt.figure(figsize=(20,10))
 ax = fig2.add_subplot(111)
@@ -462,15 +521,55 @@ ax.tick_params(axis="x", labelsize=14)
 ax.tick_params(axis="y", labelsize=14)
 ax.set_facecolor('0.8')
 
+mean_si_list=[]
+mean_cc_list=[]
+mean_ii_list=[]
+mean_fb_list=[]
+mean_fb_hs_list=[]
+max_fb_list=[]
+max_fb_hs_list=[]
+
+model_si_list=[]
+model_ic_list=[]
+model_ii_list=[]
+model_fb_list=[]
+model_x_list=[]
+
 for i in range(0,len(dates)):
-    print(dates[i])
+    #print(dates[i])
 
     ax.plot(x_list[i], fb_list[i]-ii_list[i],c=colors[i],label=datel[i])
     ax.plot(x_list[i], fb_list[i]-ic_list[i],c=colors[i],ls='--')
     ax.plot(x_list[i], fb_list[i]+si_list[i],c=colors[i])
     ax.plot(x_list[i],fb_list[i],c=colors[i],ls=':')
     
+    #extract just the ridge (no level ice included)
+    si = np.argmin(abs(x_list[i]-startx[i]))
+    ei = np.argmin(abs(x_list[i]-endx[i]))
+    
+    #save for modeling input
+    model_x_list.append(x_list[i][si:ei])
+    model_si_list.append(si_list[i][si:ei])
+    model_ic_list.append(ic_list[i][si:ei])
+    model_ii_list.append(ii_list[i][si:ei])
+    model_fb_list.append(fb_list[i][si:ei])
+    
+    
+    #get means 
+    si_mean = np.mean(si_list[i][si:ei]); mean_si_list.append(si_mean)
+    cc_mean = np.mean(ic_list[i][si:ei]); mean_cc_list.append(cc_mean)
+    ii_mean = np.mean(ii_list[i][si:ei]); mean_ii_list.append(ii_mean)
+    fb_mean = np.mean(fb_list[i][si:ei]); mean_fb_list.append(fb_mean)
+    fb_hs_mean = np.mean(fb_hs_list[i][si:ei]); mean_fb_hs_list.append(fb_hs_mean)
+    fb_max = np.max(fb_list[i][si:ei]); max_fb_list.append(fb_max)
+    fb_hs_max = np.max(fb_hs_list[i][si:ei]); max_fb_hs_list.append(fb_hs_max)
+    
+    #print(si_mean,cc_mean,ii_mean,fb_mean,fb_hs_mean)
+    #print(cc_mean/ii_mean)
+    
+    
 
+ax.plot(x_list[0],fb_hs_list[0],label='hydrostatic ice surface',c='w',ls=':') 
 ax.plot(x_list[0],fb_list[0],label='ice surface Jan, 21 2020',c=colors[-1],ls=':')    
 ax.fill_between(x_list[0], fb_list[0], fb_list[0]+si_list[0],alpha=1, color=colors[1], label='snow')
 ax.fill_between(x_list[0], fb_list[0], fb_list[0]-ic_list[0],alpha=1, color=colors[2], label='consolidated ice')
@@ -859,20 +958,243 @@ if loc=='ridgeA1':
     #freeboard
     ax.plot(x[d], fb[d]-.2, 'x', c= 'r')
     
-    d=47;print(x_list[1][d])
+    d=47;#print(x_list[1][d])
     dh1=1.1
     ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'r', ls=':')
     #freeboard
     ax.plot(x[d], fb[d]-.13, 'x', c= 'r')
     
-    d=50;print(x[d])   #should be at 50m
+    d=50;#print(x[d])   #should be at 50m
     dh1=0.95
     ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'r', ls=':')
     #freeboard
     ax.plot(x[d], fb[d]-.09, 'x', c= 'r')
+    
+    #summer drillings
+    #negative x direction it towards Nloop
+    d=25    #crest (needs an offset to be visible on the plot)
+    dh1=5.
+    ax.plot([x[d]+.5,x[d]+.5], [fb[d],fb[d]-dh1], 'o', c= 'm', ls=':', label='drill hole Jul, 15 2020')
+    #freeboard
+    ax.plot(x[d]+.5, fb[d]-1.2, 'x', c= 'm')
+    
+    d=27    #2.5m off the crest
+    dh1=5.25
+    ax.plot([x[d]+.5,x[d]+.5], [fb[d],fb[d]-dh1], 'o', c= 'm', ls=':')
+    #wet
+    ax.plot([x[d]+.5,x[d]+.5], [fb[d]-5.4,fb[d]-dh1], 'x', c= 'b', ls=':',lw=7)
+    #freeboard
+    ax.plot(x[d]+.5, fb[d]-1.1, 'x', c= 'm')
         
-        
-        
+    d=22    #2.5m off the crest towards Nloop
+    dh1=5.5
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'm', ls=':')
+    #freeboard
+    ax.plot(x[d], fb[d]-.8, 'x', c= 'm')  
+    
+    d=25    #crest (needs an offset to be visible on the plot)
+    dh1=4.5
+    ax.plot([x[d]-.5,x[d]-.5], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':', label='drill hole Jul, 26 2020')
+    #freeboard
+    ax.plot(x[d]-.5, fb[d]-2.3, 'x', c= 'lime')    
+    
+    d=27    #2.5m off the crest
+    dh1=3.6
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #freeboard
+    ax.plot(x[d], fb[d]-1., 'x', c= 'lime')
+    
+    d=30    
+    dh1=6.6
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #wet
+    ax.plot([x[d],x[d]], [fb[d]-3.35,fb[d]-dh1], 'x', c= 'b', ls=':',lw=7)
+    #freeboard
+    ax.plot(x[d], fb[d]-.7, 'x', c= 'lime')
+    
+    d=32    #7.5m off the crest
+    dh1=6.8
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #freeboard
+    ax.plot(x[d], fb[d]-.7, 'x', c= 'lime')
+    
+    d=35    #10m off the crest, offset
+    dh1=5.9
+    ax.plot([x[d]-.5,x[d]-.5], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #freeboard
+    ax.plot(x[d]-.5, fb[d]-.5, 'x', c= 'lime')
+    
+    d=37    #12.5m off the crest
+    dh1=5.45
+    ax.plot([x[d]+.5,x[d]+.5], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #freeboard
+    ax.plot(x[d]+.5, fb[d]-.35, 'x', c= 'lime')
+    
+    d=40    #15m off the crest, offset
+    dh1=5.1
+    ax.plot([x[d]-.5,x[d]-.5], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #wet
+    ax.plot([x[d]-.5,x[d]-.5], [fb[d]-4.2,fb[d]-dh1], 'x', c= 'b', ls=':',lw=7)
+    #freeboard
+    ax.plot(x[d]-.5, fb[d]-.15, 'x', c= 'lime')
+    
+if loc=='ridgeA2':   
+    #Northern line, crest at 32m
+    #negative x direction it towards Nloop
+    #positive y: +10: North (closer to the skidoo passage)
+    
+    d=20
+    dh1=3.75
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'm', ls=':', label='drill hole Jul, 9 2020')
+    #freeboard
+    ax.plot(x[d], fb[d]-1.25, 'x', c= 'm')
+    
+    d=23
+    dh1=6.3
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'm', ls=':')
+    #wet
+    ax.plot([x[d],x[d]], [fb[d]-3.5,fb[d]-dh1], 'x', c= 'b', ls=':',lw=7)
+    #freeboard
+    ax.plot(x[d], fb[d]-.9, 'x', c= 'm')
+    
+    d=25
+    dh1=5.8
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'm', ls=':')
+    #freeboard
+    ax.plot(x[d], fb[d]-.7, 'x', c= 'm')
+    
+    d=18
+    dh1=5
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'm', ls=':')
+    #wet
+    ax.plot([x[d],x[d]], [fb[d]-4.25,fb[d]-dh1], 'x', c= 'b', ls=':',lw=7)
+    #freeboard
+    ax.plot(x[d], fb[d]-.35, 'x', c= 'm')
+    
+    d=15
+    dh1=5.3
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'm', ls=':')
+    #freeboard
+    ax.plot(x[d], fb[d]-.4, 'x', c= 'm')
+    
+    d=20
+    dh1=4
+    ax.plot([x[d]+.5,x[d]+.5], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':', label='drill hole Jul, 15 2020')
+    #freeboard
+    ax.plot(x[d]+.5, fb[d]-1, 'x', c= 'lime')
+    
+    d=17
+    dh1=4.7
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #freeboard
+    ax.plot(x[d], fb[d]-.6, 'x', c= 'lime')
+    
+    d=22
+    dh1=4.8
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #wet
+    ax.plot([x[d],x[d]], [fb[d]-3,fb[d]-dh1], 'x', c= 'b', ls=':',lw=7)   #summer unconsolidated layer is likely fresh (snow water) and it is not detected, but maybe it indicates winter voids???
+    #freeboard
+    ax.plot(x[d], fb[d]-1.1, 'x', c= 'lime')
+    
+    d=23
+    dh1=6.2
+    ax.plot([x[d]-.5,x[d]-.5], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #wet
+    ax.plot([x[d]-.5,x[d]-.5], [fb[d]-4.1,fb[d]-dh1], 'x', c= 'b', ls=':',lw=7)
+    #freeboard
+    ax.plot(x[d]-.5, fb[d]-1.1, 'x', c= 'lime')
+    
+    d=23
+    dh1=5.8
+    ax.plot([x[d]+.5,x[d]+.5], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #wet
+    ax.plot([x[d]+.5,x[d]+.5], [fb[d]-4.2,fb[d]-dh1], 'x', c= 'b', ls=':',lw=7)
+    #freeboard
+    ax.plot(x[d]+.5, fb[d]-.9, 'x', c= 'lime')
+    
+    d=25
+    dh1=5.8
+    ax.plot([x[d]+.5,x[d]+.5], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #freeboard
+    ax.plot(x[d]+.5, fb[d]-.9, 'x', c= 'lime')
+    
+if loc=='ridgeA3':   
+    #Southern line, crest at 33m
+    #negative x direction it towards Nloop
+    #negative y: -10: South
+    
+    d=30
+    dh1=6
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':', label='drill hole Jul, 26 2020')
+    #freeboard
+    ax.plot(x[d], fb[d]-2, 'x', c= 'lime')
+    
+    d=32
+    dh1=4.8
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #wet
+    ax.plot([x[d],x[d]], [fb[d]-1.8,fb[d]-dh1], 'x', c= 'b', ls=':',lw=7)
+    #freeboard
+    ax.plot(x[d], fb[d]-1, 'x', c= 'lime')
+    
+    d=35
+    dh1=5.5
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #wet
+    ax.plot([x[d],x[d]], [fb[d]-4.1,fb[d]-dh1], 'x', c= 'b', ls=':',lw=7)
+    #freeboard
+    ax.plot(x[d], fb[d]-1.6, 'x', c= 'lime')
+    
+    d=37
+    dh1=5.5
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #wet
+    ax.plot([x[d],x[d]], [fb[d]-4.4,fb[d]-dh1], 'x', c= 'b', ls=':',lw=7)
+    #freeboard
+    ax.plot(x[d], fb[d]-1.7, 'x', c= 'lime')
+    
+    d=40
+    dh1=3.1
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #freeboard
+    ax.plot(x[d], fb[d]-.6, 'x', c= 'lime')
+    
+    d=28
+    dh1=5.4
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #wet
+    ax.plot([x[d],x[d]], [fb[d]-.9,fb[d]-dh1], 'x', c= 'b', ls=':',lw=7)
+    #freeboard
+    ax.plot(x[d], fb[d]-.65, 'x', c= 'lime')
+    
+    d=25
+    dh1=4.9
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #wet
+    ax.plot([x[d],x[d]], [fb[d]-.5,fb[d]-dh1], 'x', c= 'b', ls=':',lw=7)
+    #freeboard
+    ax.plot(x[d], fb[d]-.4, 'x', c= 'lime')
+    
+    d=22
+    dh1=5.2
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #freeboard
+    ax.plot(x[d], fb[d]-.4, 'x', c= 'lime')
+    
+    d=20
+    dh1=4.95
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #freeboard
+    ax.plot(x[d], fb[d]-.15, 'x', c= 'lime')
+    
+    d=18
+    dh1=5.2
+    ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'lime', ls=':')
+    #freeboard
+    ax.plot(x[d], fb[d]-.3, 'x', c= 'lime')
+    
+    
 
 ax.legend(fontsize=20, ncol=3,loc='lower left',fancybox=True,facecolor=colors[-1],framealpha=.1)
 outname = loc+'_profile.png'
@@ -880,3 +1202,59 @@ plt.show()
 fig2.savefig(outpath+outname,bbox_inches='tight')
 
 
+
+
+#write output file for modeling
+inpath_table = '../data/ridges_multif/'
+
+dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
+    
+header = b'date,distances\n'
+distances = model_x_list[0]
+#print(len(distances))
+
+variable = [model_si_list,model_ic_list,model_ii_list,model_fb_list]
+varname = ['snow','consolidatedlayer','totalthickness','freeboard']
+
+
+
+for vv in range(0,len(varname)):
+    
+    #print(varname[vv])
+    
+    model_list = variable[vv]
+    
+    #print(model_list)
+
+    model_array = np.zeros((len(dates)+1,len(distances)+1))
+    #print(model_array.shape)
+    model_array[0,1:] = distances
+    model_array[1:,0] = dates
+    
+    for ddd in range(0,len(dates)):
+        model_array[ddd+1,1:] = model_list[ddd]
+        
+    file_name = inpath_table+loc+'_cc_'+varname[vv]+'.csv'
+
+    with open(file_name, 'wb') as f:
+        #header
+        f.write(header)
+        #np.savetxt(f, distances, fmt="%s", delimiter=",")
+        np.savetxt(f, model_array, fmt="%s", delimiter=",")
+
+
+
+#save the data in file
+inpath_table = '../data/ridges_multif/'
+file_name = inpath_table+loc+'_cc.csv'
+print(file_name)
+
+dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
+
+tt = [dt,mean_si_list,mean_ii_list,mean_cc_list,modes_list,si_mo_list,mean_fb_list,mean_fb_hs_list,max_fb_list,max_fb_hs_list]
+table = list(zip(*tt))
+
+with open(file_name, 'wb') as f:
+    #header
+    f.write(b'date,mean ridge snow depth,mean ridge ice thickness,mean consolidated layer thickness,level ice thickness,snow on level ice,mean als ice fb, mean hs ice freeboard,max ALS fb, max HS FB\n')
+    np.savetxt(f, table, fmt="%s", delimiter=",")

@@ -24,25 +24,40 @@ import rasterio
 regs = 79.15; regn = 79.2
 regw = -9.1; rege = -8.7
 
-#ALOS-2 data (Truls)
-inpath='../data/ALOS-2_Truls/processed/processed/**/'
-resolution=5
-sensor='ALOS-2'
+##ALOS-2 data (Truls)
+#inpath='../data/ALOS-2_Truls/processed/processed/**/'
+#resolution=25
+#sensor='ALOS-2'
+#intensity_window=9; window_name='3x3';npixels=3 #3x3
+#band_no=1
+#color = 'royalblue'
 
-#Sentinel-1 (Polona) - both bands in one file
-inpath = '../data/CIRFA22/sat_images/**/S1A_EW_GRDM_1SDH_'
-resolution=40   #in meters
+###Sentinel-1 (Polona) - both bands in one file
+##inpath = '../data/CIRFA22/sat_images/**/S1A_EW_GRDM_1SDH_'
+##resolution=40   #in meters
+##band_no=1   #HV
+##band_no=2   #HH
+#Sentinel-1 (Johannes) - two files
+#inpath = '../data/CIRFA22/sat_images/20220503/S1A_EW_GRDM_1SDH_*Sigma0*HH*' #not enough RAM on laptop to do both in one loop
+inpath = '../data/CIRFA22/sat_images/20220503/S1A_EW_GRDM_1SDH_*Sigma0*HV*'
+resolution=80   #in meters
+band_no=1
 sensor='Sentinel-1'
+intensity_window=1; window_name='1x1';npixels=1 #no averaging
+color = 'teal'
 
-#Sentinel-1 (Johannes)
-#inpath = '../data/CIRFA22/sat_images/S1A_EW_GRDM_1SDH_20220502T074527_20220502T074631_043029_05233F_7BC7w'
-#resolution=80   #in meters
-#sensor='Sentinel-1
+#got calibrated and geocoded data from Johannes from here
+#/Data/pit000/ResearchData/IFT/EarthObservation/belgica_bank/satellite_data/Sentinel-1/geocoded/
+
 
 ##TSX (Wenkai)
-#inpath = '../data/TSX_Wenkai/TSX_stationM_cut/TSX_stationM_cut/**/*_stationM'
+#inpath = '../data/TSX_Wenkai/TSX_stationM_cut/TSX_stationM_cut/HH-220502/*_stationM'
 #resolution=8
 #sensor='TerraSAR-X'
+#intensity_window=81; window_name='9x9';npixels=9# used in MOSAiC paper
+##intensity_window=4; window_name='2x2';npixels=2 #2x2, we drive very close to ice edge and iceberg
+#band_no=1
+#color = 'purple'
 
 #intensity_window=121; window_name='11x11';npixels=11
 #intensity_window=81; window_name='9x9';npixels=9 #used in paper
@@ -50,7 +65,7 @@ sensor='Sentinel-1'
 #intensity_window=16; window_name='4x4';npixels=4 #4x4
 #intensity_window=9; window_name='3x3';npixels=3 #3x3
 #intensity_window=4; window_name='2x2';npixels=2 #2x2 
-intensity_window=1; window_name='1x1';npixels=1 #no averaging
+#intensity_window=1; window_name='1x1';npixels=1 #no averaging
 
 if npixels<3:
     polyorder = 2
@@ -65,7 +80,7 @@ scatter_plot_name = 'Scatter_'+sensor+'_'+str(resolution)+'_'+window_name+'_'
 #save the combined scatter data for further plots
 scatter_file_name = outpath_data+'scatter_data_'+sensor+'_'+str(resolution)+'_'+window_name+'.csv'
 
-fnames = glob(inpath+'*.tif')
+fnames = glob(inpath+'*.tif*')
 print(fnames)
 
 colors = iter(plt.cm.rainbow(np.linspace(0, 1, len(fnames)+1)))
@@ -128,6 +143,8 @@ for fn in fnames:
     #ds = gdal.Open(fn, gdal.GA_ReadOnly)
     #band = ds.GetRasterBand(1)  #band1=HV, band2=HH????
     #arr = band.ReadAsArray()
+    #if sensor=='TerraSAR-X':
+        #arr = np.ma.array(arr,mask=arr==999)
     #plt.imshow(arr)
     #plt.show()
     #exit()
@@ -140,7 +157,7 @@ for fn in fnames:
     print('Date: ',dt)
     
     with rasterio.open(fn) as src:
-        band1 = src.read(1)
+        band1 = src.read(band_no)
         trs = src.transform
         height = band1.shape[0]
         width = band1.shape[1]
@@ -168,10 +185,10 @@ for fn in fnames:
     else:
         band1 = np.ma.array(band1,mask=band1==0)
 
-    ##QD for Polonas S-1
-    #band1 = 10*np.log10(band1)
+    #if sensor=='Sentinel-1':
+        ##QD for Polonas S-1
+        #band1 = 10*np.log10(band1)
     
-
     #setup map figure
     fig1 = plt.figure(figsize=(20,10))
     ax = fig1.add_subplot(111)
@@ -189,8 +206,20 @@ for fn in fnames:
     
     x,y = map(lon, lat)
     
-    ##location looks shifted too... QD for Polona's S-1
-    #x=x+250
+    if sensor=='Sentinel-1':
+        #Johannes projection of S-1 from 3 May
+        x=x-250
+        y=y+100
+        #location for Polonas S-1 looks shifted too... (2 May)
+        #x=x+250
+    if sensor=='ALOS-2':
+        #and for ALOS-2 in opposite direction
+        x=x-100
+        y=y+100
+    if sensor=='TerraSAR-X':
+        #for 1 May to match the KPH location to transect
+        x=x-50
+        y=y+25
     
     CS1=ax.pcolormesh(x,y,band1,cmap=plt.cm.binary_r)
     #CS1=ax.pcolor(x,y,band1,cmap=plt.cm.binary_r)
@@ -211,12 +240,12 @@ for fn in fnames:
     cb.set_label(label='Sea ice roughness (m)',fontsize=20)
     cb.ax.tick_params(labelsize=20)
     
+    #legend label
     label=fn.split('/')[-1].split('.')[0]
-    color = next(colors)
     
+    #plt.show()
     fig1.savefig(outpath+mapname+label+'_'+dt+'.png',bbox_inches='tight')
     plt.close(fig1)
-    #exit()
     
     #start collecting scatterplot data
     #subsample around station
@@ -229,8 +258,20 @@ for fn in fnames:
     #project again to figure/map coordinates
     x,y = map(lon, lat)
     
-    ##location looks shifted too... QD for Polona's S-1
-    #x=x+250
+    if sensor=='Sentinel-1':
+        #Johannes projection of S-1 from 3 May
+        x=x-250
+        y=y+100
+        #location for Polonas S-1 looks shifted too... (2 May)
+        #x=x+250
+    if sensor=='ALOS-2':
+        #and for ALOS-2 in opposite direction
+        x=x-100
+        y=y+100
+    if sensor=='TerraSAR-X':
+        #for 1 May to match the KPH location to transect
+        x=x-50
+        y=y+50
     
     #mask arrays
     data=band1.T; del band1
@@ -238,7 +279,7 @@ for fn in fnames:
     y=np.ma.array(y,mask=data.mask).compressed()
     data=data.compressed()
     
-    #get smooting window size/sampling interval - here we use X pixel size: ~positioning error + ~roughness feature size
+    #get smoothing window size/sampling interval - here we use X pixel size: ~positioning error + ~roughness feature size
     #how many measurements in one/three TSX pixel size, this depends on MP sampling spacing (1-3m)
     #get mean distance between fixed date MP points
     dx = xx[1:]-xx[:-1]
@@ -269,11 +310,27 @@ for fn in fnames:
         ##take average a window (closest pixels)
         hh_mean.append(np.mean(data[np.argsort(np.abs(d))[:intensity_window]]))
     
-    print('Pixel means: ',hh_mean)
+    #print('Pixel means: ',hh_mean)
     
     #plot roughness vs mean window intensity
     fig2 = plt.figure(figsize=(10,10))
     cx = fig2.add_subplot(111)
+    
+    #color = next(colors)
+    
+    #and more manually determined label
+    if sensor=='Sentinel-1':
+        #if band_no==1:
+            #channel='HV'
+        #if band_no==2:
+            #channel='HH'
+        channel=label.split('_')[10]
+    if sensor=='ALOS-2':
+        channel=label.split('_')[1]
+    if sensor=='TerraSAR-X':
+        channel='HH'
+    
+    label=sensor+' '+channel
     
     cx.scatter(tstdm,hh_mean,c=color,label=label)
     
@@ -298,21 +355,22 @@ for fn in fnames:
     try:
         x_model,y_model,RMSE,Rsquared = logfit(x_data_dt,y_data_dt)
         cx.plot(x_model,y_model)
-        cx.text(.9, .2, 'R^2: '+str(np.round(Rsquared,2)), ha="center", va="center", size=20, transform=cx.transAxes)
-        cx.text(.9, .15, 'RMSE: '+str(np.round(RMSE,2)), ha="center", va="center", size=20, transform=cx.transAxes)
+        #cx.text(.9, .2, 'R^2: '+str(np.round(Rsquared,2)), ha="center", va="center", size=20, transform=cx.transAxes)
+        #cx.text(.9, .15, 'RMSE: '+str(np.round(RMSE,2)), ha="center", va="center", size=20, transform=cx.transAxes)
         
-        cx.set_xlabel('Roughness (m)', fontsize=20) # X axis data label
-        cx.set_ylabel('Intensity (dB)', fontsize=20) # Y axis data label
-        cx.tick_params(axis="x", labelsize=18)
-        cx.tick_params(axis="y", labelsize=18)
-
-        #cx.set_xlim(-.1,3.1)
-        #cx.set_ylim(-23,0)
-        cx.legend(fontsize=20)
-        fig2.savefig(outpath+scatter_plot_name+label+'_'+dt,bbox_inches='tight')
-        plt.close(fig2)
     except:
-        continue #some large windows wont have enough data, too big scatter
+        print('No curve fitting') #some large windows wont have enough data, too big scatter
+    
+    cx.set_xlabel('Roughness (m)', fontsize=20) # X axis data label
+    cx.set_ylabel('Intensity (dB)', fontsize=20) # Y axis data label
+    cx.tick_params(axis="x", labelsize=18)
+    cx.tick_params(axis="y", labelsize=18)
+
+    #cx.set_xlim(-.1,3.1)
+    #cx.set_ylim(-23,0)
+    cx.legend(fontsize=20)
+    fig2.savefig(outpath+scatter_plot_name+label+'_'+dt,bbox_inches='tight')
+    plt.close(fig2)
         
 #store data
 x_data = np.array(x_data,dtype=np.float).flatten()  #has nans

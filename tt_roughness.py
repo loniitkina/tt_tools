@@ -18,12 +18,12 @@ polyorder=3
 window=231
 
 
-##location and dates - if gridded data is used these dates have to correspond to the dates in tt_grid_roll.py
-#loc = 'Sloop'
-#dates = ['20191031','20191107','20191114','20191205','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
-#title='Southern transect loop '
+#location and dates - if gridded data is used these dates have to correspond to the dates in tt_grid_roll.py
+loc = 'Sloop'
+dates = ['20191031','20191107','20191114','20191205','20191226','20200102','20200109','20200116','20200130','20200206','20200220','20200227','20200305','20200330','20200406','20200426','20200507']
+title='Southern transect loop '
 
-#selection = ['20191031','20191107','20191114','20191205','20200102','20200109','20200130','20200220','20200227','20200305','20200330','20200406','20200426','20200507']  #best data
+selection = ['20191031','20191107','20191114','20191205','20200102','20200109','20200130','20200220','20200227','20200305','20200330','20200406','20200426','20200507']  #best data
 #selection_meltpond=[]
 
 
@@ -32,7 +32,7 @@ dates =['20191024','20191031','20191107','20191114','20191121','20191128','20191
 
 selection=['20191024','20191128','20191205', '20191219','20200102','20200109','20200130','20200220','20200227', '20200305','20200320','20200326','20200403','20200424','20200430','20200507']
 
-selection=dates
+#selection=dates
 
 ##same track all the time
 #selection=['20191107','20191128','20191205', '20191219','20200102','20200109','20200130','20200220','20200227', '20200305','20200320','20200326','20200403','20200424','20200430','20200507']
@@ -58,11 +58,11 @@ selection_meltpond=[]
 #title='leg 4 initial survey  '
 #selection = ['20200617']
 
-loc= 'transect'
-dates = ['20200617','20200627','20200629','20200630','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200719','20200720','20200725','20200726']
-title='leg 4 transect  '
-selection = ['20200617','20200630','20200704','20200706','20200710','20200714','20200725','20200726']
-selection = dates
+#loc= 'transect'
+#dates = ['20200617','20200627','20200629','20200630','20200703','20200704','20200705','20200706','20200707','20200708','20200710','20200714','20200719','20200720','20200725','20200726']
+#title='leg 4 transect  '
+#selection = ['20200617','20200630','20200704','20200706','20200710','20200714','20200725','20200726']
+#selection = dates
 
 gridded=True
 #gridded=False
@@ -83,6 +83,7 @@ inpath_ARM='../data/weather_ARM/'
 #outpath = '../plots_meltponds/'
 outpath = '../plots_sm/'
 outpath_data = '../data/MCS/MP/SnowModel_calval/'
+outpath_data = '../data/MCS/MP/for_Ioanna/'
 
 step = 2
 step = 1
@@ -223,6 +224,10 @@ ts_deform_it=[]
 ts_level_frac=[]
 ts_rubble_frac=[]
 ts_ridge_frac=[]
+
+ts_level_vol=[]
+ts_rubble_vol=[]
+ts_ridge_vol=[]
 
 for dd in range(0,len(dates)):
     date = dates[dd]
@@ -431,8 +436,8 @@ for dd in range(0,len(dates)):
             level_si = np.ma.array(sitrunc,mask=mask_level).compressed()
             ##also get level ice thickness for thermodyn. driver, meltpond paper and SnowModel assimilation
             level_it = np.ma.array(ittrunc,mask=mask_level).compressed()
-            vol = np.sum(level_si)/np.sum(sitrunc)
-            print('volume fraction of level ice snow: ',vol)
+            level_vol = np.sum(level_si)/np.sum(sitrunc)
+            print('volume fraction of level ice snow: ',level_vol)
             level_n = level_si.shape[0]/sitrunc.shape[0]
             print('fraction of level ice: ',level_n)
             
@@ -444,8 +449,8 @@ for dd in range(0,len(dates)):
             rubble_si = np.ma.array(sitrunc,mask=mask_rubble).compressed()
             ##also get rubble ice thickness for SnowModel assimilation
             rubble_it = np.ma.array(ittrunc,mask=mask_rubble).compressed()
-            vol = np.sum(rubble_si)/np.sum(sitrunc)
-            print('volume fraction of rubble ice snow: ',vol)
+            rubble_vol = np.sum(rubble_si)/np.sum(sitrunc)
+            print('volume fraction of rubble ice snow: ',rubble_vol)
             rubble_n = rubble_si.shape[0]/sitrunc.shape[0]
             print('fraction of rubble ice: ',rubble_n)
 
@@ -457,8 +462,8 @@ for dd in range(0,len(dates)):
             ridge_si = np.ma.array(sitrunc,mask=mask_ridge).compressed()
             ##also get ridge ice thickness for meltpond paper
             ridge_it = np.ma.array(ittrunc,mask=mask_ridge).compressed()
-            vol = np.sum(ridge_si)/np.sum(sitrunc)
-            print('volume fraction of ridge ice snow: ',vol)
+            ridge_vol = np.sum(ridge_si)/np.sum(sitrunc)
+            print('volume fraction of ridge ice snow: ',ridge_vol)
             ridge_n = ridge_si.shape[0]/sitrunc.shape[0]
             print('fraction of ridge ice: ',ridge_n)
             
@@ -477,10 +482,14 @@ for dd in range(0,len(dates)):
             ts_rubble_frac.append(rubble_n)
             ts_ridge_frac.append(ridge_n)
             
+            ts_level_vol.append(level_vol)
+            ts_rubble_vol.append(rubble_vol)
+            ts_ridge_vol.append(ridge_vol)
+            
             ts_level_it.append(level_it)
             ts_rubble_it.append(rubble_it)
-            
             ts_ridge_it.append(ridge_it)
+            
             ts_deform_si.append(deform_si)
             ts_deform_it.append(deform_it)
             
@@ -614,6 +623,7 @@ fig6.savefig(outpath+'PDFs'+suff+'_'+loc,bbox_inches='tight')
 #write snow and ice values for different roughness categories to files
 #LEVEL ICE
 file_name = outpath_data+'SnowModel_'+loc+'_level.csv'
+file_name = outpath_data+'SnowModel_'+loc+'_level_orig.csv'
 #file_name = outpath+'meltponds_'+loc+'_level.csv'
 print(file_name)
 
@@ -643,7 +653,7 @@ with open(file_name, 'wb') as f:
     np.savetxt(f, table, fmt="%s", delimiter=",")
 
 #RUBBLE ICE
-file_name = outpath_data+'SnowModel_'+loc+'_rubble.csv'
+file_name = outpath_data+'SnowModel_'+loc+'_rubble_orig.csv'
 #file_name = outpath+'meltponds_'+loc+'_rubble.csv'
 print(file_name)
 
@@ -670,7 +680,7 @@ with open(file_name, 'wb') as f:
     np.savetxt(f, table, fmt="%s", delimiter=",")
 
 #RIDGES
-file_name = outpath_data+'SnowModel_'+loc+'_ridge.csv'
+file_name = outpath_data+'SnowModel_'+loc+'_ridge_orig.csv'
 #file_name = outpath+'meltponds_'+loc+'_ridge.csv'
 print(file_name)
 
@@ -698,7 +708,7 @@ with open(file_name, 'wb') as f:
 
 
 #DEFORMED ICE (rubble+ridges)
-file_name = outpath_data+'SnowModel_'+loc+'_deformed.csv'
+file_name = outpath_data+'SnowModel_'+loc+'_deformed_orig.csv'
 #file_name = outpath+'meltponds_'+loc+'_deformed.csv'
 print(file_name)
 
@@ -724,7 +734,49 @@ with open(file_name, 'wb') as f:
     f.write(b'date,snow depth (m),snow depth std (m),ice thickness (m),ice thickness std (m),ice mode (m)\n')
     np.savetxt(f, table, fmt="%s", delimiter=",")
 ###******************************************************************************************************************************
-#exit()
+#Storing output level ise volume for Ioanna's paper
+
+
+#LEVEL ICE
+file_name = outpath_data+'volume_'+loc+'_level.csv'
+print(file_name)
+
+tt = [selection,ts_level_si_m,ts_level_si_std,ts_level_frac,ts_level_vol]
+table = list(zip(*tt))
+
+with open(file_name, 'wb') as f:
+    #header
+    f.write(b'date,level ice snow depth (m),level ice snow depth std (m),level ice fraction, level ice snow volume fraction\n')
+    np.savetxt(f, table, fmt="%s", delimiter=",")
+
+
+#RUBBLE ICE
+file_name = outpath_data+'volume_'+loc+'_rubble.csv'
+print(file_name)
+
+tt = [selection,ts_rubble_si_m,ts_rubble_si_std,ts_rubble_frac,ts_rubble_vol]
+table = list(zip(*tt))
+
+with open(file_name, 'wb') as f:
+    #header
+    f.write(b'date,rubble ice snow depth (m),rubble ice snow depth std (m),rubble ice fraction, rubble ice snow volume fraction\n')
+    np.savetxt(f, table, fmt="%s", delimiter=",")
+
+#RIDGE ICE
+file_name = outpath_data+'volume_'+loc+'_ridge.csv'
+print(file_name)
+
+tt = [selection,ts_ridge_si_m,ts_ridge_si_std,ts_ridge_frac,ts_ridge_vol]
+table = list(zip(*tt))
+
+with open(file_name, 'wb') as f:
+    #header
+    f.write(b'date,ridge ice snow depth (m),ridge ice snow depth std (m),ridge ice fraction, ridge ice snow volume fraction\n')
+    np.savetxt(f, table, fmt="%s", delimiter=",")
+
+
+
+###******************************************************************************************************************************
 
 std_list = np.array(std_list)
 

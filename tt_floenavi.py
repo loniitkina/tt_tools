@@ -4,7 +4,7 @@ from icedrift import GeoReferenceStation, IceCoordinateSystem, GeoPositionData
 import matplotlib.pyplot as plt 
 from tt_func import *
 
-leg=2
+leg=3
 
 #instrument='magnaprobe'
 #path = '../data/MCS/MP/'
@@ -23,8 +23,9 @@ leg=2
 #latlon=False
 
 instrument='mosaic*'     #this is GEM-2 for some reason
-#path = '../data/MCS/GEM2_thickness/01-ice-thickness/'
-path = '../data/MCS/GEM2_thickness/09-ridges-recal/'
+instrument='mosaic-roads*'  #additional recons
+path = '../data/MCS/GEM2_thickness/01-ice-thickness/'
+#path = '../data/MCS/GEM2_thickness/09-ridges-recal/'
 #path = '../data/MCS/01-ice-thickness/'
 location='' #no locations for GEM-2
 latlon=True #GEM-2 data is written as latlon and not lonlat

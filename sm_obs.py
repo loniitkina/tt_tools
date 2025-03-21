@@ -156,27 +156,26 @@ it = getColumn(fname,5);it = np.array(it,dtype=np.float)
 ax.errorbar(dt,snod,snod_std,linestyle='None',c='y', marker='x',label='melt period')
 bx.plot(dt,it,'x',c='y',label='melt period')
 
-#plot the coring data
+##plot the coring data
+##for FYI deformed: maybe we can extrapolate to Sloop last measurement in the ridges - based on what we saw on initial survay in July!
+#fnames = ['FYI_snow_clean.csv',
+          #'SYI_snow_clean.csv']
 
-#for FYI deformed: maybe we can extrapolate to Sloop last measurement in the ridges - based on what we saw on initial survay in July!
-fnames = ['FYI_snow_clean.csv',
-          'SYI_snow_clean.csv']
+#for fn in fnames:
+    #fname = glob(inpath_coring+fn)[0]
+    #print(fname)
 
-for fn in fnames:
-    fname = glob(inpath_coring+fn)[0]
-    print(fname)
+    ##b'date,snow depth (m),snow depth std (m),ice thickness (m),ice thickness std (m),ice mode (m)\n'
 
-    #b'date,snow depth (m),snow depth std (m),ice thickness (m),ice thickness std (m),ice mode (m)\n'
+    #dates = getColumn(fname,10)
+    #dt = [ datetime.strptime(x, '%m/%d/%Y %H:%M') for x in dates ]
+    #snod = getColumn(fname,1);snod = np.array(snod,dtype=np.float)/100
+    #it = getColumn(fname,13);it = np.array(it,dtype=np.float)/100
 
-    dates = getColumn(fname,10)
-    dt = [ datetime.strptime(x, '%m/%d/%Y %H:%M') for x in dates ]
-    snod = getColumn(fname,1);snod = np.array(snod,dtype=np.float)/100
-    it = getColumn(fname,13);it = np.array(it,dtype=np.float)/100
+    #age=fn.split('_')[0]
 
-    age=fn.split('_')[0]
-
-    ax.plot(dt,snod,'.',label='coring '+age)
-    bx.plot(dt,it,'.',label='coring '+age)
+    #ax.plot(dt,snod,'.',label='coring '+age)
+    #bx.plot(dt,it,'.',label='coring '+age)
 
 #compare to accumulated snowfall from observations
 inpath='../data/SnowModel/'
@@ -238,7 +237,7 @@ bx.xaxis.set_minor_locator(MonthLocator())
 bx.xaxis.set_major_formatter(DateFormatter('%b %Y'))
 
 plt.show()
-fig1.savefig(outpath+'ts_ice_type_forSnowModel.png',bbox_inches='tight')
+#fig1.savefig(outpath+'ts_ice_type_forSnowModel.png',bbox_inches='tight')
 
 
 
