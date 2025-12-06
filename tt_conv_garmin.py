@@ -38,7 +38,10 @@ path='../data/CIRFA22/'
 
 path='../data/breathe/'
 
-flist = glob(path+station+'/'+'garmin_transect_*'+date+'.csv')
+path='../data/MicroSHIFT/'
+date=''
+
+flist = glob(path+station+'/'+'garmin_transect*'+date+'.gpx')
 
 print(flist)
 

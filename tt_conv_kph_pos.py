@@ -6,19 +6,23 @@ from tt_func import getColumn
 
 #convert KPH log file to base station to floenavi format (that tt_tools can read)
 
-station='breathe'
+#station='breathe'
+#path='../data/breathe/coring/'
+#flist = glob(path+'pos18-05-2023.csv')
+#date = '20230518'
 
-path='../data/breathe/coring/'
-
-flist = glob(path+'pos18-05-2023.csv')
-date = '20230518'
+station='microshift'
+path='../data/MicroSHIFT/positions_all/'
+flist = sorted(glob(path+'pos*2025.csv'))
+startdate=20250502
 
 print(flist)
 
-for i in flist:
+for i in range(0,len(flist)):
     #open data file
-    fname = i
+    fname = flist[i]
     print(fname)
+    dd = startdate+i
 
     lon = getColumn(fname,6, delimiter=',',skipheader=3)
     lat = getColumn(fname,5, delimiter=',',skipheader=3)
@@ -38,10 +42,8 @@ for i in flist:
     lon2 = np.array(lon2,dtype=np.float)/60
     lon = lon1 + lon2
     
-    
-    
     time = getColumn(fname,1, delimiter=',',skipheader=3)
-    date = [ date+'T'+x for x in time ]
+    date = [ str(dd)+'T'+x for x in time ]
     dt = [ datetime.strptime(x, "%Y%m%dT%H:%M:%S") for x in date ]
     
     date = [ datetime.strftime(x, '%Y-%m-%d %H:%M:%S') for x in dt ]

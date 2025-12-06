@@ -13,7 +13,7 @@ outpath_plots='../plots_ridges/'
 #ALS tif from 21 Jan >>> first ALS available after Alli's ridge formation
 #time: 20200121T103544-20200121T103614 to 20200121T121616-20200121T121646
 tif='../data/ALS/20200121_als_merged_grid-stere_clip_CO_small.tif'  #cropped in QGIS by Raster Clipper - only CO
-tif='../data/ALS/20200121_als_merged_grid-stere_clip_CO_rot.tif'
+#tif='../data/ALS/20200121_als_merged_grid-stere_clip_CO_rot.tif'
 
 #refstation
 #reference heading in Floenavi: 301.63560882616076
@@ -33,7 +33,8 @@ arr = np.where(arr>3.,3.,arr)
 #smooth the level areas 
 arr = np.where(arr<.1,0,arr)
 #CS = plt.contourf(rot_x, rot_y, arr.T, 30, vmax=1., vmin=0,cmap=plt.cm.binary_r,alpha=.5)
-CS = plt.contourf(rot_x, rot_y, arr.T, 30, vmax=2., vmin=0,alpha=.5)
+#CS = plt.contourf(rot_x, rot_y, arr.T, 30, vmax=2., vmin=0,alpha=.5)
+CS = plt.pcolor(rot_x, rot_y, arr.T, vmax=2., vmin=0,alpha=.5)
 
 #limit the region - CO
 ax.set_xlim(-1350,1850)
@@ -46,7 +47,7 @@ inpath_table = '../data/ridges_multif/'
 
 #October transects
 flist = [inpath_table+'mosaic_gem-2+mp_20191024_Nloop_2.csv',inpath_table+'mosaic_gem-2+mp_20191031_Nloop_2.csv',inpath_table+'mosaic_gem-2+mp_20191031_Sloop_2.csv']
-outname='ALS_20200121_ridge_transects_consoli_oct.png'
+outname='ALS_20200121_ridge_transects_consoli_oct1.png'
 
 
 #December transects - 2.7km
@@ -149,9 +150,9 @@ if len(flist)>0:
 
 fig1.tight_layout(pad=0)
 plt.show()
-#fig1.savefig(outpath_plots+outname)
+fig1.savefig(outpath_plots+outname)
 
-#plt.close(fig1)
+plt.close(fig1)
 print(np.sum(np.array(distance)))
 
 

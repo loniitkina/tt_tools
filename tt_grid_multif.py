@@ -164,6 +164,21 @@ dates = ['20200305']
 #loc = 'ridge'  #ridge of leg 5
 #dates = ['20200828','20200918']    
 
+#MicroSHIFT
+inpath_ice = '../data/MicroSHIFT/**/'
+inpath_snow = inpath_ice
+outpath = '../plots_microshift/'
+outpath_data = inpath_ice
+
+loc='initial'; dates=['20250510']
+loc='recon'; dates=['20250510']
+#loc='elevated_grid'; dates=['20250517']
+loc='recon'; dates=['20250524']
+#loc='final'; dates=['20250528']
+#loc='recon'; dates=['20250529']
+#loc='bonus'; dates=['20250530']
+
+
 
 
 for dd in range(0,len(dates)):
@@ -180,8 +195,10 @@ for dd in range(0,len(dates)):
     #coordinates
     xx = []
     yy = []
-    fname = glob(inpath_ice+date_gem2+'*/*-track-icecs-xy.csv')
-    for fn in fname:
+    fnames = glob(inpath_ice+date_gem2+'*/*-track-icecs-xy.csv')
+    if outpath == '../plots_microshift/':
+        fnames = glob(inpath_ice+'*'+date_gem2+'*-gem2-*-track-icecs-xy.csv')
+    for fn in fnames:
         print(fn)
         x = getColumn(fn,3)
         y = getColumn(fn,4)
@@ -195,6 +212,8 @@ for dd in range(0,len(dates)):
     tt1 = []; tt2 = []; tt3 = []; tt4 = []; tt5 = []; tt6 = [];tt7 = []; tt8 = []; tt9 = [];tt10 = []
     ts_gem=[]
     fname_ice = glob(inpath_ice+date_gem2+'*/*-channel-thickness.csv')
+    if outpath == '../plots_microshift/':
+        fname_ice = glob(inpath_ice+'*'+date_gem2+'*-channel-thickness.csv')
     for fn in fname_ice:
         print(fn)
         #time, record_id, longitude, latitude, xc, yc, f1525Hz_hcp_i, f1525Hz_hcp_q, f5325Hz_hcp_i, f5325Hz_hcp_q, f18325Hz_hcp_i, f18325Hz_hcp_q, f63025Hz_hcp_i, f63025Hz_hcp_q, f93075Hz_hcp_i, f93075Hz_hcp_q
@@ -210,6 +229,9 @@ for dd in range(0,len(dates)):
         
     tt1 = np.array(tt1,dtype=float);tt2 = np.array(tt2,dtype=float);tt3 = np.array(tt3,dtype=float);tt4 = np.array(tt4,dtype=float);tt5 = np.array(tt5,dtype=float)
     tt6 = np.array(tt6,dtype=float);tt7 = np.array(tt7,dtype=float);tt8 = np.array(tt8,dtype=float);tt9 = np.array(tt9,dtype=float);tt10 = np.array(tt10,dtype=float)
+    
+    #print(tt1)
+    #exit()
     
     tmp=[]
     for x in ts_gem:
@@ -235,6 +257,10 @@ for dd in range(0,len(dates)):
         lon = []
         lat = []
         tmp = glob(inpath_ice+date_gem2+'*/*-track-icecs-xy.csv')
+        
+        if outpath == '../plots_microshift/':
+            tmp = glob(inpath_ice+'*'+date_gem2+'*-channel-thickness.csv')
+        
         for fn in tmp:
             print(fn)
             dt0 = getColumn(fn,0)[::5]
@@ -242,9 +268,16 @@ for dd in range(0,len(dates)):
             lat0 = getColumn(fn,2)[::5]
         
             dt.extend(dt0); lon.extend(lon0); lat.extend(lat0)
+        fname = tmp[0].split('transect-GEM2')[0]+'magnaprobe'
+        
     else:
         #get magnaprobe track file
-        fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+'-track-icecs-xy_corr.csv')[0]
+        
+        if outpath == '../plots_microshift/':
+            print(inpath_snow+'magnaprobe-transect-'+date+'*'+loc+'-track-icecs-xy_corr.csv')
+            fname = glob(inpath_snow+'magnaprobe-transect-'+date+'*'+loc+'-track-icecs-xy_corr.csv')[0]
+        else:
+            fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+'-track-icecs-xy_corr.csv')[0]
         print(fname)
 
         dt = getColumn(fname,0,skipheader=1)
@@ -355,6 +388,7 @@ for dd in range(0,len(dates)):
 
     print(sd_points.shape)
     print(sd_values.shape)
+    #exit()
 
     #interpolate the data to regular grid
     grid_sd = griddata(sd_points, sd_values, (grid_x, grid_y), method=method_mp)       
@@ -453,7 +487,8 @@ for dd in range(0,len(dates)):
         
         #create output name
         stp = str(step)
-        outname = outpath_data+'mosaic_gem-2+mp_'+date+'_'+loc+'_'+stp+'.csv'
+        outname = fname.split('magnaprobe')[0]+'magna+gem2_'+date+'_'+loc+'_'+stp+'_multif.csv'
+        print(outname)
 
         tt_nn = np.zeros((len(channels),len(sd_values)))
         

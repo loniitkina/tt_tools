@@ -10,19 +10,19 @@ import gc
 outpath='../data/ridges/'
 outpath_plots='../plots_ridges/'
 
-##ROV multibeam data
+#ROV multibeam data
 #tif='../data/MOSAiC_ROV_MB_PANGEA/PS122_2_19_27_20200107_ROV_MULTIBEAM_v1_raster.tiff'
-#outname='ROV_multibeam_transects_overview.png'
+#outname='ROV_multibeam_transects_overview_pub.png'
 #version='_ROV_20200107'
-##metadata:../data/MOSAiC_ROV_MB_PANGEA/MOSAiC_BEAST_Sea-ice_draft.tab 
-##start time:2020-01-07T06:45:00
-##end time:2020-01-07T13:14:00
-##refstation
-##reference heading in Floenavi: 301.63560882616076
-##2020-01-07 06:45:00,114.92158700136054,87.12092944920997,298.4116307624573,3.8752930801668546,1.6389446771711977
-##lon0=114.92158700136054
-##lat0=87.12092944920997
-##head0=298.4116307624573
+#metadata:../data/MOSAiC_ROV_MB_PANGEA/MOSAiC_BEAST_Sea-ice_draft.tab 
+#start time:2020-01-07T06:45:00
+#end time:2020-01-07T13:14:00
+#refstation
+#reference heading in Floenavi: 301.63560882616076
+#2020-01-07 06:45:00,114.92158700136054,87.12092944920997,298.4116307624573,3.8752930801668546,1.6389446771711977
+#lon0=114.92158700136054
+#lat0=87.12092944920997
+#head0=298.4116307624573
 
 #lon0=114.92158700136054
 #lat0=87.12092944920997
@@ -34,7 +34,7 @@ outpath_plots='../plots_ridges/'
 #y_offset=-670-5
 
 tif='../data/MOSAiC_ROV_MB_PANGEA/PS122_2_22_45_20200128_ROV_MULTIBEAM_v1_raster.tiff'
-outname='ROV_multibeam_transects_FR.png'
+outname='ROV_multibeam_transects_FR_pub.png'
 version='_ROV_20200128'
 version='_ROV_20200128_match'
 #metadata:../data/MOSAiC_ROV_MB_PANGEA/MOSAiC_BEAST_Sea-ice_draft.tab 
@@ -57,6 +57,8 @@ y_offset=-520+80+5-40-10+5-7+40+4
 
 arr,rot_x,rot_y=proj_rov(tif,lon0,lat0,head0,lon_origin,lat_origin)
 
+#print(arr);exit()
+
 #manual shift of the reprojected mercator projection
 rot_x = rot_x+x_offset
 rot_y = rot_y+y_offset
@@ -68,24 +70,19 @@ rot_y = rot_y+y_offset
 fig1 = plt.figure(figsize=(20,10))
 
 ax = fig1.add_subplot(111)
-arr = np.where(arr>10.,10.,arr)
-CS = plt.contourf(rot_x, rot_y, arr.T, 30, vmax=7., vmin=0,alpha=.5)#,cmap=plt.cm.Reds)
+arr = np.where(arr>100.,np.nan,arr)  #mask the no-data (yellow should not be plotted where there is no data): 3.4028235e+38
+arr = np.where(arr<0.,0.,arr)       #set all negative values to zero
+cs = plt.pcolor(rot_x, rot_y, arr.T,vmin=0,vmax=8,alpha=.5)
 
-#plt.scatter(rot_x, rot_y)
 
 
-cb = plt.colorbar(CS)  # draw colorbar
-#cb.set_label(label='Intensity (dB)',fontsize=20)
-cb.set_label(label='Draft (m)',fontsize=20)
-cb.ax.tick_params(axis="y", labelsize=14)
+#limit the region - overview
+ax.set_xlim(150,900)
+ax.set_ylim(-600,-50)
 
-##limit the region - overview
-#ax.set_xlim(150,900)
-#ax.set_ylim(-600,-50)
-
-#limit the region - Fort Ridge
-ax.set_xlim(200,350)
-ax.set_ylim(-500,-350)
+##limit the region - Fort Ridge
+#ax.set_xlim(200,350)
+#ax.set_ylim(-500,-350)
 
 #prepare data for search
 data=arr.T.flatten()
@@ -167,7 +164,7 @@ for i in range(0,len(flist)):
         if date=='20200108':
             xx=xx+osx
             yy=yy+osy
-            #ax.scatter(xx,yy,c=it,s=20,cmap=plt.cm.Blues,vmin=0,vmax=5)
+            #ax.scatter(xx,yy,c=it,s=20,cmap=plt.cm.Blues,vmin=0,vmax=8)
             
         if date=='20200119':
             xx=xx+osx
@@ -180,7 +177,7 @@ for i in range(0,len(flist)):
         if date=='20200305':
             xx=xx-3+osx
             yy=yy+30+osy
-            #ax.scatter(xx,yy,c=it,s=20,cmap=plt.cm.Greens,vmin=0,vmax=5)
+            #ax.scatter(xx,yy,c=it,s=20,cmap=plt.cm.Greens,vmin=0,vmax=8)
             
         xx_crest=xx[19]#DTC/crack at 17, crest at 19m, SIMBA at 22m, DTC at 27
         yy_crest=yy[19]
@@ -192,7 +189,7 @@ for i in range(0,len(flist)):
         if date=='20200110':
             xx=xx+osx
             yy=yy+osy
-            #ax.scatter(xx,yy,c=it,s=20,cmap=plt.cm.Greens,vmin=0,vmax=5)
+            #ax.scatter(xx,yy,c=it,s=20,cmap=plt.cm.Greens,vmin=0,vmax=8)
             
         if date=='20200212':
             xx=xx-7+osx
@@ -222,7 +219,7 @@ for i in range(0,len(flist)):
         if date=='20200117':
             xx=xx+osx
             yy=yy+osy
-            #ax.scatter(xx,yy,c=it,s=50,cmap=plt.cm.Blues,vmin=0,vmax=5)
+            #ax.scatter(xx,yy,c=it,s=50,cmap=plt.cm.Blues,vmin=0,vmax=8)
             #xx_crest=xx[crest]
             #yy_crest=yy[crest]
             #ax.plot(xx_crest,yy_crest,'s',c='purple')
@@ -243,7 +240,7 @@ for i in range(0,len(flist)):
         if date=='20200628':    #rotated
             xx=xx+1233+osx
             yy=yy+308+osy 
-            #ax.scatter(xx,yy,c=it,s=50,cmap=plt.cm.Greens,vmin=0,vmax=5)
+            #ax.scatter(xx,yy,c=it,s=50,cmap=plt.cm.Greens,vmin=0,vmax=8)
         xx_crest=xx[crest]
         yy_crest=yy[crest]  
         
@@ -253,12 +250,12 @@ for i in range(0,len(flist)):
         if date=='20200228':
             xx=xx+12+osx
             yy=yy-2+osy
-            #ax.scatter(xx,yy,c=it,s=50,cmap=plt.cm.Blues,vmin=0,vmax=5)
+            #ax.scatter(xx,yy,c=it,s=50,cmap=plt.cm.Blues,vmin=0,vmax=8)
             
         if date=='20200410':
             xx=xx+osx
             yy=yy+62+osy 
-            #ax.scatter(xx,yy,c=it,s=50,cmap=plt.cm.Greens,vmin=0,vmax=5)
+            #ax.scatter(xx,yy,c=it,s=50,cmap=plt.cm.Greens,vmin=0,vmax=8)
             
         xx_crest=xx[32]
         yy_crest=yy[32]  
@@ -269,7 +266,7 @@ for i in range(0,len(flist)):
         if date=='20200228':
             xx=xx+12
             yy=yy-2
-            #ax.scatter(xx,yy,c=it,s=50,cmap=plt.cm.Blues,vmin=0,vmax=5)
+            #ax.scatter(xx,yy,c=it,s=50,cmap=plt.cm.Blues,vmin=0,vmax=8)
         
         if date=='20200410':
             xx=xx
@@ -278,14 +275,14 @@ for i in range(0,len(flist)):
         if date=='20200628':    #rotated
             xx=xx+1233
             yy=yy+308 
-            #ax.scatter(xx,yy,c=it,s=50,cmap=plt.cm.Greens,vmin=0,vmax=5)
+            #ax.scatter(xx,yy,c=it,s=50,cmap=plt.cm.Greens,vmin=0,vmax=8)
 
         xx_crest=xx[33]
         yy_crest=yy[33] 
         
     if loc=='ridgeD':
         if date=='20200410':
-            ax.scatter(xx,yy,c=it,s=20,cmap=plt.cm.Blues,vmin=0,vmax=5)
+            ax.scatter(xx,yy,c=it,s=20,cmap=plt.cm.Blues,vmin=0,vmax=8)
             
         if date=='20200416':
             xx=xx-15
@@ -305,7 +302,7 @@ for i in range(0,len(flist)):
         if date=='20200507':   
             xx=xx-10
             yy=yy-10   
-            #ax.scatter(xx,yy,c=it,s=20,cmap=plt.cm.Greens,vmin=0,vmax=5)
+            #ax.scatter(xx,yy,c=it,s=20,cmap=plt.cm.Greens,vmin=0,vmax=8)
             
     if loc=='Nloop':
         xx=xx+10
@@ -338,11 +335,13 @@ for i in range(0,len(flist)):
             f.write(b'Lon, Lat, X, Y, Total thickness (m)\n')
             np.savetxt(f, table, fmt="%s", delimiter=",")
 
-    ax.scatter(xx,yy,c=it,s=5,cmap=plt.cm.Reds,vmin=0,vmax=5)
+    cs2 = ax.scatter(xx,yy,c=it,s=5,cmap=plt.cm.Reds,vmin=0,vmax=8)
+    
+    
 
     if loc=='ridgeFR1' or loc=='ridgeFR2' or loc=='ridgeFR3':
         #mark crest
-        ax.plot(xx_crest,yy_crest,'X',c='gold')
+        #ax.plot(xx_crest,yy_crest,'X',c='gold')
 
         #get closest values in MB array
         for j in range(0,len(xx)):
@@ -381,11 +380,22 @@ for i in range(0,len(flist)):
             f.write(b'x,y,nearest MB draft (m), mean MB draft (m), std MB draft (m), sample size, footprint=4xtt (m), mean MB draft-fp=2 (m), std MB draft-fp=2 (m), sample size-fp=2\n')
             np.savetxt(f, table, fmt="%s", delimiter=",")
 
+
+#colorbars
+cb=plt.colorbar(cs2,orientation='vertical',pad=-0.05)
+cb.ax.tick_params(labelsize=20)
+cb.set_label(label='Ice Thickness (m)',fontsize=20)
+
+cb=plt.colorbar(cs,orientation='vertical',pad=0.003)
+cb.ax.tick_params(labelsize=20)
+cb.set_label(label='Draft (m)',fontsize=20)
+
+plt.tick_params(labelsize=20)
+
 plt.show()
-#exit()
 fig1.savefig(outpath_plots+outname,bbox_inches='tight')
 plt.close(fig1)
-    
+exit()
             
 #prepare data for CVL - 3DVIZ            
 #transform all coordinates to lat,lon and store the data in text files

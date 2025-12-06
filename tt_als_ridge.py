@@ -16,7 +16,7 @@ outpath_plots='../plots_ridges/'
 tif='../data/ALS/20200121_als_merged_grid-stere_crop.tiff'  #cropped in QGIS by Raster Clipper
 tif='../data/ALS/20200121_als_merged_grid-stere_crop_CO.tiff'  #cropped in QGIS by Raster Clipper - only CO, no Dark side
 tif='../data/ALS/20200121_als_merged_grid-stere_crop_Nloop.tiff'
-outname='ALS_20200121_ridge_transects_overview.png'
+outname='ALS_20200121_ridge_transects_overview_pub.png'
 #outname='ALS_20200121_ridge_transects_FR.png'
 #outname='ALS_20200121_ridge_transects_A.png'
 
@@ -33,15 +33,15 @@ arr,rot_x,rot_y=proj_sat(tif,lon0,lat0,head0,spacing=1,band=1,alos=False)
 fig1 = plt.figure(figsize=(20,10))
 
 ax = fig1.add_subplot(111)
-#do something about the PS (too high!)
-arr = np.where(arr>3.,3.,arr)
+arr = np.where(arr>3.,3.,arr)   #do something about the PS (too high!)
+arr = np.where(arr<0.,0.,arr)   #clean up the negative elevation
 #CS = plt.contourf(rot_x, rot_y, arr.T, 30, vmax=1., vmin=0,cmap=plt.cm.binary_r,alpha=.5)
-CS = plt.contourf(rot_x, rot_y, arr.T, 30, vmax=2., vmin=0,alpha=.5)
+cs = plt.pcolor(rot_x, rot_y, arr.T, vmax=2., vmin=0,alpha=.5)
 
-cb = plt.colorbar(CS)  # draw colorbar
-#cb.set_label(label='Intensity (dB)',fontsize=20)
-cb.set_label(label='Elevation (m)',fontsize=20)
-cb.ax.tick_params(axis="y", labelsize=14)
+#cb = plt.colorbar(CS)  # draw colorbar
+##cb.set_label(label='Intensity (dB)',fontsize=20)
+#cb.set_label(label='Elevation (m)',fontsize=20)
+#cb.ax.tick_params(axis="y", labelsize=14)
 
 #limit the region - overview
 ax.set_xlim(150,900)
@@ -303,12 +303,12 @@ for i in range(0,len(flist)):
             xx=xx+0
             yy=yy-5
     
-    ax.scatter(xx,yy,c=it,s=5,cmap=plt.cm.Reds,vmin=0,vmax=5)
+    cs2 = ax.scatter(xx,yy,c=it,s=5,cmap=plt.cm.Reds,vmin=0,vmax=8)
 
     if loc=='ridgeFR1' or loc=='ridgeFR2' or loc=='ridgeFR3':
         
-        #mark crest
-        ax.plot(xx_crest,yy_crest,'X',c='gold')
+        ##mark crest
+        #ax.plot(xx_crest,yy_crest,'X',c='gold')
 
         #get closest values in ALS array
         for j in range(0,len(xx)):
@@ -335,11 +335,22 @@ for i in range(0,len(flist)):
             f.write(b'x,y,ALS elevation (m)\n')
             np.savetxt(f, table, fmt="%s", delimiter=",")
 
+#colorbars
+cb=plt.colorbar(cs2,orientation='vertical',pad=-0.02)
+cb.ax.tick_params(labelsize=20)
+cb.set_label(label='Ice Thickness (m)',fontsize=20)
+
+cb=plt.colorbar(cs,orientation='vertical',pad=0.003)
+cb.ax.tick_params(labelsize=20)
+cb.set_label(label='Elevation (m)',fontsize=20)
+
+plt.tick_params(labelsize=20)
+
 plt.show()
-#exit()
 fig1.savefig(outpath_plots+outname,bbox_inches='tight')
 plt.close(fig1)
-    
+exit()
+
 #prepare data for CVL - 3DVIZ            
 #transform all coordinates to lat,lon and store the data in text files
 from pyproj import Proj, transform

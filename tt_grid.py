@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 #grid parameters
 step = 2        #grid spacing in meters 
-step = 1        #for ridges
+#step = 1        #for ridges
 #step = 5
 limit = step*2  #how far from MP coordinate to search 
 #limit = 5       #some equivalent to GEM-2 footprint or max thickness measured by GEM-2?
@@ -276,6 +276,19 @@ dates=['20220501']
 #inpath_ice = '../data/CIRFA22/'+loc+'/'
 #inpath_snow = inpath_ice
 
+#MicroSHIFT
+loc='station';inpath_ice = '../data/MicroSHIFT/station/'
+loc='recon';inpath_ice = '../data/MicroSHIFT/station/ridge_recon/'
+dates=['20250510']
+
+loc='recon';inpath_ice = '../data/MicroSHIFT/20250529_area_recon/'
+dates=['20250529']
+
+inpath_snow = inpath_ice
+outpath = '../plots_microshift/'
+outpath_grid = inpath_ice
+
+
 for dd in range(0,len(dates)):
     date=dates[dd]
     print(date)
@@ -318,7 +331,7 @@ for dd in range(0,len(dates)):
     xx = []
     yy = []
     fname = glob(inpath_ice+date_gem2+'*/*-track-icecs-xy.csv')
-    if outpath == '../plots_cirfa22/':
+    if outpath == '../plots_cirfa22/' or outpath == '../plots_microshift/':
         fname = glob(inpath_ice+'*'+date_gem2+'*gem2*-track-icecs-xy.csv')
     for fn in fname:
         print(fn)
@@ -333,7 +346,7 @@ for dd in range(0,len(dates)):
     #ice thickness data
     tt18 = []; tt5 = []; tt93 = []; ts_gem=[]
     fname = glob(inpath_ice+date_gem2+'*/*-channel-thickness.csv')
-    if outpath == '../plots_cirfa22/':
+    if outpath == '../plots_cirfa22/' or outpath == '../plots_microshift/':
         fname = glob(inpath_ice+'*'+date_gem2+'*-channel-thickness.csv')
 
     for fn in fname:
@@ -345,7 +358,7 @@ for dd in range(0,len(dates)):
             t93 = getColumn(fn,15)
             ts = getColumn(fn,0)
             
-        elif outpath == '../plots_cirfa22/':
+        elif outpath == '../plots_cirfa22/' or outpath == '../plots_microshift/':
             t18 = getColumn(fn,12)        #take 18KHz ip (12)
             t5 = getColumn(fn,10)        #take 1.5KHz ip (10)
             t93 = getColumn(fn,14)         #take 63KHz ip (14)
@@ -393,8 +406,8 @@ for dd in range(0,len(dates)):
     #get magnaprobe track file
     if loc != 'recon':
         
-        if outpath == '../plots_cirfa22/':
-            fname = glob(inpath_snow+'*magnaprobe-'+loc+'-'+date+'*-track-icecs-xy_corr.csv')[0]
+        if outpath == '../plots_cirfa22/' or outpath == '../plots_microshift/':
+            fname = glob(inpath_snow+'*magnaprobe*'+loc+'*'+date+'*-track-icecs-xy_corr.csv')[0]
             
         else:
             fname = glob(inpath_snow+'*/magnaprobe-transect-'+date+'*'+loc+'-track-icecs-xy_corr.csv')[0]
@@ -524,7 +537,7 @@ for dd in range(0,len(dates)):
             mxx = mxx+150
             xx_full = xx_full+150
                       
-    #rcon data is GEM-2 only - get dummy values with reduced spacing comparing to GEM-2, usually ski-doo - fast motion and standing...
+    #recon data is GEM-2 only - get dummy values with reduced spacing comparing to GEM-2, usually ski-doo - fast motion and standing...
     else:
         mxx = np.ma.masked_invalid(xx_full[::5])
         myy = np.ma.masked_invalid(yy_full[::5])
@@ -534,7 +547,16 @@ for dd in range(0,len(dates)):
         dt = []
         lon = []
         lat = []
-        tmp = glob(inpath_ice+date_gem2+'*/*-track-icecs-xy.csv')
+        
+        if outpath == '../plots_cirfa22/' or outpath == '../plots_microshift/':
+            tmp = glob(inpath_ice+'*recon*-track-icecs-xy.csv')
+            tmp = glob(inpath_ice+'*-track-icecs-xy.csv')
+            
+        else:
+            tmp = glob(inpath_ice+date_gem2+'*/*-track-icecs-xy.csv')
+        
+        
+        
         for fn in tmp:
             print(fn)
             dt0 = getColumn(fn,0)[::5]
@@ -542,8 +564,8 @@ for dd in range(0,len(dates)):
             lat0 = getColumn(fn,2)[::5]
         
             dt.extend(dt0); lon.extend(lon0); lat.extend(lat0)
+            #print(dt); exit()
             
-        
     #####################################################################################################################################3
     #lets make a regular grid with 'step' m spacing, corresponding to the CO local coordinate boundaries
     grid_x, grid_y = np.mgrid[-950:820:step, -1200:650:step]
@@ -734,7 +756,8 @@ for dd in range(0,len(dates)):
         
         #create output name
         if loc=='recon':
-            outname = inpath_snow+'recon/magna+gem2'+date+'_'+loc+'.csv'
+            #outname = inpath_snow+'recon/magna+gem2'+date+'_'+loc+'.csv'
+            outname = inpath_snow+'magna+gem2'+date+'_'+loc+'.csv'
         else:
             outname = fname.split('probe')[0]+'+gem2'+fname.split('probe')[1].split('.dat')[0]+'.csv'
             #new version with GEM-2 timestamp

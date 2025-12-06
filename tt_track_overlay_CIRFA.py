@@ -19,7 +19,12 @@ station= 'Drift2'
 inpath_mp = inpath
 outpath = '../plots_cirfa22/'
 
-#BREATHE
+#MicroSHIFT
+station='station'
+inpath = '../data/MicroSHIFT/**/'
+inpath_mp = inpath
+outpath = '../plots_microshift/'
+
 
 #plot
 fig1 = plt.figure(figsize=(10,10))

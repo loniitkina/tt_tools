@@ -93,14 +93,14 @@ rho_w = 1025
 rho_s = 313
 
 #location and dates
-#loc = 'Sloop'
-#dates = ['20191205','20200102','20200109','20200220','20200227','20200305','20200330','20200426','20200507']
-#title='Southern transect loop '
+loc = 'Sloop'
+dates = ['20191205','20200102','20200109','20200220','20200227','20200305','20200330','20200426','20200507']
+title='Sloop '
 
-##ridge locations for each date - for visualization, it includes bits of level ice
-#startx = [710, 700, 760, 700, 680, 720, 370, 380, 380]
-#endx =   [1060,1050,1110,1050,1030,1070,720,730, 730]
-#ridgeplot=True; ridgestats=False
+#ridge locations for each date - for visualization, it includes bits of level ice
+startx = [710, 700, 760, 700, 680, 720, 370, 380, 380]
+endx =   [1060,1050,1110,1050,1030,1070,720,730, 730]
+ridgeplot=True; ridgestats=False
 
 ##ridge locations for each date - for calculations, just ridge
 #startx = np.array([710, 700, 760, 700, 680, 720, 370, 380, 380]) + 50
@@ -111,29 +111,33 @@ rho_s = 313
 ##startx = np.array([710, 700, 760, 700, 680, 720, 370, 380, 380]) + 100
 ##endx =   np.array([1060,1050,1110,1050,1030,1070,720,730, 730]) - 160
 
-loc = 'Nloop'
-dates = ['20191024','20191031','20191107','20191114','20191121','20191128','20191205', '20200102','20200109','20200130','20200220','20200305','20200320','20200403','20200424','20200430','20200507'] 
-title='Northern transect loop '
+#loc = 'Nloop'
+#title='Nloop '
 
 #ridge locations for each date - for visulatization, two ridges
-startx = [700,700,770,790, 770,700,700,770,790, 770,710,700,1040,770,720,745,730]
-endx =   [920,920,990,1010,980,920,920,990,1010,980,930,920,1260,990,940,965,950]
+#dates = ['20191024','20191031','20191107','20191114','20191121','20191128','20191205', '20200102','20200109','20200130','20200220','20200305','20200320','20200403','20200424','20200430','20200507'] 
+#startx = [700,700,770,790, 770,700,700,770,790, 770,710,700,1040,770,720,745,730]
+#endx =   [920,920,990,1010,980,920,920,990,1010,980,930,920,1260,990,940,965,950]
+dates = ['20191128','20191205','20200102','20200109','20200130','20200220','20200305','20200320','20200403','20200424','20200430','20200507']
+startx = np.array([700,700,770,790, 770,710,700,1040,770,720,745,730])
+endx =   np.array([920,920,990,1010,980,930,920,1260,990,940,965,950])
 ridgeplot=True; ridgestats=False
 
 ##ridge locations for each date - for calculations, left ridge
+#dates = ['20191128','20191205','20200102','20200109','20200130','20200220','20200305','20200320','20200403','20200424','20200430','20200507']
 #startx = np.array([700,700,770,790, 770,710,700,1040,770,720,745,730]) + 15
 #endx =   np.array([920,920,990,1010,980,930,920,1260,990,940,965,950]) - 140
 #ridgeplot=False;ridgestats=True
 
 #leg4 (Melinda used 20 July)
-#loc = 'transect'
-#dates = ['20200629','20200630','20200705','20200710','20200720']
-#title = 'Melt Mix '
+loc = 'transect'
+dates = ['20200629','20200630','20200705','20200710','20200720']
+title = 'Melt Mix '
 
-##ridge locations for each date - the three ridges, for visualization
-#startx = [830, 850, 870, 840, 870]
-#endx =   [1180,1200,1220,1190,1220]
-#ridgeplot=True; ridgestats=False
+#ridge locations for each date - the three ridges, for visualization
+startx = [870, 985, 860, 830, 860]
+endx =   [1100,1205,1090,1060,1090]
+ridgeplot=True; ridgestats=False
 
 ##ridge locations for each date - just the left ridge of the Nloop, for calculations
 #startx = np.array([830, 850, 870, 840, 870]) + 120
@@ -144,17 +148,17 @@ ridgeplot=True; ridgestats=False
 ##startx = [1400,1430,1475,1420,1360]
 ##endx =   [2000,2030,2075,2020,1960]
 
-loc = 'ridgeD'
-dates = ['20200410','20200416','20200424','20200430','20200507']
-startx = [0, 0, 0, 0, 0]
-endx =   [-1,-1,-1,-1,-1]
-ridgeplot=True; ridgestats=False
+#loc = 'ridgeD'
+#dates = ['20200410','20200416','20200424','20200430','20200507']
+#startx = [0, 0, 0, 0, 0]
+#endx =   [-1,-1,-1,-1,-1]
+#ridgeplot=True; ridgestats=False
 
 dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
 
 import locale
 locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
-datel = [ datetime.strftime(x, '%b, %d %Y') for x in dt ]
+datel = [ datetime.strftime(x, '%d %b %Y') for x in dt ]
 print(datel)
 
 print(loc)
@@ -237,6 +241,12 @@ for dd in range(0,len(dates)):
     #long transcts never have modal thickness over 1.7m
     if mo > 1.7:
         mo = np.mean(np.ma.array(ii_pos,mask=ii_pos>1.7))
+        
+    #modes_list.append(mo)
+    #UPDATE: This LI does not correspond to reality. There are different ice types, so we should take the LI closest to the individual ridge
+    #ridge transects are so short that this is not mode, but minimum sea ice thickness
+    #no, this does not work because there are zeros in the data. This needs to be extracted manually from the figure
+    mo=np.min(ii_pos)
     
     #snow depth on level ice 
     mask=it5>mo+.1
@@ -258,8 +268,8 @@ for dd in range(0,len(dates)):
     ax.set_xlabel('Distance along transect (m)', fontsize=25)
     ax.set_title(title+datel[dd], fontsize=30, loc='left')
     ax.set_ylabel('Distance from water surface (m)', fontsize=25)
-    ax.tick_params(axis="x", labelsize=24)
-    ax.tick_params(axis="y", labelsize=24)
+    ax.tick_params(axis="x", labelsize=25)
+    ax.tick_params(axis="y", labelsize=25)
     ax.set_facecolor('0.8')
     #ax.set_facecolor('0.3')
     
@@ -294,7 +304,7 @@ for dd in range(0,len(dates)):
     ax.set_ylim(-6,1.8)
     
     ax.set_xlim(0,x[-2])        #beacause last MP value/coordinate is typically same as first (at large distance)
-    ax.legend(fontsize=25,loc='lower left',fancybox=True,facecolor=fig1.get_facecolor(),framealpha=.6)
+    ax.legend(ncol=2,fontsize=20,loc='lower right',fancybox=True,facecolor=fig1.get_facecolor(),framealpha=.6)
     #print(outname)
     #plt.show()
     fig1.savefig(outpath+outname,bbox_inches='tight', facecolor=fig1.get_facecolor(), edgecolor='none')
@@ -318,11 +328,11 @@ for dd in range(0,len(dates)):
 #here plot just individual ridges and overlay
 fig2 = plt.figure(figsize=(20,10))
 ax = fig2.add_subplot(111)
-ax.set_xlabel('Distance along transect (m)', fontsize=20)
-ax.set_title(title+'ridge winter 2019/2020', fontsize=25)
-ax.set_ylabel('Distance from water surface (m)', fontsize=20)
-ax.tick_params(axis="x", labelsize=14)
-ax.tick_params(axis="y", labelsize=14)
+ax.set_xlabel('Distance along transect (m)', fontsize=25)
+ax.set_title(title+'ridge', fontsize=25)
+ax.set_ylabel('Distance from water surface (m)', fontsize=25)
+ax.tick_params(axis="x", labelsize=25)
+ax.tick_params(axis="y", labelsize=25)
 ax.set_facecolor('0.8')
 
 mean_si_list=[]
@@ -344,15 +354,19 @@ for i in range(0,len(dates)):
     cc_mean = np.mean(cc_list[i][si:ei]); mean_cc_list.append(cc_mean)
     ii_mean = np.mean(ii_list[i][si:ei]); mean_ii_list.append(ii_mean)
     
-ax.plot(x_list[-1][si:ei]-x_list[i][si],fb_list[-1][si:ei],label='ice surface',c=colors[-1],ls=':')    
-ax.fill_between(x_list[-1][si:ei]-x_list[i][si], fb_list[-1][si:ei], fb_list[-1][si:ei]+si_list[-1][si:ei],alpha=1, color=colors[1], label='snow')
-ax.fill_between(x_list[-1][si:ei]-x_list[i][si], fb_list[-1][si:ei], fb_list[-1][si:ei]-cc_list[-1][si:ei],alpha=1, color=colors[-5], label='consolidated layer')
-ax.fill_between(x_list[-1][si:ei]-x_list[i][si], fb_list[-1][si:ei], fb_list[-1][si:ei]-ii_list[-1][si:ei],alpha=.3, color=colors[-1], label='ice')
+    if i==0:
+    
+        ax.plot(x_list[0][si:ei]-x_list[0][si],fb_list[0][si:ei],label='ice surface',c=colors[-1],ls=':')    
+        ax.fill_between(x_list[0][si:ei]-x_list[0][si], fb_list[0][si:ei], fb_list[0][si:ei]+si_list[0][si:ei],alpha=1, color=colors[1], label='snow')
+        ax.fill_between(x_list[0][si:ei]-x_list[0][si], fb_list[0][si:ei], fb_list[0][si:ei]-cc_list[0][si:ei],alpha=1, color=colors[2], label='consolidated layer')#color 2 for meltMix, 5 for Sloop and 7 for Nloop
+        ax.fill_between(x_list[0][si:ei]-x_list[0][si], fb_list[0][si:ei], fb_list[0][si:ei]-ii_list[0][si:ei],alpha=.3, color=colors[-1], label='max ice')
 
 if ridgeplot==True:
-    ax.legend(fontsize=20,loc='lower left',fancybox=True,facecolor=colors[-1],framealpha=.1)
+    ax.legend(ncol=3,fontsize=20,loc='lower right',fancybox=True,facecolor=colors[-1],framealpha=.1)#4 for Nloop and Sloop, 3 for MeltMix
     outname = loc+'_profile_all_gridded.png'
+    plt.show()
     fig2.savefig(outpath+outname,bbox_inches='tight')
+    exit()
 
 ds = np.array(mean_si_list[1:]) - np.array(mean_si_list[:-1])
 ratio = np.array(mean_cc_list) / np.array(mean_ii_list)

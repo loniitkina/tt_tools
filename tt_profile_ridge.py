@@ -92,14 +92,14 @@ outpath = '../plots_ridges/'
 als_elev=True
 #als_elev=False
 
-#loc = 'ridgeFR1'
-##dates = ['20200108','20200119','20200221']#,'20200305'] #GEM-2 was not used on 20200119
-#dates = ['20200108','20200221']
-#start = [0,1]
-#elev_bias = [0.3,0.2,]  #manual adjustment to have freeboard measurements for drill holes at about zero elevation
-#title = 'Fort Ridge Installation Transect '
-#startx = [8,8]
-#endx = [45,45]
+loc = 'ridgeFR1'
+#dates = ['20200108','20200119','20200221']#,'20200305'] #GEM-2 was not used on 20200119
+dates = ['20200108','20200221']
+start = [0,1]
+elev_bias = [0.3,0.2,]  #manual adjustment to have freeboard measurements for drill holes at about zero elevation
+title = 'Fort Ridge Installation Transect '
+startx = [8,8]
+endx = [45,45]
 
 #loc = 'ridgeFR2'    #coring
 #dates = ['20200110','20200212','20200221'] #GEM-2 was not used on 20200221
@@ -110,40 +110,40 @@ als_elev=True
 #startx = [28,28,28]
 #endx = [69,69,69]
 
-loc = 'ridgeFR3'
-dates = ['20200131']
-start = [0]
-elev_bias = [0.2]
-title = 'Fort Ridge Optics Transect '
-startx = [10]
-endx = [30]
+#loc = 'ridgeFR3'
+#dates = ['20200131']
+#start = [0]
+#elev_bias = [0.2]
+#title = 'Fort Ridge Optics Transect '
+#startx = [10]
+#endx = [30]
 
-loc = 'ridgeA1'    #central
-dates = ['20200117','20200131','20200228','20200410','20200628']
-#dates = ['20200117','20200131','20200228','20200628']
-start = [0,-4,-8,0,0]   #some transect lines were extended X meters over the Nloop/road
-elev_bias = [.5,-.5,-.5,-.5,-.5]   #not important as we dont have draft data here
-title = "Alli's Ridge Central Transect "
-startx = [0,0,0,0,0]
-endx = [43,43,43,43,43]
+#loc = 'ridgeA1'    #central
+#dates = ['20200117','20200131','20200228','20200410','20200628']
+##dates = ['20200117','20200131','20200228','20200628']
+#start = [0,-4,-8,0,0]   #some transect lines were extended X meters over the Nloop/road
+#elev_bias = [.5,-.5,-.5,-.5,-.5]   #not important as we dont have draft data here
+#title = "Allie's Ridge Central Transect "
+#startx = [0,0,0,0,0]
+#endx = [43,43,43,43,43]
 
-loc = 'ridgeA2'    #north
-dates = ['20200212','20200228','20200410','20200628']
-#dates = ['20200212','20200228','20200628']
-start = [0,-3,10,13]
-elev_bias = [.5,0,0,0]
-title = "Alli's Ridge North Transect "
-startx = [13,13,13,13]
-endx = [51,51,51,51]
+#loc = 'ridgeA2'    #north
+#dates = ['20200212','20200228','20200410','20200628']
+##dates = ['20200212','20200228','20200628']
+#start = [0,-3,10,13]
+#elev_bias = [.5,0,0,0]
+#title = "Allie's Ridge Northern Transect "
+#startx = [13,13,13,13]
+#endx = [51,51,51,51]
 
-loc = 'ridgeA3'    #south
-dates = ['20200212','20200228','20200410','20200628']
-#dates = ['20200212','20200228','20200628']
-start = [0,-4,3,3]
-elev_bias = [.5,0,0,0]
-title = "Alli's Ridge South Transect "
-startx = [3,3,3,3]
-endx = [47,47,47,47]
+#loc = 'ridgeA3'    #south
+#dates = ['20200212','20200228','20200410','20200628']
+##dates = ['20200212','20200228','20200628']
+#start = [0,-4,3,3]
+#elev_bias = [.5,0,0,0]
+#title = "Allie's Ridge Southern Transect "
+#startx = [3,3,3,3]
+#endx = [47,47,47,47]
 
 
 #loc = 'ridgeD'  #David's Ridge
@@ -203,7 +203,6 @@ for dd in range(0,len(dates)):
 
     print(fname)
 
-    
     #snow depth
     snod = getColumn(fname,5);si = np.array(snod,dtype=np.float)  #snow depth
     
@@ -314,14 +313,15 @@ for dd in range(0,len(dates)):
     ax.set_xlabel('Distance along transect (m)', fontsize=25)
     ax.set_title(title+datel[dd], fontsize=30, loc='left')
     ax.set_ylabel('Distance from water surface (m)', fontsize=25)
-    ax.tick_params(axis="x", labelsize=24)
-    ax.tick_params(axis="y", labelsize=24)
+    ax.tick_params(axis="x", labelsize=25)
+    ax.tick_params(axis="y", labelsize=25)
     ax.set_facecolor('0.8')
 
     #surface elevation - determine just for the first of the repeated transects
     if date==dates[0]:
         #hydrostatic equilibrium with mean snow density and sea ice density
         rho_i = 882 #assuming 10% air content in the bulk of the ridge = 30% of the sail (level ice density 882). This corresponds well with total macroporosity from drillings 20-30%
+        rho_i = 905
         rho_w = 1025
         rho_s = 313
 
@@ -356,8 +356,10 @@ for dd in range(0,len(dates)):
                     #ROV multibeam draft
                     #df = glob(inpath+'magna+gem2-transect-'+date+'*'+loc+'_ROV.csv')[0]
                     #df = glob(inpath+'magna+gem2-transect-'+date+'*'+loc+'_ROV_20200128.csv')[0]
-                    df = glob(inpath+'mosaic-transect-'+date+'-gem2-556+mp_'+loc+'_ROV_20200128.csv')[0]
+                    #df = glob(inpath+'mosaic-transect-'+date+'-gem2-556+mp_'+loc+'_ROV_20200128.csv')[0]
                     df = glob(inpath+'mosaic-transect-'+date+'-gem2-556+mp_'+loc+'_ROV_20200128_match.csv')[0]
+                    if loc=='ridgeFR3':
+                        df = glob(inpath+'mosaic-transect-'+date+'-gem2-556+mp_'+loc+'_ROV_20200128.csv')[0]
                     print(df)
                     draft = getColumn(df,2) #closest value 
                     
@@ -514,11 +516,11 @@ for dd in range(0,len(dates)):
 
 fig2 = plt.figure(figsize=(20,10))
 ax = fig2.add_subplot(111)
-ax.set_xlabel('Distance along transect (m)', fontsize=20)
-ax.set_title(title, fontsize=25)
-ax.set_ylabel('Distance from water surface (m)', fontsize=20)
-ax.tick_params(axis="x", labelsize=14)
-ax.tick_params(axis="y", labelsize=14)
+ax.set_xlabel('Distance along transect (m)', fontsize=25)
+ax.set_title(title, fontsize=30)
+ax.set_ylabel('Distance from water surface (m)', fontsize=25)
+ax.tick_params(axis="x", labelsize=25)
+ax.tick_params(axis="y", labelsize=25)
 ax.set_facecolor('0.8')
 
 mean_si_list=[]
@@ -528,6 +530,8 @@ mean_fb_list=[]
 mean_fb_hs_list=[]
 max_fb_list=[]
 max_fb_hs_list=[]
+max_draft_list=[]
+max_draft_em_list=[]
 
 model_si_list=[]
 model_ic_list=[]
@@ -541,7 +545,7 @@ for i in range(0,len(dates)):
     ax.plot(x_list[i], fb_list[i]-ii_list[i],c=colors[i],label=datel[i])
     ax.plot(x_list[i], fb_list[i]-ic_list[i],c=colors[i],ls='--')
     ax.plot(x_list[i], fb_list[i]+si_list[i],c=colors[i])
-    ax.plot(x_list[i],fb_list[i],c=colors[i],ls=':')
+    ax.plot(x_list[i],fb_list[i],c=colors[i],ls=':',lw=2)
     
     #extract just the ridge (no level ice included)
     si = np.argmin(abs(x_list[i]-startx[i]))
@@ -567,10 +571,12 @@ for i in range(0,len(dates)):
     #print(si_mean,cc_mean,ii_mean,fb_mean,fb_hs_mean)
     #print(cc_mean/ii_mean)
     
+    draft_max_em = np.max(ii_list[i][si:ei]-fb_max); max_draft_em_list.append(draft_max_em)
+    
     
 
-ax.plot(x_list[0],fb_hs_list[0],label='hydrostatic ice surface',c='w',ls=':') 
-ax.plot(x_list[0],fb_list[0],label='ice surface Jan, 21 2020',c=colors[-1],ls=':')    
+ax.plot(x_list[0],fb_hs_list[0],label='hydrostatic ice surface',c='w',ls=':',lw=5) 
+ax.plot(x_list[0],fb_list[0],label='ice surface Jan, 21 2020',c=colors[-1],ls=':',lw=5)    
 ax.fill_between(x_list[0], fb_list[0], fb_list[0]+si_list[0],alpha=1, color=colors[1], label='snow')
 ax.fill_between(x_list[0], fb_list[0], fb_list[0]-ic_list[0],alpha=1, color=colors[2], label='consolidated ice')
 ax.fill_between(x_list[0], fb_list[0], fb_list[0]-ii_list[0],alpha=.3, color=colors[-1], label='max ice')
@@ -580,6 +586,7 @@ if loc=='ridgeFR1' or loc=='ridgeFR2' or loc=='ridgeFR3':
     ax.plot(x_list[0],draft_list[0],label='draft Jan, 28 2020',c='purple',ls=':',lw=1)
     ax.errorbar(x_list[0],draft_m_list[0],draft_std_list[0],label='mean draft Jan, 28 2020',c='purple',ls=':',lw=3)
 
+    #draft_max = np.max(draft_list[0][si:ei]); max_draft_list.append(draft_max)
     
 ax.set_ylim(-12,3)
     
@@ -591,7 +598,7 @@ if loc=='ridgeFR1':
     #[x_list[0][d],x_list[0][d]], [fb_list[0][d],fb_list[0][d]-dh1]
     ax.plot([x_list[0][d],x_list[0][d]], [fb_list[0][d],fb_list[0][d]-dh1], 'o', c= 'b', ls=':', label='drill hole Jan, 8 2020')
     #freeboard
-    ax.plot(x_list[0][d], fb_list[0][d]-.09, 'x', c= 'r')
+    ax.plot(x_list[0][d], fb_list[0][d]-.09, 'x', c= 'r',label='water level')
     ##soft
     #ax.plot([x_list[0][d],x_list[0][d]], [fb_list[0][d]-.7,fb_list[0][d]-.85], c= 'c', ls='-',lw=3)
     
@@ -600,7 +607,7 @@ if loc=='ridgeFR1':
     dh1=6.05
     ax.plot([x_list[0][d],x_list[0][d]], [fb_list[0][d],fb_list[0][d]-dh1], 'o', c= 'b', ls=':')
     #freeboard
-    ax.plot(x_list[0][d], fb_list[0][d]-.32, 'x', c= 'r',label='freeboard')
+    ax.plot(x_list[0][d], fb_list[0][d]-.32, 'x', c= 'r')
     #wet
     ax.plot([x_list[0][d],x_list[0][d]], [fb_list[0][d]-1.75,fb_list[0][d]-dh1], 'x', c= 'b', ls=':',lw=7,label='soft and wet')
     ##voids
@@ -683,7 +690,7 @@ if loc=='ridgeFR2':
     dh1=1.05
     ax.plot([x_list[0][d],x_list[0][d]], [fb_list[0][d],fb_list[0][d]-dh1], 'o', c= 'b', ls=':', label='drill hole Jan, 17 2020')
     #freeboard
-    ax.plot(x_list[0][d], fb_list[0][d]-.055, 'x', c= 'r')
+    ax.plot(x_list[0][d], fb_list[0][d]-.055, 'x', c= 'r',label='water level')
     
     d=34
     dh1=2.87
@@ -916,7 +923,7 @@ if loc=='ridgeA1':
     ax.plot([x[d],x[d]], [fb[d]-3.05,fb[d]-dh1], 'x', c= 'b', ls=':',lw=7, label='soft and wet')
     #freeboard (this has to be wrong!!! - could it be 9cm?)
     #ax.plot(x[d], fb[d]-.9, 'x', c= 'r')
-    ax.plot(x[d], fb[d]-.09, 'x', c= 'r')
+    ax.plot(x[d], fb[d]-.09, 'x', c= 'r',label='water level')
 
     d=25    #crest
     dh1=5.5
@@ -1047,7 +1054,7 @@ if loc=='ridgeA2':
     dh1=3.75
     ax.plot([x[d],x[d]], [fb[d],fb[d]-dh1], 'o', c= 'm', ls=':', label='drill hole Jul, 9 2020')
     #freeboard
-    ax.plot(x[d], fb[d]-1.25, 'x', c= 'm')
+    ax.plot(x[d], fb[d]-1.25, 'x', c= 'm',label='water level')
     
     d=23
     dh1=6.3
@@ -1136,7 +1143,7 @@ if loc=='ridgeA3':
     #wet
     ax.plot([x[d],x[d]], [fb[d]-1.8,fb[d]-dh1], 'x', c= 'b', ls=':',lw=7)
     #freeboard
-    ax.plot(x[d], fb[d]-1, 'x', c= 'lime')
+    ax.plot(x[d], fb[d]-1, 'x', c= 'lime',label='water level')
     
     d=35
     dh1=5.5
@@ -1200,7 +1207,7 @@ ax.legend(fontsize=20, ncol=3,loc='lower left',fancybox=True,facecolor=colors[-1
 outname = loc+'_profile.png'
 plt.show()
 fig2.savefig(outpath+outname,bbox_inches='tight')
-
+#exit()
 
 
 
@@ -1251,10 +1258,15 @@ print(file_name)
 
 dt = [ datetime.strptime(x, '%Y%m%d') for x in dates ]
 
-tt = [dt,mean_si_list,mean_ii_list,mean_cc_list,modes_list,si_mo_list,mean_fb_list,mean_fb_hs_list,max_fb_list,max_fb_hs_list]
+print(dt)
+print(max_fb_hs_list)
+print(max_draft_em_list)
+print(max_draft_list)
+
+tt = [dt,mean_si_list,mean_ii_list,mean_cc_list,modes_list,si_mo_list,mean_fb_list,mean_fb_hs_list,max_fb_list,max_fb_hs_list,max_draft_em_list]
 table = list(zip(*tt))
 
 with open(file_name, 'wb') as f:
     #header
-    f.write(b'date,mean ridge snow depth,mean ridge ice thickness,mean consolidated layer thickness,level ice thickness,snow on level ice,mean als ice fb, mean hs ice freeboard,max ALS fb, max HS FB\n')
+    f.write(b'date,mean ridge snow depth,mean ridge ice thickness,mean consolidated layer thickness,level ice thickness,snow on level ice,mean als ice fb, mean hs ice freeboard,max ALS fb, max HS FB, max_draft_em\n')
     np.savetxt(f, table, fmt="%s", delimiter=",")

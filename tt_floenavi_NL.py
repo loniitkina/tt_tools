@@ -31,6 +31,10 @@ from tt_func import *
 #location='Drift1' #no locations for GEM-2
 #latlon=False
 
+#reference position file
+#refstat_csv_file = '../data/CIRFA22/Drift1/garmin_transect_Drift1_20220505.csv-track.csv'
+#refstat_csv_file = '../data/CIRFA22/Drift2/garmin_transect_Drift2_20220507.csv-track.csv'
+
 #BREATHE
 instrument='magnaprobe'
 instrument='transect*'     #GEM-2
@@ -39,18 +43,37 @@ location='UiT'
 latlon=False
 
 #reference position file
-#refstat_csv_file = '../data/CIRFA22/Drift1/garmin_transect_Drift1_20220505.csv-track.csv'
-#refstat_csv_file = '../data/CIRFA22/Drift2/garmin_transect_Drift2_20220507.csv-track.csv'
-refstat_csv_file = '../data/breathe/coring/pos18-05-2023-track.csv'
+#refstat_csv_file = '../data/breathe/coring/pos18-05-2023-track.csv'
 #refstat_csv_file = '../data/breathe/ridge_scouting/garmin_transect_breathe_20230520.csv-track.csv'
+
+#MicroSHIFT
+instrument='magnaprobe'; latlon=False
+#instrument='transect*' ; latlon=True    #GEM-2
+path = '../data/MicroSHIFT/'
+#reference position file
+#sometimes files is bad, try deleting the last line
+date='20250510'; refstat_csv_file = path+'positions_transect/pos10-05-2025-track.csv'
+#date='20250512'; refstat_csv_file = path+'positions_transect/pos12-05-2025-track.csv'  #contains two MP tracks
+date='20250515'; refstat_csv_file = path+'positions_transect/pos15-05-2025-track.csv'    #contains two MP tracks
+#date='20250517'; refstat_csv_file = path+'positions_transect/pos17-05-2025-track.csv'
+#date='20250519';refstat_csv_file = path+'positions_transect/pos19-05-2025-track.csv'
+#date='20250523';refstat_csv_file = path+'positions_transect/pos23-05-2025-track.csv'   #no MP found yet!
+#date='20250524';refstat_csv_file = path+'positions_transect/pos24-05-2025-track.csv'   #no MP
+#date='20250528';refstat_csv_file = path+'positions_transect/pos28-05-2025-track.csv'
+#date='20250529';refstat_csv_file = path+'positions_transect/pos29-05-2025-track.csv'   #no MP
+date='20250530';refstat_csv_file = path+'positions_transect/pos30-05-2025-track.csv'
+
+
+
 
 refstat = GeoReferenceStation.from_csv(refstat_csv_file)
 icecs = IceCoordinateSystem(refstat)
 
 #get data for which you need coordinate transformation
-all_transect_files = sorted(glob(path+'/*/'+instrument+'*'+location+'*'+'-track.csv'))
+all_transect_files = sorted(glob(path+'/'+date+'*/'+instrument+'*-track.csv'))
+#all_transect_files = sorted(glob(path+'/20250529*/'+instrument+'*'+location+'*'+'-track.csv'))
 
-print(all_transect_files)
+#print(all_transect_files)
 #exit()
 
 plt.figure(figsize=(10, 10))
@@ -61,27 +84,26 @@ for i, track_csv_filepath in enumerate(all_transect_files):
     print(track_csv_filepath)
     name = track_csv_filepath.split('/')[-1]
     
-    try:
-        pos = GeoPositionData.from_csv(track_csv_filepath, header=None, latlon=latlon)
-        icepos = icecs.get_xy_coordinates(pos)
-        plt.scatter(icepos.xc, icepos.yc, s=20-i*2, label=name)
-        
-        #store these data in a csv file
-        date = getColumn(track_csv_filepath,0, delimiter=',')
-        lon = getColumn(track_csv_filepath,1, delimiter=',')
-        lat = getColumn(track_csv_filepath,2, delimiter=',')
-        xc = icepos.xc
-        yc = icepos.yc
-        
-        tt = [date,lon,lat,xc,yc]
-        table = list(zip(*tt))
-        
-        outname = track_csv_filepath.split('.csv')[0]+'-icecs-xy.csv'
-        print(outname)
-        with open(outname, 'wb') as f:
-            np.savetxt(f, table, fmt="%s", delimiter=",")
-    except:
-        continue
+
+    pos = GeoPositionData.from_csv(track_csv_filepath, header=None, latlon=latlon)
+    icepos = icecs.get_xy_coordinates(pos)
+    plt.scatter(icepos.xc, icepos.yc, s=20-i*2, label=name)
+    
+    #store these data in a csv file
+    date = getColumn(track_csv_filepath,0, delimiter=',')
+    lon = getColumn(track_csv_filepath,1, delimiter=',')
+    lat = getColumn(track_csv_filepath,2, delimiter=',')
+    xc = icepos.xc
+    yc = icepos.yc
+    
+    tt = [date,lon,lat,xc,yc]
+    table = list(zip(*tt))
+    
+    outname = track_csv_filepath.split('.csv')[0]+'-icecs-xy.csv'
+    print(outname)
+    with open(outname, 'wb') as f:
+        np.savetxt(f, table, fmt="%s", delimiter=",")
+
     
 plt.grid()
 plt.legend()

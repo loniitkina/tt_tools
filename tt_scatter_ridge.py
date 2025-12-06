@@ -54,7 +54,7 @@ ax.set_title('Total thickness', fontsize=30, loc='left')
 ax.set_ylabel('EMI thickness (m)', fontsize=25)
 ax.tick_params(axis="x", labelsize=24)
 ax.tick_params(axis="y", labelsize=24)
-ax.set_facecolor('0.8')
+#ax.set_facecolor('0.8')
 
 bx = fig1.add_subplot(122)
 bx.set_xlabel('Drill hole thickness (m)', fontsize=25)
@@ -62,7 +62,12 @@ bx.set_title('Consolidated layer thickness', fontsize=30, loc='left')
 bx.set_ylabel('EMI thickness (m)', fontsize=25)
 bx.tick_params(axis="x", labelsize=24)
 bx.tick_params(axis="y", labelsize=24)
-bx.set_facecolor('0.8')
+#bx.set_facecolor('0.8')
+
+x_ii=[]
+x_cc=[]
+y_ii=[]
+y_cc=[]
 
 for dd in range(0,len(dates)):
     loc = locs[dd]
@@ -97,7 +102,8 @@ for dd in range(0,len(dates)):
     it9 = getColumn(fname,14);it9 = np.array(it9,dtype=np.float)
     it10 = getColumn(fname,15);it10 = np.array(it10,dtype=np.float)
     
-    #select the channel for the total thickness - for FB
+    #exclude the A1 values where the 1.4kHz values are very high
+    it1 = np.where(it1>10,np.nan,it1)
     
     #ice thickness
     ii = np.empty((3,len(it3)))
@@ -105,6 +111,13 @@ for dd in range(0,len(dates)):
     ii[1,:]=np.nan_to_num(it5, nan=-9999)
     ii[2,:]=np.nan_to_num(it1, nan=-9999)
     ii = np.mean(np.ma.array(ii,mask=ii<0),axis=0)
+    
+    #consolidated layer thickness
+    cc = np.empty((3,len(it3)))
+    cc[0,:]=np.nan_to_num(it10, nan=-9999)
+    cc[1,:]=np.nan_to_num(it8, nan=-9999)
+    cc[2,:]=np.nan_to_num(it6, nan=-9999)
+    cc = np.mean(np.ma.array(cc,mask=cc<0),axis=0)
             
     #surface elevation - determine just for the first of the repeated transects
     if seq[dd]=='f':
@@ -289,64 +302,162 @@ for dd in range(0,len(dates)):
 
         if (dd==0) and (i==0):
             #total thickness
-            ax.scatter(fb[d]-dh1,fb[d]-it1[d], marker='o',c='w', label='1.5kHz')
-            ax.scatter(fb[d]-dh1,fb[d]-it2[d], marker='x',c='w')
-            ax.scatter(fb[d]-dh1,fb[d]-it3[d], marker='o',c='b', label='5kHz')
-            ax.scatter(fb[d]-dh1,fb[d]-it4[d], marker='x',c='b')
-            ax.scatter(fb[d]-dh1,fb[d]-it5[d], marker='o',c='g', label='18kHz')
-            ax.scatter(fb[d]-dh1,fb[d]-it6[d], marker='x',c='g')
-            ax.scatter(fb[d]-dh1,fb[d]-it7[d], marker='o',c='r', label='60kHz')
-            ax.scatter(fb[d]-dh1,fb[d]-it8[d], marker='x',c='r')
-            ax.scatter(fb[d]-dh1,fb[d]-it9[d], marker='o',c='y', label='98kHz')
-            ax.scatter(fb[d]-dh1,fb[d]-it10[d], marker='x',c='y')
+            ax.scatter(dh1,it1[d], marker='o',c='k', label='1.5kHz')
+            ax.scatter(dh1,it2[d], marker='x',c='k')
+            ax.scatter(dh1,it3[d], marker='o',c='b', label='5kHz')
+            ax.scatter(dh1,it4[d], marker='x',c='b')
+            ax.scatter(dh1,it5[d], marker='o',c='g', label='18kHz')
+            ax.scatter(dh1,it6[d], marker='x',c='g')
+            ax.scatter(dh1,it7[d], marker='o',c='r', label='60kHz')
+            ax.scatter(dh1,it8[d], marker='x',c='r')
+            ax.scatter(dh1,it9[d], marker='o',c='y', label='98kHz')
+            ax.scatter(dh1,it10[d], marker='x',c='y')
+            
+            ax.scatter(dh1,ii[d], marker='o',c='none',ec='k',s=80, label='mean',lw=2)
+
+            
             #consolidated layer
-            bx.scatter(fb[d]-dh2,fb[d]-it1[d], marker='o',c='w', label='1.5kHz')
-            bx.scatter(fb[d]-dh2,fb[d]-it2[d], marker='x',c='w')
-            bx.scatter(fb[d]-dh2,fb[d]-it3[d], marker='o',c='b', label='5kHz')
-            bx.scatter(fb[d]-dh2,fb[d]-it4[d], marker='x',c='b')
-            bx.scatter(fb[d]-dh2,fb[d]-it5[d], marker='o',c='g', label='18kHz')
-            bx.scatter(fb[d]-dh2,fb[d]-it6[d], marker='x',c='g')
-            bx.scatter(fb[d]-dh2,fb[d]-it7[d], marker='o',c='r', label='60kHz')
-            bx.scatter(fb[d]-dh2,fb[d]-it8[d], marker='x',c='r')
-            bx.scatter(fb[d]-dh2,fb[d]-it9[d], marker='o',c='y', label='98kHz')
-            bx.scatter(fb[d]-dh2,fb[d]-it10[d], marker='x',c='y')
+            bx.scatter(dh2,it1[d]-fb[d], marker='o',c='k', label='1.5kHz')
+            bx.scatter(dh2,it2[d]-fb[d], marker='x',c='k')
+            bx.scatter(dh2,it3[d]-fb[d], marker='o',c='b', label='5kHz')
+            bx.scatter(dh2,it4[d]-fb[d], marker='x',c='b')
+            bx.scatter(dh2,it5[d]-fb[d], marker='o',c='g', label='18kHz')
+            bx.scatter(dh2,it6[d]-fb[d], marker='x',c='g')
+            bx.scatter(dh2,it7[d]-fb[d], marker='o',c='r', label='60kHz')
+            bx.scatter(dh2,it8[d]-fb[d], marker='x',c='r')
+            bx.scatter(dh2,it9[d]-fb[d], marker='o',c='y', label='98kHz')
+            bx.scatter(dh2,it10[d]-fb[d], marker='x',c='y')
+            
+            bx.scatter(dh2,cc[d]-fb[d], marker='o',c='none',ec='k',s=80, label='mean',lw=2)
         else:
-            ax.scatter(fb[d]-dh1,fb[d]-it1[d], marker='o',c='w')
-            ax.scatter(fb[d]-dh1,fb[d]-it2[d], marker='x',c='w')
-            ax.scatter(fb[d]-dh1,fb[d]-it3[d], marker='o',c='b')
-            ax.scatter(fb[d]-dh1,fb[d]-it4[d], marker='x',c='b')
-            ax.scatter(fb[d]-dh1,fb[d]-it5[d], marker='o',c='g')
-            ax.scatter(fb[d]-dh1,fb[d]-it6[d], marker='x',c='g')
-            ax.scatter(fb[d]-dh1,fb[d]-it7[d], marker='o',c='r')
-            ax.scatter(fb[d]-dh1,fb[d]-it8[d], marker='x',c='r')
-            ax.scatter(fb[d]-dh1,fb[d]-it9[d], marker='o',c='y')
-            ax.scatter(fb[d]-dh1,fb[d]-it10[d], marker='x',c='y')
+            ax.scatter(dh1,it1[d], marker='o',c='k')
+            ax.scatter(dh1,it2[d], marker='x',c='k')
+            ax.scatter(dh1,it3[d], marker='o',c='b')
+            ax.scatter(dh1,it4[d], marker='x',c='b')
+            ax.scatter(dh1,it5[d], marker='o',c='g')
+            ax.scatter(dh1,it6[d], marker='x',c='g')
+            ax.scatter(dh1,it7[d], marker='o',c='r')
+            ax.scatter(dh1,it8[d], marker='x',c='r')
+            ax.scatter(dh1,it9[d], marker='o',c='y')
+            ax.scatter(dh1,it10[d], marker='x',c='y')
+            
+            ax.scatter(dh1,ii[d], marker='o',c='none',ec='k',s=80,lw=2)
 
-            bx.scatter(fb[d]-dh2,fb[d]-it1[d], marker='o',c='w')
-            bx.scatter(fb[d]-dh2,fb[d]-it2[d], marker='x',c='w')
-            bx.scatter(fb[d]-dh2,fb[d]-it3[d], marker='o',c='b')
-            bx.scatter(fb[d]-dh2,fb[d]-it4[d], marker='x',c='b')
-            bx.scatter(fb[d]-dh2,fb[d]-it5[d], marker='o',c='g')
-            bx.scatter(fb[d]-dh2,fb[d]-it6[d], marker='x',c='g')
-            bx.scatter(fb[d]-dh2,fb[d]-it7[d], marker='o',c='r')
-            bx.scatter(fb[d]-dh2,fb[d]-it8[d], marker='x',c='r')
-            bx.scatter(fb[d]-dh2,fb[d]-it9[d], marker='o',c='y')
-            bx.scatter(fb[d]-dh2,fb[d]-it10[d], marker='x',c='y')
-
-#perfect model
-ax.plot([-10,1],[-10,1],'-k')
-bx.plot([-10,1],[-10,1],'-k')
-
-ax.set_xlim(-8,0)
-ax.set_ylim(-8,0)
-
-bx.set_xlim(-5,0)
-bx.set_ylim(-5,0)
+            bx.scatter(dh2,it1[d]-fb[d], marker='o',c='k')
+            bx.scatter(dh2,it2[d]-fb[d], marker='x',c='k')
+            bx.scatter(dh2,it3[d]-fb[d], marker='o',c='b')
+            bx.scatter(dh2,it4[d]-fb[d], marker='x',c='b')
+            bx.scatter(dh2,it5[d]-fb[d], marker='o',c='g')
+            bx.scatter(dh2,it6[d]-fb[d], marker='x',c='g')
+            bx.scatter(dh2,it7[d]-fb[d], marker='o',c='r')
+            bx.scatter(dh2,it8[d]-fb[d], marker='x',c='r')
+            bx.scatter(dh2,it9[d]-fb[d], marker='o',c='y')
+            bx.scatter(dh2,it10[d]-fb[d], marker='x',c='y')
+            
+            bx.scatter(dh2,cc[d]-fb[d], marker='o',c='none',ec='k',s=80,lw=2)
+            
+        ##repeat the selection with the empty markers
+        #ax.scatter(dh1,fb[d]-it1[d], marker='o',c='none',ec='k',s=50)
+        #ax.scatter(dh1,fb[d]-it3[d], marker='o',c='none',ec='k',s=50)
+        #ax.scatter(dh1,fb[d]-it5[d], marker='o',c='none',ec='k',s=50)
         
-#ax.set_ylim(-12,3)
-ax.legend(fontsize=20, ncol=3, loc='lower left',fancybox=True,facecolor=fig1.get_facecolor(),framealpha=.6)
+        #ax.scatter(dh1,fb[d]-ii[d], marker='o',c='k',ec='k',s=50)
+        x_ii.append(dh1)
+        y_ii.append(ii[d])
+
+        #bx.scatter(fb[d]-dh2,fb[d]-it6[d], marker='o',c='none',ec='k',s=50)
+        #bx.scatter(fb[d]-dh2,fb[d]-it8[d], marker='o',c='none',ec='k',s=50)
+        #bx.scatter(fb[d]-dh2,fb[d]-it10[d], marker='o',c='none',ec='k',s=50)
+        
+        #bx.scatter(fb[d]-dh2,fb[d]-cc[d], marker='o',c='k',ec='k',s=50)
+        x_cc.append(dh2)
+        y_cc.append(cc[d])
+        
+#===================================================================
+
+#correlation coefficients
+for pp in [ax,bx]:
+    if pp==ax:
+        x=x_ii; y=y_ii
+        posx=.5
+        pos=[6.,5.5,5]
+        
+    if pp==bx:
+        x=x_cc; y=y_cc
+        posx=5
+        pos=[2.5,2,1.5]
+        
+    model = np.polyfit(x, y, 1)
+    print('coefficients: ', model)
+
+    predict = np.poly1d(model)
+    from sklearn.metrics import r2_score
+    r2 = r2_score(y, predict(x))
+    print('R2: ',r2)
+
+    x_lin_reg = np.arange(0, 8,1)
+    y_lin_reg = predict(x_lin_reg)
+    
+    # ---- Standard Errors of slope & intercept ----
+    n = len(x)
+    x_mean = np.mean(x)
+
+    # Residuals and variance
+    residuals = y - predict(x)
+    res_var = np.sum(residuals**2) / (n - 2)
+
+    # Standard error of slope and intercept
+    Sxx = np.sum((x - x_mean)**2)
+    se_slope = np.sqrt(res_var / Sxx)
+    se_intercept = np.sqrt(res_var * (1/n + x_mean**2 / Sxx))
+
+    print("Standard error (slope):", se_slope)
+    print("Standard error (intercept):", se_intercept)
+
+    # Standard error of prediction at each x
+    se_pred = np.sqrt(
+        res_var * (1/n + (x_lin_reg - x_mean)**2 / Sxx)
+    )
+    
+    print("Standard error model:",se_pred)
+    print("Standard error model (%):", se_pred/y_lin_reg)
+
+    # Upper and lower bounds (±1 SE)
+    y_upper = y_lin_reg + se_pred
+    y_lower = y_lin_reg - se_pred
+    
+    pp.plot(x_lin_reg, y_lin_reg, 'k-')#, label='Linear fit')
+    pp.fill_between(x_lin_reg, y_lower, y_upper, color='gray', alpha=0.3)#,label='±1 SE')
+
+    #perfect model
+    pp.plot([0,10],[0,10],'--',c='0.75')
+
+    #print(linregress(x,y))
+    from scipy.stats import linregress
+    slope,intercept,rvalue,pvalue,stderr=linregress(x,y)
+    #p-value : two-sided p-value for a hypothesis test whose null hypothesis is that the slope is zero
+    if pvalue < 0.01:   #significant at 99%
+        print('significant!')
+    
+    pp.text(posx, pos[0], '$R^2$= '+str(np.round(r2,2)), ha="left", va="center", size=20)
+    pp.text(posx, pos[1], '$N$= '+str(np.round(len(x),2)), ha="left", va="center", size=20)
+    pp.text(posx, pos[2], '$p$= '+str(np.round(pvalue,5)), ha="left", va="center", size=20) 
+
+#===================================================================
+
+ax.set_xlim(0,8)
+ax.set_ylim(0,8)
+
+bx.set_xlim(0,8)
+bx.set_ylim(0,8)
+
+#print(np.arange(-10,1,1))
+#print(np.arange(10,-1,-1))
+#ax.set_yticks(np.arange(-10,1,1),['10','9','8','7','6','5','4','3','2','1','0'])
+
+ax.legend(fontsize=20, ncol=2, loc='upper left',fancybox=True,facecolor=fig1.get_facecolor(),framealpha=.6)
 
 outname = 'ridge_scatter.png'
 print(outname)
-plt.show()
+#plt.show()
 fig1.savefig(outpath+outname,bbox_inches='tight', facecolor=fig1.get_facecolor(), edgecolor='none')        

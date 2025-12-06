@@ -13,21 +13,25 @@ leg = 0 #use zero for non-MOSAiC expeditions
 ext = '.dat'
 
 #MOSAiC
-path = '../data/MCS/MP/'
+#path = '../data/MCS/MP/'
 ##NansenLegacy
 #path = '../data/NansenLegacy/magnaprobe/'
-
-flist = sorted(glob(path+'/*PS122-'+str(leg)+'*/magnaprobe-*'+ext))
-print(flist)
+#flist = sorted(glob(path+'/*PS122-'+str(leg)+'*/magnaprobe-*'+ext))
+#print(flist)
 
 ##CIRFA2022
 #path = '../data/CIRFA22/'
 #flist = sorted(glob(path+'/**/magnaprobe-*'+ext))
 #print(flist)
 
-#BREATHE
-path = '../data/breathe/'
-flist = sorted(glob(path+'/**/magnaprobe-*'+ext))
+##BREATHE
+#path = '../data/breathe/'
+#flist = sorted(glob(path+'/**/magnaprobe-*'+ext))
+#print(flist)
+
+#MicroSHIFT
+path = '../data/MicroSHIFT/**/'
+flist = sorted(glob(path+'*magnaprobe*'+ext))
 print(flist)
 
 for i in flist:
@@ -102,7 +106,71 @@ for i in flist:
     ##Glen's Magnaprobe is in Alaska Standard time (UTC-9)
     #if leg==0:
         #dt64 = dt64 + np.timedelta64(9, 'h')
-    
+        
+    #Wierd time on the NPI Magnaprobe
+    print(dt64[0])
+    if leg==0:
+        if i=='../data/MicroSHIFT/20250510_initial/magnaprobe_microshift_station_20250510.dat':
+            dt64 = dt64 + np.timedelta64(369, 'D')
+            dt64 = dt64 - np.timedelta64(4, 'h')
+            dt64 = dt64 + np.timedelta64(15, 'm')
+            
+        if i=='../data/MicroSHIFT/20250512_ridge1/magnaprobe_microshift_ridge1.dat':
+            dt64 = dt64 + np.timedelta64(371, 'D')
+            dt64 = dt64 - np.timedelta64(6, 'h')
+            dt64 = dt64 - np.timedelta64(25, 'm')
+            
+        if i=='../data/MicroSHIFT/20250515_ridge2/magnaprobe_microshift_ridge2_repeated.dat':
+            dt64 = dt64 + np.timedelta64(373, 'D')
+            dt64 = dt64 - np.timedelta64(6, 'h')
+            dt64 = dt64 - np.timedelta64(45, 'm')  
+            
+        if i=='../data/MicroSHIFT/20250515_ridge2/magnaprobe_microshift_ridge2.dat':
+            dt64 = dt64 + np.timedelta64(373, 'D')
+            dt64 = dt64 - np.timedelta64(5, 'h')
+            dt64 = dt64 - np.timedelta64(20, 'm')  
+            
+        if i =='../data/MicroSHIFT/20250515_ridge2/magnaprobe_microshift_snowclear.dat':
+            dt64 = dt64 + np.timedelta64(373, 'D')
+            dt64 = dt64 - np.timedelta64(5, 'h')
+            dt64 = dt64 - np.timedelta64(20, 'm')
+        
+        if i=='../data/MicroSHIFT/20250517_elevated_grid/magnaprobe_microshift_elevatedgrid.dat':
+            dt64 = dt64 + np.timedelta64(375, 'D')
+            dt64 = dt64 - np.timedelta64(10, 'h')
+            dt64 = dt64 + np.timedelta64(20, 'm')
+        
+        if i=='../data/MicroSHIFT/20250512_ridge1/magnaprobe_microshift_ridge1_final_20250528.dat':
+            dt64 = dt64 + np.timedelta64(381, 'D')
+            #dt64 = dt64 - np.timedelta64(4, 'h')
+            #dt64 = dt64 + np.timedelta64(15, 'm')
+            
+        if i=='../data/MicroSHIFT/20250515_ridge2/magnaprobe_microshift_ridge2_final_20250528.dat':
+            dt64 = dt64 + np.timedelta64(381, 'D')
+            #dt64 = dt64 - np.timedelta64(4, 'h')
+            #dt64 = dt64 + np.timedelta64(15, 'm')
+            
+        if i=='../data/MicroSHIFT/20250519_ridge3/magnaprobe_microshift_ridge3.dat':
+            dt64 = dt64 + np.timedelta64(377, 'D')
+            dt64 = dt64 - np.timedelta64(10, 'h')
+            dt64 = dt64 - np.timedelta64(15, 'm')
+        
+        if i=='../data/MicroSHIFT/20250528_final/magnaprobe_microshift_final.dat':
+            dt64 = dt64 + np.timedelta64(381, 'D')
+            dt64 = dt64 - np.timedelta64(8, 'h')
+            dt64 = dt64 - np.timedelta64(14, 'm')
+            
+        if i=='../data/MicroSHIFT/20250530_bonus_station/magnaprobe-transect-20250530_bonus.dat':
+            dt64 = dt64 + np.timedelta64(383, 'D')
+            dt64 = dt64 - np.timedelta64(2, 'h')
+            dt64 = dt64 - np.timedelta64(4, 'm')
+            
+            #print(dt64[0])
+            #print(dt64[-1])
+            #exit()
+            
+        print(dt64[0])
+        
     lat1 = np.array(lat1,dtype=np.float)
     lat2 = np.array(lat2,dtype=np.float)
     lat = lat1+lat2
